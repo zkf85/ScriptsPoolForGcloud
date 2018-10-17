@@ -54,8 +54,7 @@ args = vars(ap.parse_args())
 save_dir = args['directory']
 data_dir = args['dataset']
 pretrained = args['pretrained']
-model_pool = ('Xception', 'VGG16, VGG19, ResNet50, InceptionV3, InceptionResNetV2,
-				MobileNet, DenseNet, NASNet, MobileNetV)
+model_pool = ('Xception', 'VGG16', 'VGG19', 'ResNet50', 'InceptionV3', 'InceptionResNetV2',				        'MobileNet', 'DenseNet', 'NASNet', 'MobileNetV2')
 if pretrained in model_pool:
 	exec('from tensorflow.keras.applications import ' + pretrained)
 else:
