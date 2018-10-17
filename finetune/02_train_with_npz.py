@@ -103,10 +103,20 @@ labels = lb.fit_transform(labels)
 
 # Load the pre-trained model - with input pretrained model's name
 if pretrained == 'VGG16':
+        if img_size != 224:
+            raise("[KF ERROR] For %s model, the input image size is not 224!" % pretrained)
 	conv = VGG16(weights='imagenet',
                     include_top=False,
                     input_shape=image_dim)
 elif pretrained == 'MobileNetV2':
+        if img_size != 224:
+            raise("[KF ERROR] For %s model, the input image size is not 224!" % pretrained)
+	conv = MobileNetV2(weights='imagenet',
+                    include_top=False,
+                    input_shape=image_dim)
+elif pretrained == 'InceptionResnetV2':
+        if img_size != 299:
+            raise("[KF ERROR] For %s model, the input image size is not 299!" % pretrained)
 	conv = MobileNetV2(weights='imagenet',
                     include_top=False,
                     input_shape=image_dim)
