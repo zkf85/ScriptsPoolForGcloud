@@ -12,7 +12,7 @@ learning_rate=1e-3
 
 save_dir=~/disk/results
 model_name=3-cls-leaves-$pretrained-$img_size-$epochs-$batch_size-$learning_rate-$date
-mkdir $base_dir/$model_name
+mkdir $save_dir/$model_name
 
 # Training
 exit_code=python training.py \
@@ -25,6 +25,7 @@ exit_code=python training.py \
 --learning_rate $learning_rate \
 --model leaves.model \
 --labelbin labelbin.pkl \
+--test \
 --aug
 
 # Upload the package to my bucket and shutdown

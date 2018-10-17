@@ -51,15 +51,16 @@ ap.add_argument('-a', '--aug', action='store_true',
                 help='apply augumentation to image dataset')
 args = vars(ap.parse_args())
 
-base_dir = args['directory']
+save_dir = args['directory']
 data_dir = args['dataset']
 pretrained = args['pretrained']
 model_pool = (Xception, VGG16, VGG19, ResNet50, InceptionV3, InceptionResNetV2,
 				MobileNet, DenseNet, NASNet, MobileNetV)
 if pretrained in model_pool:
-	eval('from tensorflow.keras.applications import ' + pretrained)
+	exec('from tensorflow.keras.applications import ' + pretrained)
 else:
-	raise('[KF ERROR] the pre-train model name provided is wrong!')
+        print('Models', model_pool)    
+	raise("[KF ERROR] the pre-trained model's name provided is wrong!")
 
 # Hyper-parameters
 batch_size = eval(args['batch_size'])
@@ -110,6 +111,9 @@ elif pretrained == 'MobileNetV2':
 	conv = MobileNetV2(weights='imagenet',
                     include_top=False,
                     input_shape=image_dim)
+else:
+    raise("[KF INFO] Cannot load the pre-trained model, add code snippet ...")
+
 print("[KF INFO] The pretrained model %s's convolutional part is loaded ..." % pretrained)
 
 # Freeze the required layers from training
@@ -153,11 +157,11 @@ H = model.fit_generator(
         epochs=epochs)
 
 # save the model to disk
-model.save(os.path.join(base_dir, args['model']))
+model.save(os.path.join(save_dir, args['model']))
 print('[KF INFO] model saved!')
 
 # save the label binarizer to disk
-with open(os.path.join(base_dir, args['labelbin']), 'wb') as f:
+with open(os.path.join(save_dir, args['labelbin']), 'wb') as f:
     f.write(pickle.dumps(lb))
     print('[KF INFO] label binarizer saved!')
 
@@ -173,7 +177,7 @@ plt.title("Training Loss and Accuracy")
 plt.xlabel("Epoch #")
 plt.ylabel("Loss/Accuracy")
 plt.legend(loc="upper left")
-plt.savefig(os.path.join(base_dir, args["plot"]))
+plt.savefig(os.path.join(save_dir, args["plot"]))
 
 print('[KF INFO] Training completed! Take a break here ...')
 
