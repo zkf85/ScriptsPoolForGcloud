@@ -15,7 +15,7 @@ model_name=3-cls-leaves-$pretrained-$img_size-$epochs-$batch_size-$learning_rate
 mkdir $save_dir/$model_name
 
 # Training
-exit_code=python training.py \
+python 02_train_with_npz.py \
 --directory $save_dir \
 --dataset $npz_file_dir \
 --pretrained $pretrained \
@@ -26,10 +26,11 @@ exit_code=python training.py \
 --model leaves.model \
 --labelbin labelbin.pkl \
 --test \
---aug
+--aug \
+> $save_dir/log.txt
 
 # Upload the package to my bucket and shutdown
-if [ exit_code -eq 0 ]
+if [ $? -eq 0 ]
 then
 	gsutil -m cp -r $save_dir gs://kf-bucket/
 	gcloud compute instances stop --zone=us-east1-b kf-gpu
