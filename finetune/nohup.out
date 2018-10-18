@@ -1,0 +1,41 @@
+2018-10-17 09:43:53.258062: I tensorflow/core/platform/cpu_feature_guard.cc:141] Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2 FMA
+2018-10-17 09:43:53.635588: I tensorflow/stream_executor/cuda/cuda_gpu_executor.cc:964] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
+2018-10-17 09:43:53.635978: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1411] Found device 0 with properties: 
+name: Tesla P100-PCIE-16GB major: 6 minor: 0 memoryClockRate(GHz): 1.3285
+pciBusID: 0000:00:04.0
+totalMemory: 15.90GiB freeMemory: 15.61GiB
+2018-10-17 09:43:53.635993: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1490] Adding visible gpu devices: 0
+2018-10-17 09:43:53.932364: I tensorflow/core/common_runtime/gpu/gpu_device.cc:971] Device interconnect StreamExecutor with strength 1 edge matrix:
+2018-10-17 09:43:53.932406: I tensorflow/core/common_runtime/gpu/gpu_device.cc:977]      0 
+2018-10-17 09:43:53.932414: I tensorflow/core/common_runtime/gpu/gpu_device.cc:990] 0:   N 
+2018-10-17 09:43:53.932745: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1103] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:0 with 15129 MB memory) -> physical GPU (device: 0, name: Tesla P100-PCIE-16GB, pci bus id: 0000:00:04.0, compute capability: 6.0)
+2018-10-17 10:26:41.373310: I tensorflow/core/platform/cpu_feature_guard.cc:141] Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2 FMA
+2018-10-17 10:26:41.757872: I tensorflow/stream_executor/cuda/cuda_gpu_executor.cc:964] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
+2018-10-17 10:26:41.758254: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1411] Found device 0 with properties: 
+name: Tesla P100-PCIE-16GB major: 6 minor: 0 memoryClockRate(GHz): 1.3285
+pciBusID: 0000:00:04.0
+totalMemory: 15.90GiB freeMemory: 15.61GiB
+2018-10-17 10:26:41.758268: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1490] Adding visible gpu devices: 0
+2018-10-17 10:26:42.049240: I tensorflow/core/common_runtime/gpu/gpu_device.cc:971] Device interconnect StreamExecutor with strength 1 edge matrix:
+2018-10-17 10:26:42.049280: I tensorflow/core/common_runtime/gpu/gpu_device.cc:977]      0 
+2018-10-17 10:26:42.049287: I tensorflow/core/common_runtime/gpu/gpu_device.cc:990] 0:   N 
+2018-10-17 10:26:42.049574: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1103] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:0 with 15131 MB memory) -> physical GPU (device: 0, name: Tesla P100-PCIE-16GB, pci bus id: 0000:00:04.0, compute capability: 6.0)
+Copying file:///home/zkf1985/disk/results/leaves-3-cls-InceptionResNetV2-299-20-64-2e-5-10172018/plot.png [Content-Type=image/png]...
+Copying file:///home/zkf1985/disk/results/leaves-3-cls-InceptionResNetV2-299-20-64-2e-5-10172018/leaves.model [Content-Type=application/octet-stream]...
+/ [0/4 files][    0.0 B/  1.3 GiB]   0% Done                                    / [0/4 files][    0.0 B/  1.3 GiB]   0% Done                                    Copying file:///home/zkf1985/disk/results/leaves-3-cls-InceptionResNetV2-299-20-64-2e-5-10172018/log.txt [Content-Type=text/plain]...
+/ [0/4 files][    0.0 B/  1.3 GiB]   0% Done                                    Copying file:///home/zkf1985/disk/results/leaves-3-cls-InceptionResNetV2-299-20-64-2e-5-10172018/labelbin.pkl [Content-Type=application/octet-stream]...
+/ [0/4 files][    0.0 B/  1.3 GiB]   0% Done                                    ==> NOTE: You are uploading one or more large file(s), which would run
+significantly faster if you enable parallel composite uploads. This
+feature can be enabled by editing the
+"parallel_composite_upload_threshold" value in your .boto
+configuration file. However, note that if you do this large files will
+be uploaded as `composite objects
+<https://cloud.google.com/storage/docs/composite-objects>`_,which
+means that any user who downloads such objects will need to have a
+compiled crcmod installed (see "gsutil help crcmod"). This is because
+without a compiled crcmod, computing checksums on composite objects is
+so slow that gsutil disables downloads of composite objects.
+
+/ [1/4 files][  1.9 MiB/  1.3 GiB]   0% Done                                    / [2/4 files][  4.0 MiB/  1.3 GiB]   0% Done                                    / [3/4 files][  9.2 MiB/  1.3 GiB]   0% Done                                    -\\ [3/4 files][119.0 MiB/  1.3 GiB]   8% Done                                    || [3/4 files][219.5 MiB/  1.3 GiB]  16% Done                                    /-- [3/4 files][323.4 MiB/  1.3 GiB]  23% Done                                    \|| [3/4 files][428.9 MiB/  1.3 GiB]  31% Done                                    // [3/4 files][532.5 MiB/  1.3 GiB]  39% Done                                    -\\ [3/4 files][633.8 MiB/  1.3 GiB]  46% Done                                    |// [3/4 files][739.3 MiB/  1.3 GiB]  54% Done                                    -- [3/4 files][843.4 MiB/  1.3 GiB]  61% Done                                    \|| [3/4 files][947.1 MiB/  1.3 GiB]  69% Done                                    /-- [3/4 files][  1.0 GiB/  1.3 GiB]  76% Done                                    \\ [3/4 files][  1.1 GiB/  1.3 GiB]  84% Done 101.9 MiB/s ETA 00:00:02           |// [3/4 files][  1.2 GiB/  1.3 GiB]  91% Done 101.4 MiB/s ETA 00:00:01           -\\ [3/4 files][  1.3 GiB/  1.3 GiB]  99% Done 101.5 MiB/s ETA 00:00:00           \ [4/4 files][  1.3 GiB/  1.3 GiB] 100% Done  83.0 MiB/s ETA 00:00:00           |
+Operation completed over 4 objects/1.3 GiB.                                      
+Stopping instance(s) kf-gpu...

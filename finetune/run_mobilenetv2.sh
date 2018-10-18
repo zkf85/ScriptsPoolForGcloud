@@ -6,13 +6,13 @@ date="10172018"
 npz_file_dir=~/disk/datasets/4-cls-leaves/dataset224.npz
 img_size=224
 pretrained="MobileNetV2"
-epochs=50
+epochs=20
 batch_size=64
-learning_rate=1e-3
+learning_rate=1e-4
 
 save_dir=~/disk/results
-model_name=3-cls-leaves-$pretrained-$img_size-$epochs-$batch_size-$learning_rate-$date
-mkdir $save_dir/$model_name
+model_name=leaves-3-cls-$pretrained-$img_size-$epochs-$batch_size-$learning_rate-$date
+#mkdir $save_dir/$model_name
 
 # Training
 python3 02_train_with_npz.py \
@@ -27,7 +27,7 @@ python3 02_train_with_npz.py \
 --labelbin labelbin.pkl \
 --test \
 --aug \
-> $save_dir/$model_name/log.txt
+#> $save_dir/$model_name/log.txt
 
 # Upload the package to my bucket and shutdown
 if [ $? -eq 0 ]

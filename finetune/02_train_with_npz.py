@@ -66,7 +66,8 @@ batch_size = eval(args['batch_size'])
 epochs = eval(args['epochs'])
 lr = eval(args['learning_rate'])
 img_size = eval(args['img_size'])
-image_dim=(img_size,img_size,3)
+image_dim=(img_size, img_size, 3)
+print("[KF INFO] Fine-tune with pre-trained model: ", pretrained)
 print("[KF INFO] Training hyper-parameters:")
 print("Epochs: ", epochs)
 print("Batch size: ", batch_size)
@@ -83,7 +84,7 @@ with np.load(data_dir) as npz:
 if args['test']:
     data = data[:64]
     labels = labels[:64]
-    batch_size = 4
+    batch_size = 16
 aug_scale = 1
 if args['aug']:
     aug_scale = 8
@@ -103,23 +104,19 @@ labels = lb.fit_transform(labels)
 
 # Load the pre-trained model - with input pretrained model's name
 if pretrained == 'VGG16':
-        if img_size != 224:
-            raise("[KF ERROR] For %s model, the input image size is not 224!" % pretrained)
-	conv = VGG16(weights='imagenet',
-                    include_top=False,
-                    input_shape=image_dim)
+    if img_size != 224:
+        raise("[KF ERROR] For %s model, the input image size is not 224!" % pretrained)
+    conv = VGG16(weights='imagenet', include_top=False, input_shape=image_dim)
+
 elif pretrained == 'MobileNetV2':
-        if img_size != 224:
-            raise("[KF ERROR] For %s model, the input image size is not 224!" % pretrained)
-	conv = MobileNetV2(weights='imagenet',
-                    include_top=False,
-                    input_shape=image_dim)
-elif pretrained == 'InceptionResnetV2':
-        if img_size != 299:
-            raise("[KF ERROR] For %s model, the input image size is not 299!" % pretrained)
-	conv = MobileNetV2(weights='imagenet',
-                    include_top=False,
-                    input_shape=image_dim)
+    if img_size != 224:
+        raise("[KF ERROR] For %s model, the input image size is not 224!" % pretrained)
+    conv = MobileNetV2(weights='imagenet', include_top=False, input_shape=image_dim)
+
+elif pretrained == 'InceptionResNetV2':
+    if img_size != 299:
+        raise("[KF ERROR] For %s model, the input image size is not 299!" % pretrained)
+    conv = InceptionResNetV2(weights='imagenet', include_top=False, input_shape=image_dim)
 else:
     raise("[KF INFO] Cannot load the pre-trained model, add code snippet ...")
 
@@ -165,10 +162,12 @@ H = model.fit_generator(
         steps_per_epoch=len(trainX) // batch_size * aug_scale,
         epochs=epochs)
 
+# Create save directory if it's not there
+if not os.path.exists(save_dir):
+    os.makedirs(save_dir)
 # save the model to disk
 model.save(os.path.join(save_dir, args['model']))
 print('[KF INFO] model saved!')
-
 # save the label binarizer to disk
 with open(os.path.join(save_dir, args['labelbin']), 'wb') as f:
     f.write(pickle.dumps(lb))
