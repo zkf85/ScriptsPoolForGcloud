@@ -3,7 +3,8 @@
 
 date="10172018"
 
-npz_file_dir=~/disk/datasets/4-cls-leaves/dataset224.npz
+#npz_file_dir=~/disk/datasets/4-cls-leaves/dataset224.npz
+npz_file_dir=~/kf-bucket/dataset224.npz
 img_size=224
 pretrained="MobileNetV2"
 epochs=20
