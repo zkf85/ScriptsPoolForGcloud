@@ -3,16 +3,16 @@
 
 date="11062018"
 
-dataset_dir=dataset_for_keras
+dataset_dir=~/disk/disease_datasets/dataset_for_keras
 pretrained="InceptionResNetV2"
 img_size=299
 epochs=20
 batch_size=64
 learning_rate=2e-4
 
-model_name=aichallenger-$date-$pretrained-$img_size-$epochs-$batch_size-$learning_rate
+model_name=aichallenger-disease-$date-$pretrained-$img_size-$epochs-$batch_size-$learning_rate
 save_dir=~/disk/results/$model_name
-mkdir -p $save_dir
+#mkdir -p $save_dir
 
 # Training
 python3 02_train.py \
