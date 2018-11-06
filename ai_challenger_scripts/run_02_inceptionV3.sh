@@ -4,7 +4,7 @@
 date="11062018"
 
 dataset_dir=~/disk/disease_datasets/dataset_for_keras
-pretrained="InceptionResNetV2"
+retrained="InceptionV3"
 img_size=299
 epochs=20
 batch_size=64
