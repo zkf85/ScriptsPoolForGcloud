@@ -67,12 +67,6 @@ epochs = eval(args['epochs'])
 lr = eval(args['learning_rate'])
 img_size = eval(args['img_size'])
 image_dim=(img_size, img_size, 3)
-print("[KF INFO] Fine-tune with pre-trained model: ", pretrained)
-print("[KF INFO] Training hyper-parameters:")
-print("Epochs: ", epochs)
-print("Batch size: ", batch_size)
-print("Learning rate: ", lr)
-
 # Load npz file
 with np.load(data_dir) as npz:
     # here both data and labels should be list 
@@ -81,13 +75,22 @@ with np.load(data_dir) as npz:
     cls_number = npz['cls_number']
 
 # Options
+training_mode = "Real"
 if args['test']:
+    training_mode = "Test"
     data = data[:64]
     labels = labels[:64]
     batch_size = 16
 aug_scale = 1
 if args['aug']:
     aug_scale = 8
+
+print("[KF INFO] Fine-tune with pre-trained model: ", pretrained)
+print("[KF INFO] Training mode: ", training_mode)
+print("[KF INFO] Training hyper-parameters:")
+print("Epochs: ", epochs)
+print("Batch size: ", batch_size)
+print("Learning rate: ", lr)
 
 data = np.array(data)
 labels = np.array(labels)
