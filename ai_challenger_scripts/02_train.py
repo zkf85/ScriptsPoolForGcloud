@@ -36,7 +36,6 @@ ap.add_argument('--img_size', required=True,
 ap.add_argument('--epochs', required=True)
 ap.add_argument('--batch_size', required=True)
 ap.add_argument('--learning_rate', required=True)
-ap.add_argument('--lr_decay', default=0.3)
 
 ap.add_argument('-m', '--model', required=True,
                 help='output model file name')
@@ -63,7 +62,6 @@ else:
 batch_size = eval(args['batch_size'])
 epochs = eval(args['epochs'])
 lr = eval(args['learning_rate'])
-lr_decay = float(args['lr_decay'])
 img_size = eval(args['img_size'])
 image_dim=(img_size, img_size, 3)
 cls_number = 61
@@ -178,6 +176,10 @@ elif pretrained == 'InceptionResNetV2':
     if img_size != 299:
         raise("[KF ERROR] For %s model, the input image size is not 299!" % pretrained)
     conv = InceptionResNetV2(weights='imagenet', include_top=False, input_shape=image_dim)
+elif pretrained == 'InceptionV3':
+    if img_size != 299:
+        raise("[KF ERROR] For %s model, the input image size is not 299!" % pretrained)
+    conv = InceptionV3(weights='imagenet', include_top=False, input_shape=image_dim)
 else:
     raise("[KF INFO] Cannot load the pre-trained model, add code snippet ...")
 
@@ -205,7 +207,7 @@ print('[KF INFO] The DNN part of the model is added.')
 # Show model summary
 model.summary()
 
-model.compile(optimizer=optimizers.Adam(lr=lr, decay=lr_decay),
+model.compile(optimizer=optimizers.Adam(lr=lr, decay=0.5/epochs),
                 loss='categorical_crossentropy',
                 metrics=['accuracy'])
 
