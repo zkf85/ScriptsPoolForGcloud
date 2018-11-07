@@ -11,6 +11,7 @@ import os
 import json
 import argparse
 import pickle
+import keras
 from keras.preprocessing.image import load_img
 from keras.preprocessing.image import img_to_array
 import matplotlib
@@ -46,7 +47,7 @@ ap.add_argument('-p', '--plot', type=str, default='plot.png',
                 help='path to output accuracy/loss plot')
 ap.add_argument('-t', '--test', action='store_true',
                 help='add this flag when testing the code')
-
+ap.add_argument('--freeze', action='store_true')
 args = vars(ap.parse_args())
 
 data_dir = args['dataset']
@@ -71,9 +72,9 @@ val_img_num = 4540
 
 # Test option
 if args['test']:
-	batch_size = 8
-	train_img_num = 64
-	val_img_num = 64
+	batch_size = 16
+	train_img_num = 1024
+	val_img_num = 256
 
 
 print('')
@@ -167,7 +168,10 @@ if pretrained == 'VGG16':
     if img_size != 224:
         raise("[KF ERROR] For %s model, the input image size is not 224!" % pretrained)
     conv = VGG16(weights='imagenet', include_top=False, input_shape=image_dim)
-
+elif pretrained == 'VGG19':
+    if img_size != 224:
+        raise("[KF ERROR] For %s model, the input image size is not 224!" % pretrained)
+    conv = VGG19(weights='imagenet', include_top=False, input_shape=image_dim)
 elif pretrained == 'MobileNetV2':
     if img_size != 224:
         raise("[KF ERROR] For %s model, the input image size is not 224!" % pretrained)
@@ -188,7 +192,8 @@ print("[KF INFO] The pretrained model %s's convolutional part is loaded ..." % p
 
 # Freeze the required layers from training
 for layer in conv.layers:
-    layer.trainable = False
+    if args['freeze']:
+        layer.trainable = False
     print(layer, layer.trainable)
 
 # initialize the model
@@ -199,8 +204,8 @@ model.add(conv)
 
 # Add new layers
 model.add(layers.Flatten())
-model.add(layers.Dense(256, activation='relu'))
 model.add(layers.BatchNormalization())
+model.add(layers.Dense(1024, activation='relu'))
 model.add(layers.Dropout(0.5))
 model.add(layers.Dense(cls_number, activation='softmax'))
 print('[KF INFO] The DNN part of the model is added.')
@@ -208,7 +213,7 @@ print('[KF INFO] The DNN part of the model is added.')
 # Show model summary
 model.summary()
 
-model.compile(optimizer=optimizers.Adam(lr=lr,
+model.compile(optimizer=optimizers.Adam(lr=lr, decay=lr/epochs),
                 loss='categorical_crossentropy',
                 metrics=['accuracy'])
 
@@ -220,11 +225,11 @@ print('============================================================')
 # Construct image generator with augmentation
 print('')
 print('[KF INFO] Create train/validation data generator ...')
-#train_datagen = ImageDataGenerator(rescale=1./255, rotation_range=25,
-#				width_shift_range=0.1, height_shift_range=0.1,
-#				shear_range=0.2, zoom_range=0.2,
-#				horizontal_flip=True, fill_mode='nearest')
-train_datagen = ImageDataGenerator(rescale=1./255)
+train_datagen = ImageDataGenerator(rescale=1./255, rotation_range=25,
+				width_shift_range=0.1, height_shift_range=0.1,
+				shear_range=0.2, zoom_range=0.2,
+				horizontal_flip=True, fill_mode='nearest')
+#train_datagen = ImageDataGenerator(rescale=1./255)
 val_datagen = ImageDataGenerator(rescale=1./255)
 
 train_generator = train_datagen.flow_from_directory(
@@ -238,36 +243,17 @@ val_generator = val_datagen.flow_from_directory(
 		target_size=(img_size, img_size),
 		batch_size=batch_size,
 		class_mode='categorical')
+np.savez(os.path.join(save_dir, 'labels'), class_idx=train_generator.class_indices, class_label=train_generator.classes)
 
 print('')
 print('[KF INFO] Start training ...')
 
 # KF 11/07/2018
-# Try step decay
-def step_decay(epochs):
-    initial_lr = lr
-    drop = 0.5
-    epochs_drop = 10.0
-    lrate = initial_lr * math.pow(drop, math.floor((1+epochs)/epochs_drop))
-    return lrate
-
-class LossHistory(keras.callbacks.Callback):
-    def on_train_begin(self, logs={}):
-       self.losses = []
-       self.lr = []
- 
-    def on_epoch_end(self, batch, logs={}):
-       self.losses.append(logs.get(‘loss’))
-       self.lr.append(step_decay(len(self.losses)))
-
-    lrate = LearningRateScheduler(step_decay)
-    loss_history = LossHistory()
-
 # Check point
-checkpointer = ModelCheckpoint(filepath=os.path.join(save_dir, 'ckpt-weight-{epoch:02d}-{val_loss:.2f}.hdf5'), 
+checkpointer = keras.callbacks.ModelCheckpoint(filepath=os.path.join(save_dir, 'ckpt-weight-best.hdf5'), 
                                 save_best_only=True)
 
-callbacks_list = [loss_history, lrate, checkpointer]
+callbacks_list = [checkpointer]
 
 H = model.fit_generator(
 		train_generator,
@@ -311,7 +297,7 @@ plt.title("Training Loss and Accuracy")
 plt.xlabel("Epoch #")
 plt.ylabel("Learning Rate")
 plt.legend(loc="upper left")
-plt.savefig(os.path.join(save_dir, 'learning_rate.png')
+plt.savefig(os.path.join(save_dir, 'learning_rate.png'))
 print('[KF INFO] Learning rate plot saved!')
 
 

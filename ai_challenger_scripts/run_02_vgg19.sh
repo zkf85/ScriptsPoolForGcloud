@@ -4,11 +4,11 @@
 date="11072018"
 
 dataset_dir=~/disk/disease_datasets/dataset_for_keras
-pretrained="InceptionV3"
-img_size=299
-epochs=200
+pretrained="VGG19"
+img_size=224
+epochs=100
 batch_size=128
-learning_rate=0.001
+learning_rate=1e-4
 
 model_name=aichallenger-disease-$date-$pretrained-$img_size-$epochs-$batch_size-$learning_rate
 save_dir=~/disk/results/$model_name

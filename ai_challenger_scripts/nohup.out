@@ -47,3 +47,156 @@ so slow that gsutil disables downloads of composite objects.
 / [0/3 files][    0.0 B/471.8 MiB]   0% Done                                    / [1/3 files][  3.9 MiB/471.8 MiB]   0% Done                                    -\\ [1/3 files][119.7 MiB/471.8 MiB]  25% Done                                    || [2/3 files][176.6 MiB/471.8 MiB]  37% Done                                    /-- [2/3 files][290.3 MiB/471.8 MiB]  61% Done                                    \\ [2/3 files][332.4 MiB/471.8 MiB]  70% Done                                    |// [2/3 files][390.6 MiB/471.8 MiB]  82% Done                                    -\\ [2/3 files][457.9 MiB/471.8 MiB]  97% Done                                    \ [3/3 files][471.8 MiB/471.8 MiB] 100% Done                                    |
 Operation completed over 3 objects/471.8 MiB.                                    
 Stopping instance(s) kf-gpu...
+2018-11-07 06:32:00.368154: I tensorflow/stream_executor/cuda/cuda_gpu_executor.cc:964] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
+2018-11-07 06:32:00.385011: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1411] Found device 0 with properties: 
+name: Tesla P100-PCIE-16GB major: 6 minor: 0 memoryClockRate(GHz): 1.3285
+pciBusID: 0000:00:04.0
+totalMemory: 15.90GiB freeMemory: 15.61GiB
+2018-11-07 06:32:00.385036: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1490] Adding visible gpu devices: 0
+2018-11-07 06:32:00.687893: I tensorflow/core/common_runtime/gpu/gpu_device.cc:971] Device interconnect StreamExecutor with strength 1 edge matrix:
+2018-11-07 06:32:00.687965: I tensorflow/core/common_runtime/gpu/gpu_device.cc:977]      0 
+2018-11-07 06:32:00.687989: I tensorflow/core/common_runtime/gpu/gpu_device.cc:990] 0:   N 
+2018-11-07 06:32:00.688310: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1103] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:0 with 15129 MB memory) -> physical GPU (device: 0, name: Tesla P100-PCIE-16GB, pci bus id: 0000:00:04.0, compute capability: 6.0)
+2018-11-07 07:32:44.363407: I tensorflow/stream_executor/cuda/cuda_gpu_executor.cc:964] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
+2018-11-07 07:32:44.363874: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1411] Found device 0 with properties: 
+name: Tesla P100-PCIE-16GB major: 6 minor: 0 memoryClockRate(GHz): 1.3285
+pciBusID: 0000:00:04.0
+totalMemory: 15.90GiB freeMemory: 15.61GiB
+2018-11-07 07:32:44.363908: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1490] Adding visible gpu devices: 0
+2018-11-07 07:32:44.697152: I tensorflow/core/common_runtime/gpu/gpu_device.cc:971] Device interconnect StreamExecutor with strength 1 edge matrix:
+2018-11-07 07:32:44.697210: I tensorflow/core/common_runtime/gpu/gpu_device.cc:977]      0 
+2018-11-07 07:32:44.697219: I tensorflow/core/common_runtime/gpu/gpu_device.cc:990] 0:   N 
+2018-11-07 07:32:44.697592: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1103] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:0 with 15131 MB memory) -> physical GPU (device: 0, name: Tesla P100-PCIE-16GB, pci bus id: 0000:00:04.0, compute capability: 6.0)
+2018-11-07 07:58:25.580002: I tensorflow/stream_executor/cuda/cuda_gpu_executor.cc:964] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
+2018-11-07 07:58:25.580449: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1411] Found device 0 with properties: 
+name: Tesla P100-PCIE-16GB major: 6 minor: 0 memoryClockRate(GHz): 1.3285
+pciBusID: 0000:00:04.0
+totalMemory: 15.90GiB freeMemory: 15.61GiB
+2018-11-07 07:58:25.580468: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1490] Adding visible gpu devices: 0
+2018-11-07 07:58:25.892525: I tensorflow/core/common_runtime/gpu/gpu_device.cc:971] Device interconnect StreamExecutor with strength 1 edge matrix:
+2018-11-07 07:58:25.892568: I tensorflow/core/common_runtime/gpu/gpu_device.cc:977]      0 
+2018-11-07 07:58:25.892576: I tensorflow/core/common_runtime/gpu/gpu_device.cc:990] 0:   N 
+2018-11-07 07:58:25.892879: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1103] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:0 with 15129 MB memory) -> physical GPU (device: 0, name: Tesla P100-PCIE-16GB, pci bus id: 0000:00:04.0, compute capability: 6.0)
+2018-11-07 08:21:58.537149: I tensorflow/stream_executor/cuda/cuda_gpu_executor.cc:964] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
+2018-11-07 08:21:58.547170: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1411] Found device 0 with properties: 
+name: Tesla P100-PCIE-16GB major: 6 minor: 0 memoryClockRate(GHz): 1.3285
+pciBusID: 0000:00:04.0
+totalMemory: 15.90GiB freeMemory: 15.61GiB
+2018-11-07 08:21:58.547211: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1490] Adding visible gpu devices: 0
+2018-11-07 08:21:58.878197: I tensorflow/core/common_runtime/gpu/gpu_device.cc:971] Device interconnect StreamExecutor with strength 1 edge matrix:
+2018-11-07 08:21:58.878256: I tensorflow/core/common_runtime/gpu/gpu_device.cc:977]      0 
+2018-11-07 08:21:58.878266: I tensorflow/core/common_runtime/gpu/gpu_device.cc:990] 0:   N 
+2018-11-07 08:21:58.878638: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1103] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:0 with 15129 MB memory) -> physical GPU (device: 0, name: Tesla P100-PCIE-16GB, pci bus id: 0000:00:04.0, compute capability: 6.0)
+
+============================================================
+                   1. HYPERPARAMETERS
+============================================================
+[KF INFO] Training hyper-parameters:
+
+Pre-trained model : VGG19
+Image size        : 224
+Epochs            : 200
+Batch size        : 128
+Learning rate     : 0.001
+Class number      : 61
+Train data size   : 31718
+Val data size     : 4540
+
+============================================================
+                   2. BUILD MODEL
+============================================================
+[KF INFO] Loading pre-trained model ...
+[KF INFO] The pretrained model VGG19's convolutional part is loaded ...
+<tensorflow.python.keras.engine.input_layer.InputLayer object at 0x7fcd86562550> False
+<tensorflow.python.keras.layers.convolutional.Conv2D object at 0x7fcd86896898> False
+<tensorflow.python.keras.layers.convolutional.Conv2D object at 0x7fce1a8137b8> False
+<tensorflow.python.keras.layers.pooling.MaxPooling2D object at 0x7fcd86580fd0> False
+<tensorflow.python.keras.layers.convolutional.Conv2D object at 0x7fcd86562080> False
+<tensorflow.python.keras.layers.convolutional.Conv2D object at 0x7fcd85bd85f8> False
+<tensorflow.python.keras.layers.pooling.MaxPooling2D object at 0x7fcd85bf6668> False
+<tensorflow.python.keras.layers.convolutional.Conv2D object at 0x7fcd85bf6278> False
+<tensorflow.python.keras.layers.convolutional.Conv2D object at 0x7fcd85b91b00> False
+<tensorflow.python.keras.layers.convolutional.Conv2D object at 0x7fcd85ba29e8> False
+<tensorflow.python.keras.layers.convolutional.Conv2D object at 0x7fcd85bace80> False
+<tensorflow.python.keras.layers.pooling.MaxPooling2D object at 0x7fcd85bcdac8> False
+<tensorflow.python.keras.layers.convolutional.Conv2D object at 0x7fcd85bcd6d8> False
+<tensorflow.python.keras.layers.convolutional.Conv2D object at 0x7fcd85b6d390> False
+<tensorflow.python.keras.layers.convolutional.Conv2D object at 0x7fcd85b86a90> False
+<tensorflow.python.keras.layers.convolutional.Conv2D object at 0x7fcd85b166d8> False
+<tensorflow.python.keras.layers.pooling.MaxPooling2D object at 0x7fcd85b34b70> False
+<tensorflow.python.keras.layers.convolutional.Conv2D object at 0x7fcd85b27f60> False
+<tensorflow.python.keras.layers.convolutional.Conv2D object at 0x7fcd85b452b0> False
+<tensorflow.python.keras.layers.convolutional.Conv2D object at 0x7fcd85ad2ef0> False
+<tensorflow.python.keras.layers.convolutional.Conv2D object at 0x7fcd85af1be0> False
+<tensorflow.python.keras.layers.pooling.MaxPooling2D object at 0x7fcd85afeef0> False
+[KF INFO] The DNN part of the model is added.
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+vgg19 (Model)                (None, 7, 7, 512)         20024384  
+_________________________________________________________________
+flatten (Flatten)            (None, 25088)             0         
+_________________________________________________________________
+batch_normalization (BatchNo (None, 25088)             100352    
+_________________________________________________________________
+dense (Dense)                (None, 1024)              25691136  
+_________________________________________________________________
+dropout (Dropout)            (None, 1024)              0         
+_________________________________________________________________
+dense_1 (Dense)              (None, 61)                62525     
+=================================================================
+Total params: 45,878,397
+Trainable params: 25,803,837
+Non-trainable params: 20,074,560
+_________________________________________________________________
+
+============================================================
+                   3. TRAIN THE MODEL
+============================================================
+
+[KF INFO] Create train/validation data generator ...
+Found 31718 images belonging to 61 classes.
+Found 4540 images belonging to 61 classes.
+
+[KF INFO] Start training ...
+Epoch 1/200
+  1/247 [..............................] - ETA: 36:44 - loss: 4.7575 - acc: 0.0156  2/247 [..............................] - ETA: 19:08 - loss: 4.2530 - acc: 0.2227  3/247 [..............................] - ETA: 16:27 - loss: 4.1000 - acc: 0.2943  4/247 [..............................] - ETA: 15:39 - loss: 4.1387 - acc: 0.3340  5/247 [..............................] - ETA: 15:17 - loss: 4.1527 - acc: 0.3500  6/247 [..............................] - ETA: 15:24 - loss: 4.0246 - acc: 0.3828  7/247 [..............................] - ETA: 14:59 - loss: 4.1017 - acc: 0.4029  8/247 [..............................] - ETA: 14:35 - loss: 4.0778 - acc: 0.4150  9/247 [>.............................] - ETA: 14:17 - loss: 4.0184 - acc: 0.4340 10/247 [>.............................] - ETA: 13:57 - loss: 3.9678 - acc: 0.4523 11/247 [>.............................] - ETA: 13:58 - loss: 4.0447 - acc: 0.4602 12/247 [>.............................] - ETA: 14:03 - loss: 4.1213 - acc: 0.4635 13/247 [>.............................] - ETA: 13:50 - loss: 4.0497 - acc: 0.4748 14/247 [>.............................] - ETA: 13:43 - loss: 4.1179 - acc: 0.4732 15/247 [>.............................] - ETA: 13:31 - loss: 4.0570 - acc: 0.4870 16/247 [>.............................] - ETA: 13:28 - loss: 4.0681 - acc: 0.4907 17/247 [=>............................] - ETA: 13:16 - loss: 4.1105 - acc: 0.4908 18/247 [=>............................] - ETA: 13:02 - loss: 4.1316 - acc: 0.4939 19/247 [=>............................] - ETA: 12:51 - loss: 4.1350 - acc: 0.4951 20/247 [=>............................] - ETA: 12:41 - loss: 4.1572 - acc: 0.4977 21/247 [=>............................] - ETA: 12:33 - loss: 4.1226 - acc: 0.5041 22/247 [=>............................] - ETA: 12:31 - loss: 4.1369 - acc: 0.5103 23/247 [=>............................] - ETA: 12:27 - loss: 4.1767 - acc: 0.5112 24/247 [=>............................] - ETA: 12:22 - loss: 4.1552 - acc: 0.5150 25/247 [==>...........................] - ETA: 12:15 - loss: 4.1361 - acc: 0.5200 26/247 [==>...........................] - ETA: 12:14 - loss: 4.1317 - acc: 0.5234 27/247 [==>...........................] - ETA: 12:11 - loss: 4.1286 - acc: 0.5278 28/247 [==>...........................] - ETA: 12:09 - loss: 4.1469 - acc: 0.5290 29/247 [==>...........................] - ETA: 12:07 - loss: 4.1447 - acc: 0.5310 30/247 [==>...........................] - ETA: 12:02 - loss: 4.1565 - acc: 0.5333 31/247 [==>...........................] - ETA: 11:53 - loss: 4.1979 - acc: 0.5333 32/247 [==>...........................] - ETA: 11:47 - loss: 4.1965 - acc: 0.5359 33/247 [===>..........................] - ETA: 11:40 - loss: 4.1912 - acc: 0.5386 34/247 [===>..........................] - ETA: 11:35 - loss: 4.1869 - acc: 0.5404 35/247 [===>..........................] - ETA: 11:29 - loss: 4.1850 - acc: 0.54242018-11-07 08:24:56.236991: I tensorflow/stream_executor/cuda/cuda_gpu_executor.cc:964] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
+2018-11-07 08:24:56.237473: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1411] Found device 0 with properties: 
+name: Tesla P100-PCIE-16GB major: 6 minor: 0 memoryClockRate(GHz): 1.3285
+pciBusID: 0000:00:04.0
+totalMemory: 15.90GiB freeMemory: 15.61GiB
+2018-11-07 08:24:56.237497: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1490] Adding visible gpu devices: 0
+2018-11-07 08:24:56.571635: I tensorflow/core/common_runtime/gpu/gpu_device.cc:971] Device interconnect StreamExecutor with strength 1 edge matrix:
+2018-11-07 08:24:56.571701: I tensorflow/core/common_runtime/gpu/gpu_device.cc:977]      0 
+2018-11-07 08:24:56.571711: I tensorflow/core/common_runtime/gpu/gpu_device.cc:990] 0:   N 
+2018-11-07 08:24:56.572039: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1103] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:0 with 15131 MB memory) -> physical GPU (device: 0, name: Tesla P100-PCIE-16GB, pci bus id: 0000:00:04.0, compute capability: 6.0)
+2018-11-07 08:49:34.656009: I tensorflow/stream_executor/cuda/cuda_gpu_executor.cc:964] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
+2018-11-07 08:49:34.656490: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1411] Found device 0 with properties: 
+name: Tesla P100-PCIE-16GB major: 6 minor: 0 memoryClockRate(GHz): 1.3285
+pciBusID: 0000:00:04.0
+totalMemory: 15.90GiB freeMemory: 15.61GiB
+2018-11-07 08:49:34.656517: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1490] Adding visible gpu devices: 0
+2018-11-07 08:49:34.999279: I tensorflow/core/common_runtime/gpu/gpu_device.cc:971] Device interconnect StreamExecutor with strength 1 edge matrix:
+2018-11-07 08:49:34.999344: I tensorflow/core/common_runtime/gpu/gpu_device.cc:977]      0 
+2018-11-07 08:49:34.999355: I tensorflow/core/common_runtime/gpu/gpu_device.cc:990] 0:   N 
+2018-11-07 08:49:34.999766: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1103] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:0 with 15129 MB memory) -> physical GPU (device: 0, name: Tesla P100-PCIE-16GB, pci bus id: 0000:00:04.0, compute capability: 6.0)
+2018-11-07 09:06:15.721260: I tensorflow/stream_executor/cuda/cuda_gpu_executor.cc:964] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
+2018-11-07 09:06:15.721705: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1411] Found device 0 with properties: 
+name: Tesla P100-PCIE-16GB major: 6 minor: 0 memoryClockRate(GHz): 1.3285
+pciBusID: 0000:00:04.0
+totalMemory: 15.90GiB freeMemory: 15.61GiB
+2018-11-07 09:06:15.721729: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1490] Adding visible gpu devices: 0
+2018-11-07 09:06:16.060159: I tensorflow/core/common_runtime/gpu/gpu_device.cc:971] Device interconnect StreamExecutor with strength 1 edge matrix:
+2018-11-07 09:06:16.060220: I tensorflow/core/common_runtime/gpu/gpu_device.cc:977]      0 
+2018-11-07 09:06:16.060230: I tensorflow/core/common_runtime/gpu/gpu_device.cc:990] 0:   N 
+2018-11-07 09:06:16.060577: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1103] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:0 with 15129 MB memory) -> physical GPU (device: 0, name: Tesla P100-PCIE-16GB, pci bus id: 0000:00:04.0, compute capability: 6.0)
+2018-11-07 10:13:12.113086: I tensorflow/stream_executor/cuda/cuda_gpu_executor.cc:964] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
+2018-11-07 10:13:12.113570: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1411] Found device 0 with properties: 
+name: Tesla P100-PCIE-16GB major: 6 minor: 0 memoryClockRate(GHz): 1.3285
+pciBusID: 0000:00:04.0
+totalMemory: 15.90GiB freeMemory: 15.61GiB
+2018-11-07 10:13:12.113593: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1490] Adding visible gpu devices: 0
+2018-11-07 10:13:12.451715: I tensorflow/core/common_runtime/gpu/gpu_device.cc:971] Device interconnect StreamExecutor with strength 1 edge matrix:
+2018-11-07 10:13:12.451778: I tensorflow/core/common_runtime/gpu/gpu_device.cc:977]      0 
+2018-11-07 10:13:12.451787: I tensorflow/core/common_runtime/gpu/gpu_device.cc:990] 0:   N 
+2018-11-07 10:13:12.452130: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1103] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:0 with 15129 MB memory) -> physical GPU (device: 0, name: Tesla P100-PCIE-16GB, pci bus id: 0000:00:04.0, compute capability: 6.0)
