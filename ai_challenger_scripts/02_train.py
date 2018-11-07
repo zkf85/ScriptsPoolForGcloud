@@ -6,6 +6,7 @@
 
 # Main training script for training
 import numpy as np
+import math
 import os
 import json
 import argparse
@@ -207,7 +208,7 @@ print('[KF INFO] The DNN part of the model is added.')
 # Show model summary
 model.summary()
 
-model.compile(optimizer=optimizers.Adam(lr=lr, decay=0.5/epochs),
+model.compile(optimizer=optimizers.Adam(lr=lr,
                 loss='categorical_crossentropy',
                 metrics=['accuracy'])
 
@@ -219,10 +220,11 @@ print('============================================================')
 # Construct image generator with augmentation
 print('')
 print('[KF INFO] Create train/validation data generator ...')
-train_datagen = ImageDataGenerator(rescale=1./255, rotation_range=25,
-				width_shift_range=0.1, height_shift_range=0.1,
-				shear_range=0.2, zoom_range=0.2,
-				horizontal_flip=True, fill_mode='nearest')
+#train_datagen = ImageDataGenerator(rescale=1./255, rotation_range=25,
+#				width_shift_range=0.1, height_shift_range=0.1,
+#				shear_range=0.2, zoom_range=0.2,
+#				horizontal_flip=True, fill_mode='nearest')
+train_datagen = ImageDataGenerator(rescale=1./255)
 val_datagen = ImageDataGenerator(rescale=1./255)
 
 train_generator = train_datagen.flow_from_directory(
@@ -239,12 +241,41 @@ val_generator = val_datagen.flow_from_directory(
 
 print('')
 print('[KF INFO] Start training ...')
+
+# KF 11/07/2018
+# Try step decay
+def step_decay(epochs):
+    initial_lr = lr
+    drop = 0.5
+    epochs_drop = 10.0
+    lrate = initial_lr * math.pow(drop, math.floor((1+epochs)/epochs_drop))
+    return lrate
+
+class LossHistory(keras.callbacks.Callback):
+    def on_train_begin(self, logs={}):
+       self.losses = []
+       self.lr = []
+ 
+    def on_epoch_end(self, batch, logs={}):
+       self.losses.append(logs.get(‘loss’))
+       self.lr.append(step_decay(len(self.losses)))
+
+    lrate = LearningRateScheduler(step_decay)
+    loss_history = LossHistory()
+
+# Check point
+checkpointer = ModelCheckpoint(filepath=os.path.join(save_dir, 'ckpt-weight-{epoch:02d}-{val_loss:.2f}.hdf5'), 
+                                save_best_only=True)
+
+callbacks_list = [loss_history, lrate, checkpointer]
+
 H = model.fit_generator(
 		train_generator,
 		steps_per_epoch=train_img_num // batch_size,
 		epochs=epochs,
 		validation_data=val_generator,
-		validation_steps=val_img_num // batch_size)
+		validation_steps=val_img_num // batch_size,
+                callbacks=callbacks_list)
 
 print('[KF INFO] Training completed!!!')
 print('------------------------------------------------------------')
@@ -274,10 +305,14 @@ plt.ylabel("Loss/Accuracy")
 plt.legend(loc="upper left")
 plt.savefig(os.path.join(save_dir, args["plot"]))
 
-print('[KF INFO] Training plot saved!')
-
-
-
+plt.figure()
+plt.plot(np.arange(0, N), H.history["lr"], label="learning_rate")
+plt.title("Training Loss and Accuracy")
+plt.xlabel("Epoch #")
+plt.ylabel("Learning Rate")
+plt.legend(loc="upper left")
+plt.savefig(os.path.join(save_dir, 'learning_rate.png')
+print('[KF INFO] Learning rate plot saved!')
 
 
 
