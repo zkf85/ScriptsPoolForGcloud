@@ -1,4 +1,8 @@
-# 01_train.py
+# 05_train_concat.py
+
+# Update - KF 11/08/2018 
+# Merge the training set and the validation set
+# Train it without any validation for the final submission
 
 # KF 11/05/2018
 
@@ -73,9 +77,11 @@ val_img_num = 4540
 # Test option
 if args['test']:
 	batch_size = 16
-	train_img_num = 1024
-	val_img_num = 256
+	train_img_num = train_img_num // 100
+	val_img_num = val_img_num // 100
 
+# Added - KF 11/08/2018
+concat_img_num = train_img_num + val_img_num
 
 print('')
 print('============================================================')
@@ -89,73 +95,9 @@ print("Epochs            :", epochs)
 print("Batch size        :", batch_size)
 print("Learning rate     :", lr)
 print("Class number      :", cls_number)
-print("Train data size   :", train_img_num)
-print("Val data size     :", val_img_num)
-
-#train_X, val_X, train_Y, val_Y = [], [], [], []
-#train_dir = os.path.join(data_dir, 'AgriculturalDisease_trainingset')
-#val_dir = os.path.join(data_dir, 'AgriculturalDisease_validationset')
-#
-## Load labels for both training and validation
-#with open(os.path.join(train_dir, 'AgriculturalDisease_train_annotations.json'), 'r') as f:
-##with open(os.path.join(data_dir, 'ai_challenger_pdr2018_train_annotations_20181021.json'), 'r') as f:
-#	train_dict = json.load(f)
-#with open(os.path.join(val_dir, 'AgriculturalDisease_validation_annotations.json'), 'r') as f:
-##with open(os.path.join(data_dir, 'ai_challenger_pdr2018_validation_annotations_20181021.json'), 'r') as f:
-#	val_dict = json.load(f)
-#
-## Test option
-#if args['test']:
-#	train_dict = train_dict[:64]
-#	#val_dict = val_dict[:64]
-#	batch_size = 8
-#
-#print('')
-#print('============================================================')
-#print('                   2. LOAD DATA') 
-#print('============================================================')
-#print('[KF INFO] Total validation sample to be loaded: ', len(val_dict))
-#
-## Load training data
-#print('')
-#print('Total training sample to be loaded: ', len(train_dict))
-#print("[KF INFO] Loading training data ...")
-#for item in train_dict:
-#	image = load_img(os.path.join(train_dir, 'images', item['image_id']), target_size=image_dim)
-#	image_np = img_to_array(image)
-#	train_X.append(image_np)
-#	train_Y.append(item['disease_class'])
-#	#print(os.path.join(train_dir, 'images', item['image_id']), " is loaded.")
-#	
-#print('')
-#print('Total validation sample to be loaded: ', len(val_dict))
-#print("[KF INFO] Loading validation data ...")
-#for item in val_dict:
-#	image = load_img(os.path.join(val_dir, 'images', item['image_id']), target_size=image_dim)
-#	image_np = img_to_array(image)
-#	val_X.append(image_np)
-#	val_Y.append(item['disease_class'])
-#	#print(os.path.join(val_dir, 'images', item['image_id']), " is loaded.")
-#
-## Transfer to numpy array type
-#train_X = np.array(train_X)
-#train_Y = np.array(train_Y)
-#val_X = np.array(val_X)
-#val_Y = np.array(val_Y)
-#lb = LabelBinarizer()
-#train_Y = lb.fit_transform(train_Y)
-#val_Y = lb.fit_transform(val_Y)
-#
-#print('')
-#print('------------------------------------------------------------')
-#print('[KF INFO] Data loading complete!')
-#print('Train X shape :', train_X.shape)
-#print('Train Y shape :', train_Y.shape)
-#print('Valid X shape :', val_X.shape)
-#print('Valid Y shape :', val_Y.shape)
-#print('Train X data matrix size : {:.2f}MB'.format(train_X.nbytes / (1024*1000.0)))
-#print('Valid X data matrix size : {:.2f}MB'.format(val_X.nbytes / (1024*1000.0)))
-#print('------------------------------------------------------------')
+#print("Train data size   :", train_img_num)
+#print("Val data size     :", val_img_num)
+print("Train data size   :", concat_img_num)
 
 
 print('')
@@ -178,8 +120,8 @@ elif pretrained == 'MobileNetV2':
     conv = MobileNetV2(weights='imagenet', include_top=False, input_shape=image_dim)
 
 elif pretrained == 'InceptionResNetV2':
-    if img_size != 299:
-        raise("[KF ERROR] For %s model, the input image size is not 299!" % pretrained)
+    #if img_size != 299:
+    #    raise("[KF ERROR] For %s model, the input image size is not 299!" % pretrained)
     conv = InceptionResNetV2(weights='imagenet', include_top=False, input_shape=image_dim)
 elif pretrained == 'InceptionV3':
     if img_size != 299:
@@ -223,26 +165,29 @@ print('                   3. TRAIN THE MODEL')
 print('============================================================')
 
 # Construct image generator with augmentation
+# Update - KF 11/08/2018
+# Only with concatenated dataset, without any valication dataset
 print('')
-print('[KF INFO] Create train/validation data generator ...')
+#print('[KF INFO] Create train/validation data generator ...')
+print('[KF INFO] Create train data generator ...')
 train_datagen = ImageDataGenerator(rescale=1./255, rotation_range=25,
 				width_shift_range=0.1, height_shift_range=0.1,
 				shear_range=0.2, zoom_range=0.2,
 				horizontal_flip=True, fill_mode='nearest')
 #train_datagen = ImageDataGenerator(rescale=1./255)
-val_datagen = ImageDataGenerator(rescale=1./255)
+#val_datagen = ImageDataGenerator(rescale=1./255)
 
 train_generator = train_datagen.flow_from_directory(
-		os.path.join(data_dir, 'train'),
+		os.path.join(data_dir, 'concat'),
 		target_size=(img_size, img_size),
 		batch_size=batch_size,
 		class_mode='categorical')
 
-val_generator = val_datagen.flow_from_directory(
-		os.path.join(data_dir, 'val'),
-		target_size=(img_size, img_size),
-		batch_size=batch_size,
-		class_mode='categorical')
+#val_generator = val_datagen.flow_from_directory(
+#		os.path.join(data_dir, 'val'),
+#		target_size=(img_size, img_size),
+#		batch_size=batch_size,
+#		class_mode='categorical')
 np.savez(os.path.join(save_dir, 'labels'), class_idx=train_generator.class_indices, class_label=train_generator.classes)
 
 print('')
@@ -257,11 +202,8 @@ callbacks_list = [checkpointer]
 
 H = model.fit_generator(
 		train_generator,
-		steps_per_epoch=train_img_num // batch_size,
-		epochs=epochs,
-		validation_data=val_generator,
-		validation_steps=val_img_num // batch_size,
-                callbacks=callbacks_list)
+		steps_per_epoch=concat_img_num // batch_size,
+		epochs=epochs)
 
 print('[KF INFO] Training completed!!!')
 print('------------------------------------------------------------')
@@ -282,9 +224,9 @@ plt.style.use("ggplot")
 plt.figure()
 N = epochs
 plt.plot(np.arange(0, N), H.history["loss"], label="train_loss")
-plt.plot(np.arange(0, N), H.history["val_loss"], label="val_loss")
+#plt.plot(np.arange(0, N), H.history["val_loss"], label="val_loss")
 plt.plot(np.arange(0, N), H.history["acc"], label="train_acc")
-plt.plot(np.arange(0, N), H.history["val_acc"], label="val_acc")
+#plt.plot(np.arange(0, N), H.history["val_acc"], label="val_acc")
 plt.title("Training Loss and Accuracy")
 plt.xlabel("Epoch #")
 plt.ylabel("Loss/Accuracy")

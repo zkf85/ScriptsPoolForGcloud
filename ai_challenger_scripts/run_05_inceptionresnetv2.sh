@@ -1,4 +1,6 @@
-# Updated KF 10/17/2018
+# run_05_train_concat
+# Updated - KF 11/08/2018
+# Updated - KF 10/17/2018
 # KF 10/12/2018
 
 date="11082018"
@@ -8,11 +10,12 @@ dataset_dir=/home/kefeng/disease_datasets/299_dataset_for_keras
 
 pretrained="InceptionResNetV2"
 img_size=299
-epochs=100
-batch_size=32
+#img_size=150
+epochs=20
+batch_size=64
 learning_rate=1e-4
 
-model_name=aichallenger-disease-$date-$pretrained-$img_size-$epochs-$batch_size-$learning_rate
+model_name=aichallenger-disease-concat-$date-$pretrained-$img_size-$epochs-$batch_size-$learning_rate
 #save_dir=~/disk/results/$model_name
 save_dir=/home/kefeng/results/$model_name
 
@@ -21,7 +24,7 @@ cp 03_classify.py $save_dir
 cp run_03.sh $save_dir
 
 # Training
-python3 02_train.py \
+python3 05_train_concat.py \
 --dataset $dataset_dir \
 --save_dir $save_dir \
 --pretrained $pretrained \
@@ -30,6 +33,7 @@ python3 02_train.py \
 --batch_size $batch_size \
 --learning_rate $learning_rate \
 --model disease.model \
+--test
 #> $save_dir/log.txt
 
 ## Upload the package to my bucket and shutdown
