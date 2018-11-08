@@ -24,7 +24,7 @@ base_dir = args['model_dir']
 model_name = args['model_name']
 label_name = args['label_name']
 img_dir = args['img_dir']
-output_name = args['']
+output_name = args['output_name']
 img_size = int(args['img_size'])
 
 img_shape = (img_size, img_size, 3)
