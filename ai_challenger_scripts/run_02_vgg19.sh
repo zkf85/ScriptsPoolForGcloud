@@ -14,6 +14,7 @@ model_name=aichallenger-disease-$date-$pretrained-$img_size-$epochs-$batch_size-
 save_dir=~/disk/results/$model_name
 
 mkdir -p $save_dir
+cp 03_classify.py $save_dir
 
 # Training
 python3 02_train.py \

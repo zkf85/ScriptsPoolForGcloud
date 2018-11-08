@@ -200,3 +200,9 @@ totalMemory: 15.90GiB freeMemory: 15.61GiB
 2018-11-07 10:13:12.451778: I tensorflow/core/common_runtime/gpu/gpu_device.cc:977]      0 
 2018-11-07 10:13:12.451787: I tensorflow/core/common_runtime/gpu/gpu_device.cc:990] 0:   N 
 2018-11-07 10:13:12.452130: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1103] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:0 with 15129 MB memory) -> physical GPU (device: 0, name: Tesla P100-PCIE-16GB, pci bus id: 0000:00:04.0, compute capability: 6.0)
+Using TensorFlow backend.
+Traceback (most recent call last):
+  File "02_train.py", line 295, in <module>
+    plt.plot(np.arange(0, N), H.history["lr"], label="learning_rate")
+KeyError: 'lr'
+Stopping instance(s) kf-gpu...
