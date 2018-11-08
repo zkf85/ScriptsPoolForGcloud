@@ -7,14 +7,15 @@ dataset_dir=~/disk/disease_datasets/dataset_for_keras
 pretrained="InceptionResNetV2"
 img_size=299
 epochs=100
-batch_size=128
+batch_size=32
 learning_rate=1e-4
 
 model_name=aichallenger-disease-$date-$pretrained-$img_size-$epochs-$batch_size-$learning_rate
 save_dir=~/disk/results/$model_name
 
 mkdir -p $save_dir
-cp {03_classify.py,run_03.sh} $save_dir
+cp 03_classify.py $save_dir
+cp run_03.sh $save_dir
 
 # Training
 python3 02_train.py \
@@ -25,7 +26,6 @@ python3 02_train.py \
 --epochs $epochs \
 --batch_size $batch_size \
 --learning_rate $learning_rate \
---lr_decay $lr_decay \
 --model disease.model \
 > $save_dir/log.txt
 
@@ -34,4 +34,4 @@ python3 02_train.py \
 #then
 #	gsutil -m cp -r $save_dir gs://kf-bucket/
 #fi
-#gcloud compute instances stop --zone=us-east1-b kf-gpu
+gcloud compute instances stop --zone=us-east1-b kf-gpu
