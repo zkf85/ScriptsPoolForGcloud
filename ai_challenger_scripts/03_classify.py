@@ -15,6 +15,8 @@ ap.add_argument("-l", "--label_name", required=True,
         help="name of label labels.npz")
 ap.add_argument("-i", "--img_dir", required=True,
         help="dir to input image")
+ap.add_argument("-o", "--output_name", required=True,
+        help="output file name")
 ap.add_argument("--img_size", required=True)
 args = vars(ap.parse_args())
 
@@ -22,6 +24,7 @@ base_dir = args['model_dir']
 model_name = args['model_name']
 label_name = args['label_name']
 img_dir = args['img_dir']
+output_name = args['']
 img_size = int(args['img_size'])
 
 img_shape = (img_size, img_size, 3)
@@ -54,7 +57,7 @@ for img_name in os.listdir(img_dir):
     submission.append(tmp_dict)
 
 # Save to the required json format file
-with open(os.path.join(base_dir, 'kf_submission.json'), 'w') as outfile:
+with open(os.path.join(base_dir, output_name), 'w') as outfile:
     json.dump(submission, outfile, indent=4)
 
 
