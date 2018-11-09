@@ -33,6 +33,8 @@ img_shape = (img_size, img_size, 3)
 labels = np.load(os.path.join(base_dir, label_name))
 label_dict = labels['class_idx'].tolist()
 idx_dict = {y:x for x, y in label_dict.items()}
+with open(os.path.join(base_dir, 'idx_to_class.txt'), 'w') as outfile:
+    json.dump(idx_dict, outfile, indent=4)
 
 # LOad model
 model = load_model(os.path.join(base_dir, model_name))
