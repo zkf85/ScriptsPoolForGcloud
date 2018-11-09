@@ -17,12 +17,6 @@
 date="11092018"
 
 # --------------------------------------------------------------------------------------------------
-# Dataset base directory path
-# --------------------------------------------------------------------------------------------------
-#dataset_dir=~/disk/disease_datasets/dataset_for_keras
-dataset_dir="/home/kefeng/disease_datasets/299_dataset_for_keras"
-
-# --------------------------------------------------------------------------------------------------
 # Training mode:
 # --------------------------------------------------------------------------------------------------
 training_mode="trial"
@@ -48,14 +42,17 @@ optimizer="nadam"
 #optimizer=rmsprop
 
 # --------------------------------------------------------------------------------------------------
+# Dataset base directory path
+# --------------------------------------------------------------------------------------------------
+#dataset_dir=~/disk/disease_datasets/dataset_for_keras
+dataset_dir="/home/kefeng/disease_datasets/299_dataset_for_keras"
+
+# --------------------------------------------------------------------------------------------------
 # Model saving setting
 # --------------------------------------------------------------------------------------------------
 model_dir_name="aichallenger-disease-concat-$date-$pretrained-$img_size-$epochs-$batch_size-$optimizer-$trainset_option"
 #save_dir=~/disk/results/$model_name
 save_dir="/home/kefeng/results/$model_dir_name"
-mkdir -p $save_dir
-#cp 03_classify.py $save_dir
-#cp run_03.sh $save_dir
 model_file_name="disease.model"
 
 ####################################################################################################
@@ -82,4 +79,4 @@ python3 05_train_concat.py \
 #then
 #	gsutil -m cp -r $save_dir gs://kf-bucket/
 #fi
-#gcloud compute instances stop --zone=us-east1-b kf-gpu
+#gcloud compute instances stop --zone=asia-east1-a kf-gpu

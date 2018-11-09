@@ -115,11 +115,11 @@ elif optimizer_name =='nadam':
 
 # Trial mode parameter config
 if training_mode == 'trial': 
-    batch_size = 2
-    img_size = 150
-    img_dim = (img_size, img_size, 3)
-    train_img_num = train_img_num // 500
-    val_img_num = val_img_num // 200
+    #batch_size = 2
+    #img_size = 150
+    #img_dim = (img_size, img_size, 3)
+    train_img_num = train_img_num // 10
+    val_img_num = val_img_num // 1
 
 # Added - KF 11/08/2018
 #concat_img_num = train_img_num + val_img_num
@@ -260,6 +260,11 @@ val_generator = val_datagen.flow_from_directory(
 		target_size=(img_size, img_size),
 		batch_size=batch_size,
 		class_mode='categorical')
+
+# Create save directory if it's not there
+if not os.path.exists(save_dir):
+    os.makedirs(save_dir)
+# Save the label-indeces dictionary to an npz file
 np.savez(os.path.join(save_dir, 'labels'), class_idx=train_generator.class_indices, class_label=train_generator.classes)
 
 print('')
@@ -291,11 +296,7 @@ H = model.fit_generator(
 print('[KF INFO] Training completed!!!')
 print('-----------------------------------------------------------------')
 
-# Create save directory if it's not there
-if not os.path.exists(save_dir):
-    os.makedirs(save_dir)
 # save the model to disk
-
 model.save(os.path.join(save_dir, model_file_name))
 print('[KF INFO] Model saved!')
 
