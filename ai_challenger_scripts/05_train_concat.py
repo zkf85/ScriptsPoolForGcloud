@@ -99,27 +99,29 @@ optimizer_name = args['optimizer']
 decay = 0.0
 if optimizer_name == 'rmsprop':
     init_lr = 0.045
-    decay = 0.9
+    #decay = 0.9
+    decay = 0.08
     optimizer = optimizers.RMSprop(lr=init_lr, epsilon=1.0, decay=decay)
 
 elif optimizer_name == 'adam':
     init_lr = 0.0001
-    decay = lr/epochs
-    optimizer = optimizer.Adam(lr=init_lr, decay=decay)
+    #decay = init_lr/epochs
+    decay = 0.06
+    optimizer = optimizers.Adam(lr=init_lr, decay=decay)
  
 elif optimizer_name =='nadam':
-    init_lr = 0.001
+    init_lr = 0.002
     decay = 0.06
     optimizer = optimizers.Nadam(lr=init_lr, schedule_decay=decay)
 
 
 # Trial mode parameter config
 if training_mode == 'trial': 
-    #batch_size = 2
+    batch_size = 4
     #img_size = 150
     #img_dim = (img_size, img_size, 3)
-    train_img_num = train_img_num // 10
-    val_img_num = val_img_num // 1
+    train_img_num = train_img_num // 100
+    val_img_num = val_img_num // 20
 
 # Added - KF 11/08/2018
 #concat_img_num = train_img_num + val_img_num
@@ -287,11 +289,10 @@ H = model.fit_generator(
 		train_generator,
 		steps_per_epoch=train_img_num // batch_size,
 		epochs=epochs,
-        verbose=1,
-        callbacks=callbacks_list,
-        validation_data=val_generator,
-        validation_steps=val_img_num // batch_size
-        )
+                verbose=1,
+                callbacks=callbacks_list,
+                validation_data=val_generator,
+                validation_steps=val_img_num // batch_size)
 
 print('[KF INFO] Training completed!!!')
 print('-----------------------------------------------------------------')

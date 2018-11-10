@@ -216,3 +216,93 @@ totalMemory: 15.90GiB freeMemory: 15.61GiB
 2018-11-08 03:23:59.451654: I tensorflow/core/common_runtime/gpu/gpu_device.cc:977]      0 
 2018-11-08 03:23:59.451663: I tensorflow/core/common_runtime/gpu/gpu_device.cc:990] 0:   N 
 2018-11-08 03:23:59.452070: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1103] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:0 with 15131 MB memory) -> physical GPU (device: 0, name: Tesla P100-PCIE-16GB, pci bus id: 0000:00:04.0, compute capability: 6.0)
+Using TensorFlow backend.
+Traceback (most recent call last):
+  File "02_train.py", line 295, in <module>
+    plt.plot(np.arange(0, N), H.history["lr"], label="learning_rate")
+KeyError: 'lr'
+ERROR: (gcloud.compute.instances.stop) HTTPError 404: The resource 'projects/aizhong-cv1/zones/us-east1-b/instances/kf-gpu' was not found
+run_05_inceptionresnetv2.sh: 65: run_05_inceptionresnetv2.sh: cannot create /home/zkf1985/disk/results/aichallenger-disease-concat-11092018-InceptionResNetV2-299-50-32-rmsprop-train/log.txt: Directory nonexistent
+Stopping instance(s) kf-gpu...
+2018-11-09 12:06:29.223950: I tensorflow/stream_executor/cuda/cuda_gpu_executor.cc:964] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
+2018-11-09 12:06:29.256363: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1411] Found device 0 with properties: 
+name: Tesla P100-PCIE-16GB major: 6 minor: 0 memoryClockRate(GHz): 1.3285
+pciBusID: 0000:00:04.0
+totalMemory: 15.90GiB freeMemory: 15.61GiB
+2018-11-09 12:06:29.256396: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1490] Adding visible gpu devices: 0
+2018-11-09 12:06:29.576325: I tensorflow/core/common_runtime/gpu/gpu_device.cc:971] Device interconnect StreamExecutor with strength 1 edge matrix:
+2018-11-09 12:06:29.576374: I tensorflow/core/common_runtime/gpu/gpu_device.cc:977]      0 
+2018-11-09 12:06:29.576383: I tensorflow/core/common_runtime/gpu/gpu_device.cc:990] 0:   N 
+2018-11-09 12:06:29.576741: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1103] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:0 with 15129 MB memory) -> physical GPU (device: 0, name: Tesla P100-PCIE-16GB, pci bus id: 0000:00:04.0, compute capability: 6.0)
+Using TensorFlow backend.
+Copying file:///home/zkf1985/disk/results/aichallenger-disease-concat-11092018-InceptionResNetV2-299-50-32-rmsprop-train/disease.model [Content-Type=application/octet-stream]...
+/ [0/5 files][    0.0 B/  2.3 GiB]   0% Done                                    ==> NOTE: You are uploading one or more large file(s), which would run
+significantly faster if you enable parallel composite uploads. This
+feature can be enabled by editing the
+"parallel_composite_upload_threshold" value in your .boto
+configuration file. However, note that if you do this large files will
+be uploaded as `composite objects
+<https://cloud.google.com/storage/docs/composite-objects>`_,which
+means that any user who downloads such objects will need to have a
+compiled crcmod installed (see "gsutil help crcmod"). This is because
+without a compiled crcmod, computing checksums on composite objects is
+so slow that gsutil disables downloads of composite objects.
+
+Copying file:///home/zkf1985/disk/results/aichallenger-disease-concat-11092018-InceptionResNetV2-299-50-32-rmsprop-train/ckpt-weight-best.hdf5 [Content-Type=application/octet-stream]...
+/ [0/5 files][    0.0 B/  2.3 GiB]   0% Done                                    Copying file:///home/zkf1985/disk/results/aichallenger-disease-concat-11092018-InceptionResNetV2-299-50-32-rmsprop-train/labels.npz [Content-Type=application/octet-stream]...
+/ [0/5 files][    0.0 B/  2.3 GiB]   0% Done                                    Copying file:///home/zkf1985/disk/results/aichallenger-disease-concat-11092018-InceptionResNetV2-299-50-32-rmsprop-train/log.txt [Content-Type=text/plain]...
+/ [0/5 files][    0.0 B/  2.3 GiB]   0% Done                                    Copying file:///home/zkf1985/disk/results/aichallenger-disease-concat-11092018-InceptionResNetV2-299-50-32-rmsprop-train/plot.png [Content-Type=image/png]...
+/ [0/5 files][    0.0 B/  2.3 GiB]   0% Done                                    / [1/5 files][  7.9 MiB/  2.3 GiB]   0% Done                                    / [2/5 files][ 24.1 MiB/  2.3 GiB]   1% Done                                    -- [3/5 files][ 40.9 MiB/  2.3 GiB]   1% Done                                    \\ [3/5 files][196.1 MiB/  2.3 GiB]   8% Done                                    |// [3/5 files][361.6 MiB/  2.3 GiB]  15% Done                                    -\\ [3/5 files][509.1 MiB/  2.3 GiB]  21% Done                                    || [3/5 files][661.4 MiB/  2.3 GiB]  27% Done                                    /-- [3/5 files][806.3 MiB/  2.3 GiB]  33% Done                                    \|| [3/5 files][957.4 MiB/  2.3 GiB]  40% Done                                    // [3/5 files][  1.1 GiB/  2.3 GiB]  46% Done                                    -\\ [3/5 files][  1.2 GiB/  2.3 GiB]  52% Done                                    |// [3/5 files][  1.4 GiB/  2.3 GiB]  58% Done                                    -- [3/5 files][  1.5 GiB/  2.3 GiB]  65% Done                                    \|| [3/5 files][  1.7 GiB/  2.3 GiB]  71% Done 149.5 MiB/s ETA 00:00:05           /-- [3/5 files][  1.8 GiB/  2.3 GiB]  78% Done 150.2 MiB/s ETA 00:00:03           \\ [3/5 files][  2.0 GiB/  2.3 GiB]  84% Done 151.8 MiB/s ETA 00:00:02           |// [3/5 files][  2.1 GiB/  2.3 GiB]  90% Done 151.5 MiB/s ETA 00:00:01           -\\ [3/5 files][  2.2 GiB/  2.3 GiB]  96% Done 146.2 MiB/s ETA 00:00:01           \ [4/5 files][  2.3 GiB/  2.3 GiB]  96% Done 136.9 MiB/s ETA 00:00:01           \ [4/5 files][  2.3 GiB/  2.3 GiB]  96% Done 103.5 MiB/s ETA 00:00:01           |// [5/5 files][  2.3 GiB/  2.3 GiB] 100% Done  77.4 MiB/s ETA 00:00:00           -
+Operation completed over 5 objects/2.3 GiB.                                      
+Stopping instance(s) kf-gpu...
+2018-11-10 01:08:57.159885: I tensorflow/stream_executor/cuda/cuda_gpu_executor.cc:964] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
+2018-11-10 01:08:57.197001: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1411] Found device 0 with properties: 
+name: Tesla P100-PCIE-16GB major: 6 minor: 0 memoryClockRate(GHz): 1.3285
+pciBusID: 0000:00:04.0
+totalMemory: 15.90GiB freeMemory: 15.61GiB
+2018-11-10 01:08:57.197027: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1490] Adding visible gpu devices: 0
+2018-11-10 01:09:10.531897: I tensorflow/core/common_runtime/gpu/gpu_device.cc:971] Device interconnect StreamExecutor with strength 1 edge matrix:
+2018-11-10 01:09:10.531957: I tensorflow/core/common_runtime/gpu/gpu_device.cc:977]      0 
+2018-11-10 01:09:10.531972: I tensorflow/core/common_runtime/gpu/gpu_device.cc:990] 0:   N 
+2018-11-10 01:09:10.532471: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1103] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:0 with 15131 MB memory) -> physical GPU (device: 0, name: Tesla P100-PCIE-16GB, pci bus id: 0000:00:04.0, compute capability: 6.0)
+Using TensorFlow backend.
+Copying file:///home/zkf1985/disk/results/aichallenger-disease-11102018-InceptionResNetV2-299-20-32-adam-train/ckpt-weight-best.hdf5 [Content-Type=application/octet-stream]...
+Copying file:///home/zkf1985/disk/results/aichallenger-disease-11102018-InceptionResNetV2-299-20-32-adam-train/disease.model [Content-Type=application/octet-stream]...
+Copying file:///home/zkf1985/disk/results/aichallenger-disease-11102018-InceptionResNetV2-299-20-32-adam-train/labels.npz [Content-Type=application/octet-stream]...
+==> NOTE: You are uploading one or more large file(s), which would run
+significantly faster if you enable parallel composite uploads. This
+feature can be enabled by editing the
+"parallel_composite_upload_threshold" value in your .boto
+configuration file. However, note that if you do this large files will
+be uploaded as `composite objects
+<https://cloud.google.com/storage/docs/composite-objects>`_,which
+means that any user who downloads such objects will need to have a
+compiled crcmod installed (see "gsutil help crcmod"). This is because
+without a compiled crcmod, computing checksums on composite objects is
+so slow that gsutil disables downloads of composite objects.
+
+Copying file:///home/zkf1985/disk/results/aichallenger-disease-11102018-InceptionResNetV2-299-20-32-adam-train/log.txt [Content-Type=text/plain]...
+Copying file:///home/zkf1985/disk/results/aichallenger-disease-11102018-InceptionResNetV2-299-20-32-adam-train/plot.png [Content-Type=image/png]...
+/ [0/5 files][    0.0 B/  3.5 GiB]   0% Done                                    / [0/5 files][    0.0 B/  3.5 GiB]   0% Done                                    / [0/5 files][    0.0 B/  3.5 GiB]   0% Done                                    / [0/5 files][    0.0 B/  3.5 GiB]   0% Done                                    / [0/5 files][    0.0 B/  3.5 GiB]   0% Done                                    / [1/5 files][  6.1 MiB/  3.5 GiB]   0% Done                                    / [2/5 files][  9.2 MiB/  3.5 GiB]   0% Done                                    / [3/5 files][ 41.1 MiB/  3.5 GiB]   1% Done                                    -\\ [3/5 files][238.6 MiB/  3.5 GiB]   6% Done                                    |// [3/5 files][429.9 MiB/  3.5 GiB]  12% Done                                    -- [3/5 files][639.3 MiB/  3.5 GiB]  17% Done                                    \|| [3/5 files][849.1 MiB/  3.5 GiB]  23% Done                                    /-- [3/5 files][  1.0 GiB/  3.5 GiB]  28% Done                                    \\ [3/5 files][  1.2 GiB/  3.5 GiB]  33% Done                                    |// [3/5 files][  1.3 GiB/  3.5 GiB]  37% Done                                    -\\ [3/5 files][  1.5 GiB/  3.5 GiB]  42% Done                                    || [3/5 files][  1.7 GiB/  3.5 GiB]  47% Done                                    /-- [3/5 files][  1.8 GiB/  3.5 GiB]  52% Done                                    \|| [3/5 files][  2.0 GiB/  3.5 GiB]  56% Done 167.1 MiB/s ETA 00:00:09           // [3/5 files][  2.1 GiB/  3.5 GiB]  61% Done 168.2 MiB/s ETA 00:00:08           -\\ [3/5 files][  2.3 GiB/  3.5 GiB]  65% Done 161.8 MiB/s ETA 00:00:08           |// [3/5 files][  2.4 GiB/  3.5 GiB]  69% Done 155.8 MiB/s ETA 00:00:07           -- [3/5 files][  2.6 GiB/  3.5 GiB]  73% Done 110.3 MiB/s ETA 00:00:09           \|| [3/5 files][  2.7 GiB/  3.5 GiB]  78% Done 110.5 MiB/s ETA 00:00:07           /-- [3/5 files][  2.9 GiB/  3.5 GiB]  83% Done 122.9 MiB/s ETA 00:00:05           \\ [3/5 files][  3.1 GiB/  3.5 GiB]  88% Done 128.9 MiB/s ETA 00:00:03           |// [3/5 files][  3.3 GiB/  3.5 GiB]  93% Done 178.3 MiB/s ETA 00:00:01           -- [4/5 files][  3.3 GiB/  3.5 GiB]  94% Done 163.2 MiB/s ETA 00:00:01           \|| [4/5 files][  3.3 GiB/  3.5 GiB]  95% Done 143.3 MiB/s ETA 00:00:01           // [4/5 files][  3.4 GiB/  3.5 GiB]  98% Done 120.6 MiB/s ETA 00:00:01           -- [5/5 files][  3.5 GiB/  3.5 GiB] 100% Done  41.3 MiB/s ETA 00:00:00           \
+Operation completed over 5 objects/3.5 GiB.                                      
+Stopping instance(s) kf-gpu...
+2018-11-10 06:30:40.140259: I tensorflow/stream_executor/cuda/cuda_gpu_executor.cc:964] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
+2018-11-10 06:30:40.157339: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1411] Found device 0 with properties: 
+name: Tesla P100-PCIE-16GB major: 6 minor: 0 memoryClockRate(GHz): 1.3285
+pciBusID: 0000:00:04.0
+totalMemory: 15.90GiB freeMemory: 15.61GiB
+2018-11-10 06:30:40.157368: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1490] Adding visible gpu devices: 0
+2018-11-10 06:30:53.099181: I tensorflow/core/common_runtime/gpu/gpu_device.cc:971] Device interconnect StreamExecutor with strength 1 edge matrix:
+2018-11-10 06:30:53.099248: I tensorflow/core/common_runtime/gpu/gpu_device.cc:977]      0 
+2018-11-10 06:30:53.099260: I tensorflow/core/common_runtime/gpu/gpu_device.cc:990] 0:   N 
+2018-11-10 06:30:53.099631: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1103] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:0 with 15129 MB memory) -> physical GPU (device: 0, name: Tesla P100-PCIE-16GB, pci bus id: 0000:00:04.0, compute capability: 6.0)
+Using TensorFlow backend.
+Traceback (most recent call last):
+  File "05_train_concat.py", line 257, in <module>
+    class_mode='categorical')
+  File "/usr/local/lib/python3.5/dist-packages/keras_preprocessing/image.py", line 1013, in flow_from_directory
+    interpolation=interpolation)
+  File "/usr/local/lib/python3.5/dist-packages/keras_preprocessing/image.py", line 1875, in __init__
+    for subdir in sorted(os.listdir(directory)):
+FileNotFoundError: [Errno 2] No such file or directory: '/home/kefeng/disease_datasets/299_dataset_for_keras/train'
+Stopping instance(s) kf-gpu...
