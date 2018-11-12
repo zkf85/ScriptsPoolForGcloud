@@ -33,8 +33,8 @@ batch_size=32
 # --------------------------------------------------------------------------------------------------
 # Training dataset option: either 'concat' or 'train'
 # --------------------------------------------------------------------------------------------------
-#trainset_option="concat"
-trainset_option="train"
+trainset_option="concat"
+#trainset_option="train"
 
 # --------------------------------------------------------------------------------------------------
 # Optimizer option
@@ -46,8 +46,8 @@ optimizer="rmsprop"
 # --------------------------------------------------------------------------------------------------
 # Dataset base directory path
 # --------------------------------------------------------------------------------------------------
-#dataset_dir="/home/zkf1985/disk/disease_datasets/299_dataset_for_keras"
-dataset_dir="/home/zkf1985/disk/disease_datasets/dataset_for_keras"
+dataset_dir="/home/zkf1985/disk/disease_datasets/299_dataset_for_keras"
+#dataset_dir="/home/zkf1985/disk/disease_datasets/dataset_for_keras"
 
 # --------------------------------------------------------------------------------------------------
 # Model saving setting

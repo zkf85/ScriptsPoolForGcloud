@@ -106,7 +106,7 @@ if optimizer_name == 'rmsprop':
 elif optimizer_name == 'adam':
     init_lr = 0.0001
     #decay = init_lr/epochs
-    decay = 0.06
+    decay = 0.01
     optimizer = optimizers.Adam(lr=init_lr, decay=decay)
  
 elif optimizer_name =='nadam':
@@ -217,8 +217,8 @@ model.add(conv)
 
 # Add new layers
 model.add(layers.Flatten())
-model.add(layers.BatchNormalization())
 model.add(layers.Dense(fc_size, activation='relu'))
+model.add(layers.BatchNormalization())
 model.add(layers.Dropout(dropout_rate))
 model.add(layers.Dense(cls_number, activation='softmax'))
 print('[KF INFO] The FC layers are added to the model.')
