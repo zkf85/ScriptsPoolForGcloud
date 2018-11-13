@@ -41,6 +41,7 @@ model = load_model(os.path.join(base_dir, model_name))
 
 submission = []
 cls_result_dict = {}
+counter = 0
 for img_name in os.listdir(img_dir):
     print(img_name)
     img = load_img(os.path.join(img_dir, img_name), target_size=img_shape)
@@ -61,6 +62,8 @@ for img_name in os.listdir(img_dir):
     # Save all the results as a python dictionary
     cls_result_dict[img_name] = idx_dict[res_idx]
     submission.append(tmp_dict)
+    counter += 1
+    print("Image classified: %d" % counter)
 
 # Save to the required json format file
 with open(os.path.join(base_dir, output_name), 'w') as outfile:
