@@ -106,7 +106,7 @@ if optimizer_name == 'rmsprop':
 elif optimizer_name == 'adam':
     init_lr = 0.0001
     #decay = init_lr/epochs
-    decay = 0.01
+    decay = 0.003
     optimizer = optimizers.Adam(lr=init_lr, decay=decay)
  
 elif optimizer_name =='nadam':
