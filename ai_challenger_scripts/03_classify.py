@@ -40,6 +40,7 @@ with open(os.path.join(base_dir, 'idx_to_class.txt'), 'w') as outfile:
 model = load_model(os.path.join(base_dir, model_name))
 
 submission = []
+cls_result_dict = {}
 for img_name in os.listdir(img_dir):
     print(img_name)
     img = load_img(os.path.join(img_dir, img_name), target_size=img_shape)
@@ -56,10 +57,13 @@ for img_name in os.listdir(img_dir):
     tmp_dict = {}
     tmp_dict['disease_class'] = int(idx_dict[res_idx])
     tmp_dict['image_id'] = img_name
+    # KF 11/13/2018
+    # Save all the results as a python dictionary
+    cls_result_dict[img_name] = idx_dict[res_dix]
     submission.append(tmp_dict)
 
 # Save to the required json format file
 with open(os.path.join(base_dir, output_name), 'w') as outfile:
     json.dump(submission, outfile, indent=4)
-
-
+with open(os.path.join(base_dir, 'result_dict.pkl'), 'wb') as f:
+    pickle.dump(cls_result_dict, f)

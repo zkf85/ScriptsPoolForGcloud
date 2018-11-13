@@ -10,4 +10,4 @@ python3 03_classify.py \
 -l labels.npz \
 -i $test_img_dir \
 -o $output_name \
---img_size 224
+--img_size 299
