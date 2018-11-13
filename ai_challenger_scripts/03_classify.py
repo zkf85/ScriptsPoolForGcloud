@@ -59,7 +59,7 @@ for img_name in os.listdir(img_dir):
     tmp_dict['image_id'] = img_name
     # KF 11/13/2018
     # Save all the results as a python dictionary
-    cls_result_dict[img_name] = idx_dict[res_dix]
+    cls_result_dict[img_name] = idx_dict[res_idx]
     submission.append(tmp_dict)
 
 # Save to the required json format file

@@ -40,21 +40,22 @@ trainset_option="concat"
 # Optimizer option
 # --------------------------------------------------------------------------------------------------
 #optimizer="nadam"
-#optimizer="adam"
-optimizer="rmsprop"
+optimizer="adam"
+#optimizer="rmsprop"
 
 # --------------------------------------------------------------------------------------------------
 # Dataset base directory path
 # --------------------------------------------------------------------------------------------------
-dataset_dir="/home/zkf1985/disk/disease_datasets/299_dataset_for_keras"
+#dataset_dir="/home/zkf1985/disk/disease_datasets/299_dataset_for_keras"
 #dataset_dir="/home/zkf1985/disk/disease_datasets/dataset_for_keras"
+dataset_dir="/home/kefeng/disease_datasets/299_dataset_for_keras"
 
 # --------------------------------------------------------------------------------------------------
 # Model saving setting
 # --------------------------------------------------------------------------------------------------
 model_dir_name="aichallenger-disease-$date-$pretrained-$img_size-$epochs-$batch_size-$optimizer-$trainset_option"
-save_dir="/home/zkf1985/disk/results/$model_dir_name"
-#save_dir="/home/kefeng/results/$model_dir_name"
+#save_dir="/home/zkf1985/disk/results/$model_dir_name"
+save_dir="/home/kefeng/results/$model_dir_name"
 mkdir -p $save_dir
 model_file_name="disease.model"
 
@@ -77,9 +78,9 @@ python3 05_train_concat.py \
 --optimizer         $optimizer \
 > $save_dir/log.txt
 
-# Upload the package to my bucket and shutdown
-if [ $? -eq 0 ]
-then
-	gsutil -m cp -r $save_dir gs://kf-bucket/
-fi
-gcloud compute instances stop --zone=asia-east1-a kf-gpu
+## Upload the package to my bucket and shutdown
+#if [ $? -eq 0 ]
+#then
+#	gsutil -m cp -r $save_dir gs://kf-bucket/
+#fi
+#gcloud compute instances stop --zone=asia-east1-a kf-gpu
