@@ -6,6 +6,7 @@ import argparse
 from tensorflow.keras.models import load_model
 from keras.preprocessing.image import load_img
 from keras.preprocessing.image import img_to_array
+import pickle
 
 ap = argparse.ArgumentParser()
 ap.add_argument("-d", "--model_dir", required=True)
