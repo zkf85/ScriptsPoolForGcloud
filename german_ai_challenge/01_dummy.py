@@ -159,7 +159,7 @@ for e in range(epochs):
         loss += val_res[0]*(end_pos - i)
         acc_num += val_res[1]*(end_pos - i)
 
-    print("[KF INFO] val loss : %.4f, val acc : %.4f" % (loss / val_size, acc_num / val_size))
+    print("[KF INFO] val_loss : %.4f, val_acc : %.4f" % (loss / val_size, acc_num / val_size))
 
 print('')
 print("[KF INFO] Training Completed!")
