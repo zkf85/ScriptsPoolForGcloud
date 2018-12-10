@@ -9,7 +9,11 @@ import os
 import numpy as np
 import h5py
 import tensorflow as tf
+from datetime import datetime
 import csv
+
+# Load current date for later use
+cur_date = datetime.now()
 
 # Print title with double lines with text aligned to center
 def print_title(title):
@@ -78,6 +82,7 @@ label_dim = label_training.shape[1]
 #################################################################
 # III. Build Model
 #################################################################
+model_name = 'dummy'
 model = tf.keras.models.Sequential([
     tf.keras.layers.Flatten(input_shape=((input_width, input_height, s1_channel + s2_channel))),
     tf.keras.layers.Dense(256, activation=tf.nn.relu),
@@ -95,32 +100,44 @@ model.summary()
 #################################################################
 # IV. Train with Data Generator 
 #################################################################
-test_mode = 'Full'
+# Train Mode
+train_mode = 'Full'
 
 # Set flag for test mode or no
-#is_test = True
-is_test = False
+is_test = True
+#is_test = False
 
 # Set real epoch for the training process
-epochs = 3
+epochs = 10
 
 # Set batch_size 
 batch_size = 128
 
+# training size / validation size
+train_size = len(label_training)
+val_size = len(label_validation)
+
+# Test parameters
 if is_test:
-    test_mode = 'Test'
+    train_mode = 'Test'
     train_size = 30000
     val_size = 10000
-    epochs = 3    
+    #epochs = 3    
     batch_size = 32
 
-else:
-    train_size = len(label_training)
-    val_size = len(label_validation)
+# Model saving Path
+res_root_dir = os.path.expanduser('/home/kefeng/German_AI_Challenge/results')
+res_folder_name = 'model-%s-%d%d%d-epochs-%d-trainsize-%d' % (model_name, cur_date.year, cur_date.month, cur_date.day, epochs, train_size)
+if not os.path.exists(os.path.join(res_root_dir, res_folder_name)):
+    os.makedirs(os.path.join(res_root_dir, res_folder_name))
 
+# List Training Parameters
 print('')
 print_title("Training Parameters")
-print("Test Mode        :", test_mode)
+print("Model Saving Directory:")
+print(os.path.join(res_root_dir, res_folder_name))
+print('-'*65)
+print("Test Mode        :", train_mode)
 print("Train Size       :", train_size)
 print("Validation Size  :", val_size)
 print("Epochs           :", epochs)
@@ -162,13 +179,41 @@ def valGenerator(batch_size):
             # be a tuple (inputs, targets), thus,
             yield (val_concat_X_batch, val_y_batch)
 
+# Callbacks
+callbacks = []
+# ModelCheckpoint 
+ckpt = tf.keras.callbacks.ModelCheckpoint(
+                os.path.join(res_root_dir, res_folder_name, 'best_model.hdf5'), 
+                monitor='val_loss', 
+                verbose=1, 
+                save_best_only=True,
+                mode='auto')
+callbacks.append(ckpt)
+# EarlyStopping
+earlyStopping = tf.keras.callbacks.EarlyStopping(
+                monitor='val_loss',
+                patience=3,
+                verbose=1,
+                mode='auto')
+callbacks.append(earlyStopping)
+# Tensorboard
+tb_log_dir = os.path.join(res_root_dir, res_folder_name, 'logs')
+#if not os.path.exists(tb_log_dir):
+#    os.makedirs(tb_log_dir)
+tensorboard = tf.keras.callbacks.TensorBoard(
+                log_dir=tb_log_dir
+                )
+callbacks.append(tensorboard)
+
 # Training loop with generators
 model.fit_generator(
         trainGenerator(batch_size),
         steps_per_epoch=np.ceil(train_size/batch_size),
         epochs=epochs,
+        callbacks = callbacks,
         validation_data=valGenerator(batch_size),
         validation_steps=np.ceil(val_size/batch_size)
+
         )
 
 print('')
@@ -194,11 +239,10 @@ print("[KF INFO] Final prediction result:", final_res)
 print("[KF INFO] Prediction shape:", final_res.shape)
 
 # Save prediction to CSV
-from datetime import datetime
 
-cur_date = datetime.now()
-csv_name = 'prediction-%d%d%d-epochs-%d-trainsize-%d.csv' % (cur_date.year, cur_date.month, cur_date.day, epochs, train_size)
+csv_name = 'prediction-%s-%d%d%d-epochs-%d-trainsize-%d.csv' % (model_name, cur_date.year, cur_date.month, cur_date.day, epochs, train_size)
 pred_dir = 'predictions'
 
 np.savetxt(os.path.join(pred_dir, csv_name), final_res, fmt='%d', delimiter=',')
+np.savetxt(os.path.join(res_root_dir, res_folder_name, csv_name), final_res, fmt='%d', delimiter=',')
 print('[KF INFO] Prediction csv saved!')
