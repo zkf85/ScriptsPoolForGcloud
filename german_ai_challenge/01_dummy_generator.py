@@ -3,6 +3,7 @@
 # Alibaba Cloud German AI Challenge 2018
 # KF 2018/12/06
 #    2018/12/07
+#    2018/12/10 - add generators
 #################################################################
 import os
 import numpy as np
@@ -92,26 +93,25 @@ print_title("Model Summary")
 model.summary()
 
 #################################################################
-# IV. Train Data Flow
+# IV. Train with Data Generator 
 #################################################################
-# Set flag for test mode or not
-is_test = True
-#is_test = False
+test_mode = 'Full'
+
+# Set flag for test mode or no
+#is_test = True
+is_test = False
 
 # Set real epoch for the training process
 epochs = 3
-
-# Set data flow block size 
-block_size = pow(2, 14)   
 
 # Set batch_size 
 batch_size = 128
 
 if is_test:
+    test_mode = 'Test'
     train_size = 30000
     val_size = 10000
     epochs = 3    
-    block_size = 4096
     batch_size = 32
 
 else:
@@ -119,57 +119,57 @@ else:
     val_size = len(label_validation)
 
 print('')
+print_title("Training Parameters")
+print("Test Mode        :", test_mode)
+print("Train Size       :", train_size)
+print("Validation Size  :", val_size)
+print("Epochs           :", epochs)
+print("Batch Size       :", batch_size)
+print('-'*65)
+
+print('')
 print_title("Start Training")
 
-# Training loop
-for e in range(epochs):
-    print("")
-    print("-"*65)
-    print("[KF INFO] EPOCH :", e + 1)
-    print("-"*65)
+# Create Training Generator
+def trainGenerator(batch_size):
+    # Generate data with batch_size 
+    while True:
+        for i in range(0, train_size, batch_size):
+            start_pos = i
+            end_pos = min(i + batch_size, train_size)
+            train_s1_X_batch = np.asarray(s1_training[start_pos:end_pos])
+            train_s2_X_batch = np.asarray(s2_training[start_pos:end_pos])
+            train_y_batch = np.asarray(label_training[start_pos:end_pos])
+            # concatenate s1 and s2 data along the last axis
+            train_concat_X_batch = np.concatenate([train_s1_X_batch, train_s2_X_batch], axis=-1) 
+            # According to "fit_generator" on Keras.io, the output from the generator must
+            # be a tuple (inputs, targets), thus,
+            yield (train_concat_X_batch, train_y_batch)
 
-    for i in range(0, train_size, block_size):
-        if i % (5*block_size) == 0:
-            print("[KF INFO] EPOCH %d >> data trained : %d/%d" % (e + 1, i, train_size))
-        start_pos = i
-        end_pos = min(i + block_size, train_size)
-        train_s1_x_block = np.asarray(s1_training[start_pos:end_pos])
-        train_s2_x_block = np.asarray(s2_training[start_pos:end_pos])
-        train_y_block = np.asarray(label_training[start_pos:end_pos])
-        # concatenate s1 and s2 data along the last axis
-        train_concat_x_block = np.concatenate([train_s1_x_block, train_s2_x_block], axis=-1) 
-        # training process
-        model.fit(train_concat_x_block, train_y_block, epochs=1, batch_size=batch_size)
+# Create Valication Generator
+def valGenerator(batch_size):
+    while True:
+        # Generate data with batch_size 
+        for i in range(0, val_size, batch_size):
+            start_pos = i
+            end_pos = min(i + batch_size, val_size)
+            val_s1_X_batch = np.asarray(s1_validation[start_pos:end_pos])
+            val_s2_X_batch = np.asarray(s2_validation[start_pos:end_pos])
+            val_y_batch = np.asarray(label_validation[start_pos:end_pos])
+            # concatenate s1 and s2 data along the last axis
+            val_concat_X_batch = np.concatenate([val_s1_X_batch, val_s2_X_batch], axis=-1) 
+            # According to "fit_generator" on Keras.io, the output from the generator must
+            # be a tuple (inputs, targets), thus,
+            yield (val_concat_X_batch, val_y_batch)
 
-    # Validate for each epoch
-    print('')
-    print("[KF INFO] Validating :")
-
-    # Validation loop
-    loss, acc_num = 0.0, 0.0
-    for i in range(0, val_size, block_size): 
-        
-        start_pos = i
-        end_pos = min(i + block_size, val_size)
-        val_s1_x_block = np.asarray(s1_validation[start_pos:end_pos])
-        val_s2_x_block = np.asarray(s2_validation[start_pos:end_pos])
-        val_y_block = np.asarray(label_validation[start_pos:end_pos])
-        # concatenate s1 and s2 data along the last axis
-        val_concat_x_block = np.concatenate([val_s1_x_block, val_s2_x_block], axis=-1) 
-        # validation process
-        val_res = model.evaluate(val_concat_x_block, val_y_block, batch_size=batch_size)
-        # cumulate the loss and accuracy
-        loss += val_res[0]*(end_pos - i)
-        acc_num += val_res[1]*(end_pos - i)
-
-    print("[KF INFO] val_loss : %.4f, val_acc : %.4f" % (loss / val_size, acc_num / val_size))
-
-    # Try this:
-    #val_s1 = np.asarray(s1_training[-5000:])
-    #val_s2 = np.asarray(s2_training[-5000:])
-    #val_y = np.asarray(label_training[-5000:])
-    #val_res = model.evaluate(np.concatenate([val_s1, val_s2], axis=-1), val_y, batch_size=batch_size)
-    #print("[KF INFO] val_loss : %.4f, val_acc : %.4f" % (val_res[0], val_res[1]))
+# Training loop with generators
+model.fit_generator(
+        trainGenerator(batch_size),
+        steps_per_epoch=np.ceil(train_size/batch_size),
+        epochs=epochs,
+        validation_data=valGenerator(batch_size),
+        validation_steps=np.ceil(val_size/batch_size)
+        )
 
 print('')
 print("[KF INFO] Training Completed!")

@@ -1,4 +1,4 @@
-# 01_dummy.py
+# 02_smallvgg.py
 #################################################################
 # Alibaba Cloud German AI Challenge 2018
 # KF 2018/12/06
@@ -77,12 +77,55 @@ label_dim = label_training.shape[1]
 #################################################################
 # III. Build Model
 #################################################################
-model = tf.keras.models.Sequential([
-    tf.keras.layers.Flatten(input_shape=((input_width, input_height, s1_channel + s2_channel))),
-    tf.keras.layers.Dense(256, activation=tf.nn.relu),
-    tf.keras.layers.Dropout(0.2),
-    tf.keras.layers.Dense(label_dim, activation=tf.nn.softmax)
-    ])
+from keras.models import Sequential
+from keras.layers.normalization import BatchNormalization
+from keras.layers.convolutional import Conv2D
+from keras.layers.convolutional import MaxPooling2D
+from keras.layers.core import Activation
+from keras.layers.core import Flatten
+from keras.layers.core import Dropout
+from keras.layers.core import Dense
+
+# Build small vgg model from scratch
+model = Sequential()
+input_shape = (input_width, input_height, s1_channel + s2_channel)
+chanDim = -1
+# CONV => RELU => POOL
+model.add(Conv2D(128, (3, 3), padding="same",
+        input_shape=input_shape))
+model.add(Activation("relu"))
+model.add(BatchNormalization(axis=chanDim))
+model.add(MaxPooling2D(pool_size=(3, 3)))
+model.add(Dropout(0.25))
+# (CONV => RELU) * 2 => POOL
+model.add(Conv2D(256, (3, 3), padding="same"))
+model.add(Activation("relu"))
+model.add(BatchNormalization(axis=chanDim))
+model.add(Conv2D(256, (3, 3), padding="same"))
+model.add(Activation("relu"))
+model.add(BatchNormalization(axis=chanDim))
+model.add(MaxPooling2D(pool_size=(2, 2)))
+model.add(Dropout(0.25))
+# (CONV => RELU) * 2 => POOL
+model.add(Conv2D(512, (3, 3), padding="same"))
+model.add(Activation("relu"))
+model.add(BatchNormalization(axis=chanDim))
+model.add(Conv2D(512, (3, 3), padding="same"))
+model.add(Activation("relu"))
+model.add(BatchNormalization(axis=chanDim))
+model.add(MaxPooling2D(pool_size=(2, 2)))
+model.add(Dropout(0.25))
+
+# first (and only) set of FC => RELU layers
+model.add(Flatten())
+model.add(Dense(2048))
+model.add(Activation("relu"))
+model.add(BatchNormalization())
+model.add(Dropout(0.5))
+
+# softmax classifier
+model.add(Dense(label_dim))
+model.add(Activation("softmax"))
 
 model.compile(optimizer='adam',
                 loss='binary_crossentropy',
@@ -102,17 +145,17 @@ is_test = True
 epochs = 3
 
 # Set data flow block size 
-block_size = pow(2, 14)   
+block_size = pow(2, 13)   
 
 # Set batch_size 
-batch_size = 128
+batch_size =64 
 
 if is_test:
     train_size = 30000
     val_size = 10000
     epochs = 3    
     block_size = 4096
-    batch_size = 32
+    batch_size = 64
 
 else:
     train_size = len(label_training)
