@@ -1,14 +1,19 @@
-# 02_smallvgg.py
+# 01_dummy.py
 #################################################################
 # Alibaba Cloud German AI Challenge 2018
 # KF 2018/12/06
 #    2018/12/07
+#    2018/12/10 - add generators
 #################################################################
 import os
 import numpy as np
 import h5py
 import tensorflow as tf
+from datetime import datetime
 import csv
+
+# Load current date for later use
+cur_date = datetime.now()
 
 # Print title with double lines with text aligned to center
 def print_title(title):
@@ -77,56 +82,14 @@ label_dim = label_training.shape[1]
 #################################################################
 # III. Build Model
 #################################################################
-from keras.models import Sequential
-from keras.layers.normalization import BatchNormalization
-from keras.layers.convolutional import Conv2D
-from keras.layers.convolutional import MaxPooling2D
-from keras.layers.core import Activation
-from keras.layers.core import Flatten
-from keras.layers.core import Dropout
-from keras.layers.core import Dense
 
-# Build small vgg model from scratch
-model = Sequential()
-input_shape = (input_width, input_height, s1_channel + s2_channel)
-chanDim = -1
-# CONV => RELU => POOL
-model.add(Conv2D(128, (3, 3), padding="same",
-        input_shape=input_shape))
-model.add(Activation("relu"))
-model.add(BatchNormalization(axis=chanDim))
-model.add(MaxPooling2D(pool_size=(3, 3)))
-model.add(Dropout(0.25))
-# (CONV => RELU) * 2 => POOL
-model.add(Conv2D(256, (3, 3), padding="same"))
-model.add(Activation("relu"))
-model.add(BatchNormalization(axis=chanDim))
-model.add(Conv2D(256, (3, 3), padding="same"))
-model.add(Activation("relu"))
-model.add(BatchNormalization(axis=chanDim))
-model.add(MaxPooling2D(pool_size=(2, 2)))
-model.add(Dropout(0.25))
-# (CONV => RELU) * 2 => POOL
-model.add(Conv2D(512, (3, 3), padding="same"))
-model.add(Activation("relu"))
-model.add(BatchNormalization(axis=chanDim))
-model.add(Conv2D(512, (3, 3), padding="same"))
-model.add(Activation("relu"))
-model.add(BatchNormalization(axis=chanDim))
-model.add(MaxPooling2D(pool_size=(2, 2)))
-model.add(Dropout(0.25))
-
-# first (and only) set of FC => RELU layers
-model.add(Flatten())
-model.add(Dense(2048))
-model.add(Activation("relu"))
-model.add(BatchNormalization())
-model.add(Dropout(0.5))
-
-# softmax classifier
-model.add(Dense(label_dim))
-model.add(Activation("softmax"))
-
+# KFSmallerVGGNet
+from kfmodels.kfsmallervggnet import KFSmallerVGGNet
+model_name = 'KFSmallerVGGNet'
+model = KFSmallerVGGNet.build(input_width, 
+                                input_height, 
+                                s1_channel + s2_channel,
+                                label_dim)
 model.compile(optimizer='adam',
                 loss='binary_crossentropy',
                 metrics=['accuracy'])
@@ -135,91 +98,131 @@ print_title("Model Summary")
 model.summary()
 
 #################################################################
-# IV. Train Data Flow
+# IV. Train with Data Generator 
 #################################################################
-# Set flag for test mode or not
-is_test = True
-#is_test = False
+# Train Mode
+train_mode = 'Full'
+
+# Set flag for test mode or no
+#is_test = True
+is_test = False
 
 # Set real epoch for the training process
-epochs = 3
-
-# Set data flow block size 
-block_size = pow(2, 13)   
+epochs = 10
 
 # Set batch_size 
-batch_size =64 
+batch_size = 128
 
+# training size / validation size
+train_size = len(label_training)
+val_size = len(label_validation)
+
+# Test parameters
 if is_test:
+    train_mode = 'Test'
     train_size = 30000
     val_size = 10000
-    epochs = 3    
-    block_size = 4096
-    batch_size = 64
+    #epochs = 3    
+    batch_size = 32
 
-else:
-    train_size = len(label_training)
-    val_size = len(label_validation)
+# Model saving Path
+res_root_dir = os.path.expanduser('/home/kefeng/German_AI_Challenge/results')
+res_folder_name = 'model-%s-%d%d%d-epochs-%d-trainsize-%d' % (model_name, cur_date.year, cur_date.month, cur_date.day, epochs, train_size)
+if not os.path.exists(os.path.join(res_root_dir, res_folder_name)):
+    os.makedirs(os.path.join(res_root_dir, res_folder_name))
+
+# List Training Parameters
+print('')
+print_title("Training Parameters")
+print("Model Saving Directory:")
+print(os.path.join(res_root_dir, res_folder_name))
+print('-'*65)
+print("Test Mode        :", train_mode)
+print("Train Size       :", train_size)
+print("Validation Size  :", val_size)
+print("Epochs           :", epochs)
+print("Batch Size       :", batch_size)
+print('-'*65)
 
 print('')
 print_title("Start Training")
 
-# Training loop
-for e in range(epochs):
-    print("")
-    print("-"*65)
-    print("[KF INFO] EPOCH :", e + 1)
-    print("-"*65)
+# Create Training Generator
+def trainGenerator(batch_size):
+    # Generate data with batch_size 
+    while True:
+        for i in range(0, train_size, batch_size):
+            start_pos = i
+            end_pos = min(i + batch_size, train_size)
+            train_s1_X_batch = np.asarray(s1_training[start_pos:end_pos])
+            train_s2_X_batch = np.asarray(s2_training[start_pos:end_pos])
+            train_y_batch = np.asarray(label_training[start_pos:end_pos])
+            # concatenate s1 and s2 data along the last axis
+            train_concat_X_batch = np.concatenate([train_s1_X_batch, train_s2_X_batch], axis=-1) 
+            # According to "fit_generator" on Keras.io, the output from the generator must
+            # be a tuple (inputs, targets), thus,
+            yield (train_concat_X_batch, train_y_batch)
 
-    for i in range(0, train_size, block_size):
-        if i % (5*block_size) == 0:
-            print("[KF INFO] EPOCH %d >> data trained : %d/%d" % (e + 1, i, train_size))
-        start_pos = i
-        end_pos = min(i + block_size, train_size)
-        train_s1_x_block = np.asarray(s1_training[start_pos:end_pos])
-        train_s2_x_block = np.asarray(s2_training[start_pos:end_pos])
-        train_y_block = np.asarray(label_training[start_pos:end_pos])
-        # concatenate s1 and s2 data along the last axis
-        train_concat_x_block = np.concatenate([train_s1_x_block, train_s2_x_block], axis=-1) 
-        # training process
-        model.fit(train_concat_x_block, train_y_block, epochs=1, batch_size=batch_size)
+# Create Valication Generator
+def valGenerator(batch_size):
+    while True:
+        # Generate data with batch_size 
+        for i in range(0, val_size, batch_size):
+            start_pos = i
+            end_pos = min(i + batch_size, val_size)
+            val_s1_X_batch = np.asarray(s1_validation[start_pos:end_pos])
+            val_s2_X_batch = np.asarray(s2_validation[start_pos:end_pos])
+            val_y_batch = np.asarray(label_validation[start_pos:end_pos])
+            # concatenate s1 and s2 data along the last axis
+            val_concat_X_batch = np.concatenate([val_s1_X_batch, val_s2_X_batch], axis=-1) 
+            # According to "fit_generator" on Keras.io, the output from the generator must
+            # be a tuple (inputs, targets), thus,
+            yield (val_concat_X_batch, val_y_batch)
 
-    # Validate for each epoch
-    print('')
-    print("[KF INFO] Validating :")
+# Callbacks
+callbacks = []
+# ModelCheckpoint 
+ckpt = tf.keras.callbacks.ModelCheckpoint(
+                os.path.join(res_root_dir, res_folder_name, 'best_model.hdf5'), 
+                monitor='val_loss', 
+                verbose=1, 
+                save_best_only=True,
+                mode='auto')
+callbacks.append(ckpt)
+# EarlyStopping
+earlyStopping = tf.keras.callbacks.EarlyStopping(
+                monitor='val_loss',
+                patience=3,
+                verbose=1,
+                mode='auto')
+callbacks.append(earlyStopping)
+# Tensorboard
+tb_log_dir = os.path.join(res_root_dir, res_folder_name, 'logs')
+#if not os.path.exists(tb_log_dir):
+#    os.makedirs(tb_log_dir)
+tensorboard = tf.keras.callbacks.TensorBoard(
+                log_dir=tb_log_dir
+                )
+callbacks.append(tensorboard)
 
-    # Validation loop
-    loss, acc_num = 0.0, 0.0
-    for i in range(0, val_size, block_size): 
-        
-        start_pos = i
-        end_pos = min(i + block_size, val_size)
-        val_s1_x_block = np.asarray(s1_validation[start_pos:end_pos])
-        val_s2_x_block = np.asarray(s2_validation[start_pos:end_pos])
-        val_y_block = np.asarray(label_validation[start_pos:end_pos])
-        # concatenate s1 and s2 data along the last axis
-        val_concat_x_block = np.concatenate([val_s1_x_block, val_s2_x_block], axis=-1) 
-        # validation process
-        val_res = model.evaluate(val_concat_x_block, val_y_block, batch_size=batch_size)
-        # cumulate the loss and accuracy
-        loss += val_res[0]*(end_pos - i)
-        acc_num += val_res[1]*(end_pos - i)
+# Training loop with generators
+H = model.fit_generator(
+        trainGenerator(batch_size),
+        steps_per_epoch=np.ceil(train_size/batch_size),
+        epochs=epochs,
+        callbacks = callbacks,
+        validation_data=valGenerator(batch_size),
+        validation_steps=np.ceil(val_size/batch_size)
 
-    print("[KF INFO] val_loss : %.4f, val_acc : %.4f" % (loss / val_size, acc_num / val_size))
-
-    # Try this:
-    #val_s1 = np.asarray(s1_training[-5000:])
-    #val_s2 = np.asarray(s2_training[-5000:])
-    #val_y = np.asarray(label_training[-5000:])
-    #val_res = model.evaluate(np.concatenate([val_s1, val_s2], axis=-1), val_y, batch_size=batch_size)
-    #print("[KF INFO] val_loss : %.4f, val_acc : %.4f" % (val_res[0], val_res[1]))
+        )
 
 print('')
 print("[KF INFO] Training Completed!")
 print('')
 
+
 #################################################################
-# V. Predict
+# V. Predict and Save
 #################################################################
 print_title("Predicting with round 1 test data")
 
@@ -237,11 +240,30 @@ print("[KF INFO] Final prediction result:", final_res)
 print("[KF INFO] Prediction shape:", final_res.shape)
 
 # Save prediction to CSV
-from datetime import datetime
-
-cur_date = datetime.now()
-csv_name = 'prediction-%d%d%d-epochs-%d-trainsize-%d.csv' % (cur_date.year, cur_date.month, cur_date.day, epochs, train_size)
+csv_name = 'prediction-%s-%d%d%d-epochs-%d-trainsize-%d.csv' % (model_name, cur_date.year, cur_date.month, cur_date.day, epochs, train_size)
 pred_dir = 'predictions'
 
 np.savetxt(os.path.join(pred_dir, csv_name), final_res, fmt='%d', delimiter=',')
+np.savetxt(os.path.join(res_root_dir, res_folder_name, csv_name), final_res, fmt='%d', delimiter=',')
 print('[KF INFO] Prediction csv saved!')
+
+#################################################################
+# VI. Save Plot
+#################################################################
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+
+# plot the loss and accuracy
+plt.style.use("ggplot")
+plt.figure()
+N = epochs
+plt.plot(np.arange(0, N), H.history["loss"], label="train_loss")
+plt.plot(np.arange(0, N), H.history["val_loss"], label="val_loss")
+plt.plot(np.arange(0, N), H.history["acc"], label="train_acc")
+plt.plot(np.arange(0, N), H.history["val_acc"], label="val_acc")
+plt.title("Training Loss and Accuracy")
+plt.xlabel("Epoch #")
+plt.ylabel("Loss/Accuracy")
+plt.legend(loc="upper left")
+plt.savefig(os.path.join(res_root_dir, res_folder_name, 'plot.png'))

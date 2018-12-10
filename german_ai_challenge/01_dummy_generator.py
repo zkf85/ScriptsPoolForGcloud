@@ -82,13 +82,15 @@ label_dim = label_training.shape[1]
 #################################################################
 # III. Build Model
 #################################################################
+
+# Dummy
+from kfmodels.kfdummy import KFDummy
+# model name for saving directory naming
 model_name = 'dummy'
-model = tf.keras.models.Sequential([
-    tf.keras.layers.Flatten(input_shape=((input_width, input_height, s1_channel + s2_channel))),
-    tf.keras.layers.Dense(256, activation=tf.nn.relu),
-    tf.keras.layers.Dropout(0.2),
-    tf.keras.layers.Dense(label_dim, activation=tf.nn.softmax)
-    ])
+model = KFDummy.build(input_width,
+                        input_height,
+                        s1_channel + s2_channel,
+                        label_dim)
 
 model.compile(optimizer='adam',
                 loss='binary_crossentropy',
@@ -108,7 +110,7 @@ is_test = True
 #is_test = False
 
 # Set real epoch for the training process
-epochs = 10
+epochs = 3 
 
 # Set batch_size 
 batch_size = 128
@@ -206,14 +208,13 @@ tensorboard = tf.keras.callbacks.TensorBoard(
 callbacks.append(tensorboard)
 
 # Training loop with generators
-model.fit_generator(
+H = model.fit_generator(
         trainGenerator(batch_size),
         steps_per_epoch=np.ceil(train_size/batch_size),
         epochs=epochs,
         callbacks = callbacks,
         validation_data=valGenerator(batch_size),
         validation_steps=np.ceil(val_size/batch_size)
-
         )
 
 print('')
@@ -246,3 +247,25 @@ pred_dir = 'predictions'
 np.savetxt(os.path.join(pred_dir, csv_name), final_res, fmt='%d', delimiter=',')
 np.savetxt(os.path.join(res_root_dir, res_folder_name, csv_name), final_res, fmt='%d', delimiter=',')
 print('[KF INFO] Prediction csv saved!')
+
+#################################################################
+# VI. Save Plot
+#################################################################
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+
+print_title("Plot the Loss and Accuracy")
+# plot the loss and accuracy
+plt.style.use("ggplot")
+plt.figure()
+N = epochs
+plt.plot(np.arange(0, N), H.history["loss"], label="train_loss")
+plt.plot(np.arange(0, N), H.history["val_loss"], label="val_loss")
+plt.plot(np.arange(0, N), H.history["acc"], label="train_acc")
+plt.plot(np.arange(0, N), H.history["val_acc"], label="val_acc")
+plt.title("Training Loss and Accuracy")
+plt.xlabel("Epoch #")
+plt.ylabel("Loss/Accuracy")
+plt.legend(loc="upper left")
+plt.savefig(os.path.join(res_root_dir, res_folder_name, 'plot.png'))
