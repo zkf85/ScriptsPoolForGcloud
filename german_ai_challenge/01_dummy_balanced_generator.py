@@ -107,19 +107,21 @@ for i, l in enumerate(cls_list):
 
 # This variable contains a balanced version of samples for later training
 sorted_balanced_idx_list = sorted(balanced_idx_list)
-print(sorted_balanced_idx_list[:20])
-print(len(sorted_balanced_idx_list))
+#print(sorted_balanced_idx_list[:20])
+print("Balanced dataset index list size:", len(sorted_balanced_idx_list))
 
 # Validate the distribution of the balanced dataset:
+print('-'*65)
 print("Validate the balancing of the dataset:")
-res = np.zeros((17,))
+print('-'*65)
+test_res = np.zeros((17,))
 for idx in sorted_balanced_idx_list:
     if idx >= len(label_training):
         label_tmp = label_validation[idx - len(label_training)]
     else:
         label_tmp = label_training[idx]
-    res += label_tmp
-print(res)
+    test_res += label_tmp
+print(test_res)
 
 # Shuffle inplace:
 random.shuffle(sorted_balanced_idx_list)
@@ -144,7 +146,7 @@ model = KFDummy.build(input_width,
                         label_dim)
 
 model.compile(optimizer='adam',
-                loss='binary_crossentropy',
+                loss='categorical_crossentropy',
                 metrics=['accuracy'])
 
 print_title("Model Summary")
@@ -161,7 +163,7 @@ train_mode = 'Full'
 is_test = False
 
 # Set real epoch for the training process
-epochs = 3 
+epochs = 20
 
 # Set batch_size 
 batch_size = 64
@@ -202,8 +204,10 @@ print_title("Start Training")
 
 # Updated 12/17/2018
 # Create Balanced Generator
+#res = np.zeros((17,))
 
 def trainGenerator(batch_size):
+    #global res
     # Generate data with batch_size 
     while True:
         for i in range(0, train_size, batch_size):
@@ -216,11 +220,15 @@ def trainGenerator(batch_size):
                     s1_tmp.append(s1_validation[idx - len(label_training)])
                     s2_tmp.append(s2_validation[idx - len(label_training)])
                     y_tmp.append(label_validation[idx - len(label_training)])
+                    #res += label_validation[idx - len(label_training)]
                 else:
                     s1_tmp.append(s1_training[idx])
                     s2_tmp.append(s2_training[idx])
                     y_tmp.append(label_training[idx])
+                    #res += label_training[idx]
                 
+            #print('')
+            #print(res)
             train_s1_X_batch = np.asarray(s1_tmp)
             train_s2_X_batch = np.asarray(s2_tmp)
             train_y_batch = np.asarray(y_tmp)
@@ -232,6 +240,7 @@ def trainGenerator(batch_size):
 
 # Create Valication Generator
 def valGenerator(batch_size):
+    #global res
     while True:
         # Generate data with batch_size 
         for i in range(0, len(balanced_val_idx_list), batch_size):
@@ -244,11 +253,15 @@ def valGenerator(batch_size):
                     s1_tmp.append(s1_validation[idx - len(label_training)])
                     s2_tmp.append(s2_validation[idx - len(label_training)])
                     y_tmp.append(label_validation[idx - len(label_training)])
+                    #res += label_validation[idx - len(label_training)]
                 else:
                     s1_tmp.append(s1_training[idx])
                     s2_tmp.append(s2_training[idx])
                     y_tmp.append(label_training[idx])
+                    #res += label_training[idx]
                 
+            #print('')
+            #print(res)
             val_s1_X_batch = np.asarray(s1_tmp)
             val_s2_X_batch = np.asarray(s2_tmp)
             val_y_batch = np.asarray(y_tmp)

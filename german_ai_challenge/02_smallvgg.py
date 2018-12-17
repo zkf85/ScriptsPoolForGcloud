@@ -105,7 +105,7 @@ model = KFSmallerVGGNet.build(input_width,
                                 s1_channel + s2_channel,
                                 label_dim)
 model.compile(optimizer='adam',
-                loss='binary_crossentropy',
+                loss='categorical_crossentropy',
                 metrics=['accuracy'])
 
 print_title("Model Summary")

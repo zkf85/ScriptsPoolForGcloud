@@ -107,7 +107,7 @@ model = KFDummy.build(input_width,
                         label_dim)
 
 model.compile(optimizer='adam',
-                loss='binary_crossentropy',
+                loss='categorical_crossentropy',
                 metrics=['accuracy'])
 
 print_title("Model Summary")
@@ -124,7 +124,7 @@ is_test = True
 #is_test = False
 
 # Set real epoch for the training process
-epochs = 3 
+epochs = 10
 
 # Set batch_size 
 batch_size = 128
