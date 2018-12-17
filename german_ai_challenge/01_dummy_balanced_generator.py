@@ -110,6 +110,17 @@ sorted_balanced_idx_list = sorted(balanced_idx_list)
 print(sorted_balanced_idx_list[:20])
 print(len(sorted_balanced_idx_list))
 
+# Validate the distribution of the balanced dataset:
+print("Validate the balancing of the dataset:")
+res = np.zeros((17,))
+for idx in sorted_balanced_idx_list:
+    if idx >= len(label_training):
+        label_tmp = label_validation[idx - len(label_training)]
+    else:
+        label_tmp = label_training[idx]
+    res += label_tmp
+print(res)
+
 # Shuffle inplace:
 random.shuffle(sorted_balanced_idx_list)
 # Divide training and validation dataset
