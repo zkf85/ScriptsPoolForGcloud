@@ -46,9 +46,9 @@ fid_test1 = h5py.File(path_round1_test, 'r')
 
 # Have a look at keys stored in the h5 files
 print_title("Overview of Data:")
-print('Training data keys   :', list(fid_training.keys()))
-print('Validation data keys :', list(fid_validation.keys()))
-print('Round1 Test data keys :', list(fid_test1.keys()))
+print('Training data keys      :', list(fid_training.keys()))
+print('Validation data keys    :', list(fid_validation.keys()))
+print('Round1 Test data keys   :', list(fid_test1.keys()))
 
 print('-'*65)
 print("Training data shapes:")
@@ -79,6 +79,20 @@ s1_channel = s1_training.shape[3]
 s2_channel = s2_training.shape[3]
 label_dim = label_training.shape[1]
 
+# KF 12/17/2018
+# Sample Balancing
+label_all = np.concatenate((label_training, label_validation), axis=0)
+label_qty = np.sum(label_all, axis=0)
+print("Sample distribution     :")
+print(label_qty)
+class_weight = label_all.shape[0]/label_qty
+class_weight_dict = {}
+for idx, weight in enumerate(class_weight):
+    class_weight_dict[idx] = weight
+
+print("Sample Class Weights    :")
+print(class_weight_dict)
+
 #################################################################
 # III. Build Model
 #################################################################
@@ -108,7 +122,7 @@ train_mode = 'Full'
 is_test = False
 
 # Set real epoch for the training process
-epochs = 10
+epochs = 20
 
 # Set batch_size 
 batch_size = 128
@@ -192,7 +206,7 @@ callbacks.append(ckpt)
 # EarlyStopping
 earlyStopping = tf.keras.callbacks.EarlyStopping(
                 monitor='val_loss',
-                patience=3,
+                patience=5,
                 verbose=1,
                 mode='auto')
 callbacks.append(earlyStopping)
@@ -210,10 +224,10 @@ H = model.fit_generator(
         trainGenerator(batch_size),
         steps_per_epoch=np.ceil(train_size/batch_size),
         epochs=epochs,
+        class_weight=class_weight_dict,
         callbacks = callbacks,
         validation_data=valGenerator(batch_size),
         validation_steps=np.ceil(val_size/batch_size)
-
         )
 
 print('')

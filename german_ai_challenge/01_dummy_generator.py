@@ -79,6 +79,20 @@ s1_channel = s1_training.shape[3]
 s2_channel = s2_training.shape[3]
 label_dim = label_training.shape[1]
 
+# KF 12/17/2018
+# Sample Balancing
+label_all = np.concatenate((label_training, label_validation), axis=0)
+label_qty = np.sum(label_all, axis=0)
+print("Sample distribution     :")
+print(label_qty)
+class_weight = label_all.shape[0]/label_qty
+class_weight_dict = {}
+for idx, weight in enumerate(class_weight):
+    class_weight_dict[idx] = weight
+
+print("Sample Class Weights    :")
+print(class_weight_dict)
+
 #################################################################
 # III. Build Model
 #################################################################
@@ -212,6 +226,7 @@ H = model.fit_generator(
         trainGenerator(batch_size),
         steps_per_epoch=np.ceil(train_size/batch_size),
         epochs=epochs,
+        class_weight=class_weight_dict,
         callbacks = callbacks,
         validation_data=valGenerator(batch_size),
         validation_steps=np.ceil(val_size/batch_size)
