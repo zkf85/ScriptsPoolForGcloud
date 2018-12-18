@@ -10,11 +10,10 @@ from tensorflow.keras.layers import Dense
 
 class KFSmallerVGGNet:
     @staticmethod
-    def build(input_width, input_height, input_channel, label_dim):
+    def build(input_shape, label_dim=17):
 
         # Build small vgg model from scratch
         model = Sequential()
-        input_shape = (input_width, input_height, input_channel)
         chanDim = -1
         # CONV => RELU => POOL
         model.add(Conv2D(256, (3, 3), padding="same",

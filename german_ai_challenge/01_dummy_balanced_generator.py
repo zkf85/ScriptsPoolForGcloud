@@ -349,7 +349,8 @@ print_title("Plot the Loss and Accuracy")
 # plot the loss and accuracy
 plt.style.use("ggplot")
 plt.figure()
-N = epochs
+#N = epochs
+N = len(H.history["loss"])
 plt.plot(np.arange(0, N), H.history["loss"], label="train_loss")
 plt.plot(np.arange(0, N), H.history["val_loss"], label="val_loss")
 plt.plot(np.arange(0, N), H.history["acc"], label="train_acc")
