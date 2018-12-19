@@ -14,9 +14,6 @@ import tensorflow as tf
 from datetime import datetime
 import csv
 
-# Load current date for later use
-cur_date = datetime.now()
-
 # Print title with double lines with text aligned to center
 def print_title(title):
     print('')
@@ -25,124 +22,117 @@ def print_title(title):
     print('=' * 65)
 
 #################################################################
-# I. Load Data
+# I. Parameters
 #################################################################
-#----------------------------------------------------------------
 # Set Paths
-#----------------------------------------------------------------
 base_dir = os.path.expanduser('/home/kefeng/German_AI_Challenge/dataset')
 train_filename = 'training.h5'
 val_filename = 'validation.h5'
 round1_test_filename = 'round1_test_a_20181109.h5'
 
-# Package parameters into dictionary
+# Set Train mode: 'real' or 'test'
+#train_mode = 'real'
+train_mode = 'test'
+
+# Set real epoch for the training process
+epochs = 3
+
+# Set batch_size 
+batch_size = 64
+
+# Set data channel: 'full' or 's2_rgb'
+#data_channel = 'full'
+data_channel = 's2_rgb'
+
+# Set data generating mode: 'original' or 'balanced'
+data_gen_mode = 'original'
+#data_gen_mode = 'balanced'
+
+# Set model name
+model_name = 'KFSmallerVGGNet'
+#model_name = 'KFDummy'
+#model_name = 'KFInceptionResNetV2'
+
+#################################################################
+# II. Load Data and Generator
+#################################################################
+from kfdata.KFGermanData import GermanData
+
+# Parameter dictionary for initializing GermanData instance
 param_dict = {}
+# Add parameters to param_dict
 param_dict['base_dir'] = base_dir
 param_dict['train_filename'] = train_filename
 param_dict['val_filename'] = val_filename
 param_dict['round1_test_filename'] = round1_test_filename
+param_dict['train_mode'] = train_mode
+param_dict['batch_size'] = batch_size
+param_dict['data_channel'] = data_channel
+param_dict['data_gen_mode'] = data_gen_mode
 
-#----------------------------------------------------------------
-# Load data and show data info
-#----------------------------------------------------------------
-from kfdata.KFGermanData import GermanData
-
+# Create GermanData class instance
 german_data = GermanData(param_dict)
 
+# Get train/val generators
+train_gen = german_data.train_gen
+val_gen = german_data.val_gen
 
-#################################################################
-# I. Set Parameters
-#################################################################
-#----------------------------------------------------------------
-# Set Train mode: either 'real' or 'test'
-#----------------------------------------------------------------
-#train_mode = 'real'
-train_mode = 'test'
-
-#----------------------------------------------------------------
-# Set real epoch for the training process
-#----------------------------------------------------------------
-epochs = 25
-
-#----------------------------------------------------------------
-# Set batch_size 
-#----------------------------------------------------------------
-batch_size = 64
-
-#----------------------------------------------------------------
-# Set data channel:
-#----------------------------------------------------------------
-#data_channel = 'full'
-data_channel = 's2_rgb'
-
-#----------------------------------------------------------------
-# Set data generating mode: either 'original' or 'balanced'
-#----------------------------------------------------------------
-#gen_mode = 'original'
-data_gen_mode = 'balanced'
-
-#----------------------------------------------------------------
-# Set model name
-#----------------------------------------------------------------
-model_name = 'KFSmallerVGGNet'
-
-#----------------------------------------------------------------
-# Get Train/Val size
-#----------------------------------------------------------------
-if gen_mode =='original':
-    train_size = german_data.get_train_size(train_mode)
-    val_size = german_data.get_val_size(train_mode)
-elif gen_mode == 'balanced':
-    train_size = german_data.get_balanced_train_size(train_mode)
-    val_size = german_data.get_balanced_val_size(train_mode)
-
-#----------------------------------------------------------------
 # Set model saving Path 
-# Requires: model_name, cur_date, epochs, train_size
-#----------------------------------------------------------------
+#   requires: model_name, cur_date, epochs, train_size
+cur_date = datetime.now()
 res_root_dir = os.path.expanduser('/home/kefeng/German_AI_Challenge/results')
-res_folder_name = 'model-%s-%d%d%d-epochs-%d-trainsize-%d' % (model_name, cur_date.year, cur_date.month, cur_date.day, epochs, train_size)
+res_folder_name = 'model-%s-%d%d%d-epochs-%d-trainsize-%d' % (model_name, cur_date.year, cur_date.month, cur_date.day, epochs, german_data.train_size)
 if not os.path.exists(os.path.join(res_root_dir, res_folder_name)):
     os.makedirs(os.path.join(res_root_dir, res_folder_name))
 
-#################################################################
+#----------------------------------------------------------------
 # Print Training Parameters
-#################################################################
+#----------------------------------------------------------------
 print('')
 print_title("Training Parameters")
-print("Train Mode       :", train_mode)
-print("Data Channel     :", data_channel)
-print("Data Gen Mode    :", data_gen_mode)
-print("Train Size       :", train_size)
-print("Validation Size  :", val_size)
+print("Train Mode       :", german_data.train_mode)
+print("Data Channel     :", german_data.data_channel)
+print("Data Gen Mode    :", german_data.data_gen_mode)
+print("Train Size       :", german_data.train_size)
+print("Validation Size  :", german_data.val_size)
+print("Batch Size       :", german_data.batch_size)
+print("Data Dimension   :", german_data.data_dimension)
 print("Epochs           :", epochs)
-print("Batch Size       :", )
 print('-'*65)
+print("Model Name       :", model_name)
 print("Model Saving Directory:")
 print(os.path.join(res_root_dir, res_folder_name))
 print('-'*65)
 
-print('')
-print_title("Start Training")
 
 #################################################################
-# III. Build Model
+# III. Build the Model
 #################################################################
+from kfmodels.kfmodels import KFSmallerVGGNet, KFDummy, KFInceptionResNetV2
 
-from kfmodels.kfsmallervggnet import KFSmallerVGGNet
-# model name for saving directory naming
-model = KFSmallerVGGNet.build(german_data.getDataShape(channel=data_channel))
+# Select model with model name
+if model_name == 'KFSmallerVGGNet':
+    model = KFSmallerVGGNet.build(german_data.data_dimension)
+elif model_name == 'KFDummy':
+    model = KFDummy.build(german_data.data_dimension)
+elif model_name == 'KFInceptionResNetV2':
+    print("i'm here>>>>>>>>>>")
+    model = KFInceptionResNetV2.build(german_data.data_dimension)
 
+# Build model
 model.compile(optimizer='adam',
                 loss='categorical_crossentropy',
                 metrics=['accuracy'])
 
+# Model summary
 print_title("Model Summary")
 model.summary()
 
 #################################################################
-# IV. Train with Data Generator 
+# IV. Train the Model
 #################################################################
+print('')
+print_title("Start Training")
 # Callbacks
 callbacks = []
 # ModelCheckpoint 
@@ -171,12 +161,12 @@ callbacks.append(tensorboard)
 
 # Training loop with generators
 H = model.fit_generator(
-        trainGenerator(batch_size),
-        steps_per_epoch=np.ceil(train_size/batch_size),
+        train_gen,
+        steps_per_epoch=np.ceil(german_data.train_size/german_data.batch_size),
         epochs=epochs,
         callbacks = callbacks,
-        validation_data=valGenerator(batch_size),
-        validation_steps=np.ceil(val_size/batch_size)
+        validation_data=val_gen,
+        validation_steps=np.ceil(german_data.val_size/german_data.batch_size)
         )
 
 print('')
@@ -188,11 +178,10 @@ print('')
 #################################################################
 print_title("Predicting with round 1 test data")
 
-# concatenate s1 and s2 data along the last axis
-test_concat = np.concatenate([s1_test1, s2_test1], axis=-1)
+test_data = german_data.getTestData()
 # predicting process
-res = model.predict(test_concat)
-# find the largest confident's index
+res = model.predict(test_data)
+# find the largest confident'test_concats index
 res = np.argmax(res, axis=1)
 
 # Convert categorical result to one-hot encoded matrix
@@ -203,7 +192,7 @@ print("[KF INFO] Prediction shape:", final_res.shape)
 
 # Save prediction to CSV
 
-csv_name = 'prediction-%s-%d%d%d-epochs-%d-trainsize-%d.csv' % (model_name, cur_date.year, cur_date.month, cur_date.day, epochs, train_size)
+csv_name = 'prediction-%s-%d%d%d-epochs-%d-trainsize-%d.csv' % (model_name, cur_date.year, cur_date.month, cur_date.day, epochs, german_data.train_size)
 pred_dir = 'predictions'
 
 np.savetxt(os.path.join(pred_dir, csv_name), final_res, fmt='%d', delimiter=',')
@@ -222,7 +211,7 @@ print_title("Plot the Loss and Accuracy")
 plt.style.use("ggplot")
 plt.figure()
 #N = epochs
-N = len(H.history["loss"]
+N = len(H.history["loss"])
 plt.plot(np.arange(0, N), H.history["loss"], label="train_loss")
 plt.plot(np.arange(0, N), H.history["val_loss"], label="val_loss")
 plt.plot(np.arange(0, N), H.history["acc"], label="train_acc")
@@ -232,3 +221,4 @@ plt.xlabel("Epoch #")
 plt.ylabel("Loss/Accuracy")
 plt.legend(loc="upper left")
 plt.savefig(os.path.join(res_root_dir, res_folder_name, 'plot.png'))
+

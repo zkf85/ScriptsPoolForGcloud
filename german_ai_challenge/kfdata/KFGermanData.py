@@ -12,16 +12,34 @@ class GermanData:
     #                          Initialization
     #####################################################################
     def __init__(self, params):
+
+        #================================================================
+        # params - paramter dictionary
+        #   parameter key list:
+        #       base_dir              - Base directory of the dataset
+        #       train_filename        - train data file name
+        #       val_filename          - validation data file name
+        #       round1_test_filename  - round 1 test data file name
+        #       train_mode            - either 'real' or 'test'
+        #       batch_size            - batch size
+        #       data_channel          - 'full', 's2_rgb'
+        #       data_gen_mode         - either 'original' or 'balanced'
+        #================================================================
+
         # Initialize paths parameters
         self.base_dir = params.get('base_dir')
-
         self.train_filename = params.get('train_filename')
         self.val_filename = params.get('val_filename')
         self.round1_test_filename = params.get('round1_test_filename')
-
         self.path_training = os.path.join(self.base_dir, self.train_filename)
         self.path_validation = os.path.join(self.base_dir, self.val_filename) 
         self.path_round1_test = os.path.join(self.base_dir, self.round1_test_filename)
+
+        # Initialize other parameters
+        self.train_mode = params.get('train_mode')
+        self.batch_size = params.get('batch_size')
+        self.data_channel = params.get('data_channel')
+        self.data_gen_mode = params.get('data_gen_mode')
 
         #----------------------------------------------------------------
         # 1. Paths Validation
@@ -49,19 +67,44 @@ class GermanData:
         self.s1_test1 = fid_test1['sen1']
         self.s2_test1 = fid_test1['sen2']
         print("[KF INFO] Data loaded successfully!")
-
-        self.train_size = len(self.label_training)
-        self.val_size = len(self.label_validation)
-
-        #----------------------------------------------------------------
-        # Set test parameters 
-        #----------------------------------------------------------------
-        self.small_train_size = 4000
-        self.small_val_size = 1000
-
+        # Show data information
         self.showDataInfo()
-        self.getBalancedData()
 
+        #----------------------------------------------------------------
+        # 3. Save data dimension
+        #----------------------------------------------------------------
+        # For External Use:
+        self.data_dimension = self.getDataDimension()
+
+        #----------------------------------------------------------------
+        # 4. Prepare Data and Generator
+        #----------------------------------------------------------------
+        if self.data_gen_mode == 'original':
+        
+            self.train_size = len(self.label_training)
+            self.val_size = len(self.label_validation)
+
+            # Reset parameters for 'test' mode
+            if self.train_mode == 'test':
+                self.batch_size = 32
+                self.train_size = 4000
+                self.val_size = 1000
+
+            
+            # Configure data generator
+            # For External Use:
+            self.train_gen = self.trainGenerator()
+            self.val_gen = self.valGenerator()
+
+        elif self.data_gen_mode == 'balanced':
+            # prepare balanced data 
+            self.useBalancedData()
+
+        #----------------------------------------------------------------
+        # 5. Prepare Round1 Test data for prediction
+        #----------------------------------------------------------------
+        #self.test_data = self.getTestData()
+        
 
     #===================================================================
     # Print title with double lines with text aligned to center
@@ -104,7 +147,7 @@ class GermanData:
     # Get balance data :
     #   Save balanced data as class variables
     #===================================================================
-    def getBalancedData(self):
+    def useBalancedData(self):
         self.print_title('Get Balanced Data')
         label_all = np.concatenate((self.label_training, self.label_validation), axis=0)
         label_qty = np.sum(label_all, axis=0)
@@ -134,8 +177,8 @@ class GermanData:
         print("[KF INFO] Validate the balanced dataset:")
         test_res = np.zeros((17,))
         for idx in sorted_balanced_idx_list:
-            if idx >= self.train_size:
-                label_tmp = self.label_validation[idx - self.train_size]
+            if idx >= len(self.label_training):
+                label_tmp = self.label_validation[idx - len(self.label_training)]
             else:
                 label_tmp = self.label_training[idx]
             test_res += label_tmp
@@ -150,44 +193,55 @@ class GermanData:
         # Save to variables
         self.balanced_train_idx_list = sorted_balanced_idx_list[:split]
         self.balanced_val_idx_list = sorted_balanced_idx_list[split:]
-        self.balanced_train_size = len(self.balanced_train_idx_list)
-        self.balanced_val_size = len(self.balanced_val_idx_list)
+        self.train_size = len(self.balanced_train_idx_list)
+        self.val_size = len(self.balanced_val_idx_list)
 
+
+        # Reset parameters for 'test' mode
+        if self.train_mode == 'test':
+            self.batch_size = 32
+            self.train_size = 4000
+            self.val_size = 1000
+        
+        # Configure data generator
+        # For External Use
+        self.train_gen = self.balancedTrainGenerator()
+        self.val_gen = self.balancedValGenerator()
+
+
+    #===================================================================
+    # Get data shape
+    #===================================================================
+    def getDataDimension(self):
+
+        input_width = self.s1_training.shape[1] 
+        input_height = self.s1_training.shape[2]
+
+        if self.data_channel == 'full':
+            # channel number should be 10 + 8 = 18
+            s1_channel = self.s1_training.shape[3]
+            s2_channel = self.s2_training.shape[3]
+            dimension = (input_width, input_height, s1_channel + s2_channel)
+
+        elif self.data_channel == 's2_rgb':
+            # channel number should be fixed as 3 (r,g,b)
+            dimension = (input_width, input_height, 3)
+
+        return dimension
 
     #####################################################################
     #                         Data Generators
     #####################################################################
 
     #===================================================================
-    # Get data shape
-    #===================================================================
-    def getDataShape(self, channel='full'):
-
-        input_width = self.s1_training.shape[1] 
-        input_height = self.s1_training.shape[2]
-
-        if channel == 'full':
-            # channel number should be 10 + 8 = 18
-            s1_channel = self.s1_training.shape[3]
-            s2_channel = self.s2_training.shape[3]
-            shape = (input_width, input_height, s1_channel + s2_channel)
-
-        elif channel == 's2_rgb':
-            # channel number should be fixed as 3 (r,g,b)
-            shape = (input_width, input_height, 3)
-
-        return shape
-
-    #===================================================================
     # Training-data Generator
     #===================================================================
-    def trainGenerator(self, batch_size=32, channel='full', train_mode='real'):
+    def trainGenerator(self):
 
-        if train_mode == 'test':
-            batch_size = 32
-
-        train_size = self.get_train_size(train_mode)
-        print(train_size)
+        train_size = self.train_size
+        batch_size = self.batch_size
+        channel = self.data_channel
+        print(train_size, batch_size, channel)
 
         while True:
             for i in range(0, train_size, batch_size):
@@ -215,13 +269,12 @@ class GermanData:
     #===================================================================
     # Validation-data Generator
     #===================================================================
-    def valGenerator(self, batch_size=32, channel='full', train_mode='real'):
+    def valGenerator(self):
 
-        if train_mode == 'test':
-            batch_size = 32
-
-        val_size = self.get_val_size(train_mode)
-        print(val_size)
+        val_size = self.val_size
+        batch_size = self.batch_size
+        channel = self.data_channel
+        print(val_size, batch_size, channel)
 
         while True:
             # Generate data with batch_size
@@ -250,13 +303,12 @@ class GermanData:
     #===================================================================
     # Balanced Training-data Generator
     #===================================================================
-    def balancedTrainGenerator(self, batch_size=32, channel='full', train_mode='real'):
+    def balancedTrainGenerator(self):
 
-        if train_mode == 'test':
-            batch_size = 32
-
-        train_size = self.get_balanced_train_size(train_mode)
-        print(train_size)
+        train_size = self.train_size
+        batch_size = self.batch_size
+        channel = self.data_channel
+        print(train_size, batch_size, channel)
 
         # Generate data with batch_size
         while True:
@@ -268,10 +320,10 @@ class GermanData:
                     s1_tmp, s2_tmp, y_tmp = [], [], []
                     for p in range(start_pos, end_pos):
                         idx = self.balanced_train_idx_list[p]
-                        if idx >= self.train_size:
-                            s1_tmp.append(self.s1_validation[idx - self.train_size])
-                            s2_tmp.append(self.s2_validation[idx - self.train_size])
-                            y_tmp.append(self.label_validation[idx - self.train_size]) 
+                        if idx >= len(self.label_training):
+                            s1_tmp.append(self.s1_validation[idx -len(self.label_training)])
+                            s2_tmp.append(self.s2_validation[idx - len(self.label_training)])
+                            y_tmp.append(self.label_validation[idx - len(self.label_training)])
                         else:
                             s1_tmp.append(self.s1_training[idx])
                             s2_tmp.append(self.s2_training[idx])
@@ -290,10 +342,10 @@ class GermanData:
                     s2_tmp, y_tmp = [], []
                     for p in range(start_pos, end_pos):
                         idx = self.balanced_train_idx_list[p]
-                        if idx >= self.train_size:
+                        if idx >= len(self.label_training):
                             # get channel 2, 1, 0 as rgb
-                            s2_tmp.append(self.s2_validation[idx - self.train_size][...,2::-1])
-                            y_tmp.append(self.label_validation[idx - self.train_size]) 
+                            s2_tmp.append(self.s2_validation[idx -len(self.label_training)][...,2::-1])
+                            y_tmp.append(self.label_validation[idx - len(self.label_training)])
                         else:
                             s2_tmp.append(self.s2_training[idx][...,2::-1])
                             y_tmp.append(self.label_training[idx])
@@ -308,13 +360,12 @@ class GermanData:
     #===================================================================
     # Balanced Validation-data Generator
     #===================================================================
-    def balancedValGenerator(self, batch_size=32, channel='s2_rgb', train_mode='real'):
+    def balancedValGenerator(self):
         
-        if train_mode == 'test':
-            batch_size = 32
-
-        val_size = self.get_balanced_val_size(train_mode)
-        print(val_size)
+        val_size = self.val_size
+        batch_size = self.batch_size
+        channel = self.data_channel
+        print(val_size, batch_size, channel)
 
         while True:
             # Generate data with batch_size
@@ -327,9 +378,9 @@ class GermanData:
                     for p in range(start_pos, end_pos):
                         idx = self.balanced_val_idx_list[p]
                         if idx >= len(self.label_training):
-                            s1_tmp.append(self.s1_validation[idx - self.train_size])
-                            s2_tmp.append(self.s2_validation[idx - self.train_size])
-                            y_tmp.append(self.label_validation[idx - self.train_size])
+                            s1_tmp.append(self.s1_validation[idx - len(self.label_training)])
+                            s2_tmp.append(self.s2_validation[idx - len(self.label_training)])
+                            y_tmp.append(self.label_validation[idx - len(self.label_training)])
                         else:
                             s1_tmp.append(self.s1_training[idx])
                             s2_tmp.append(self.s2_training[idx])
@@ -350,8 +401,8 @@ class GermanData:
                         idx = self.balanced_val_idx_list[p]
                         if idx >= len(self.label_training):
                             # get channel 2, 1, 0 as rgb
-                            s2_tmp.append(self.s2_validation[idx - self.train_size][...,2::-1])
-                            y_tmp.append(self.label_validation[idx - self.train_size])
+                            s2_tmp.append(self.s2_validation[idx - len(self.label_training)][...,2::-1])
+                            y_tmp.append(self.label_validation[idx - len(self.label_training)])
                         else:
                             s2_tmp.append(self.s2_training[idx][...,2::-1])
                             y_tmp.append(self.label_training[idx])
@@ -362,30 +413,21 @@ class GermanData:
                     # be a tuple (inputs, targets), thus,
                     yield (val_s2_rgb_X_batch, val_y_batch)
 
-
     #===================================================================
-    # Get size methods based on 'train_mode'
+    # Generate round 1 test data for prediction
     #===================================================================
-    def get_train_size(self, train_mode):
-        if train_mode == 'real':
-            return self.train_size
-        elif train_mode == 'test':
-            return self.small_train_size
+    def getTestData(self):
+        
+        channel = self.data_channel
 
-    def get_val_size(self, train_mode):
-        if train_mode == 'real':
-            return self.val_size
-        elif train_mode == 'test':
-            return self.small_val_size
+        if channel == 'full': 
+            test_data = np.concatenate([self.s1_test1, self.s2_test1], axis=-1)
+        
+        elif channel == 's2_rgb':
+            tmp = []
+            for p in self.s2_test1:
+                tmp.append(p[...,2::-1])
+            test_data = np.asarray(tmp)
+        print("Test data shape :", test_data.shape)
 
-    def get_balanced_train_size(self, train_mode):
-        if train_mode == 'real':
-            return self.balanced_train_size
-        elif train_mode == 'test':
-            return self.small_train_size
-
-    def get_balanced_val_size(self, train_mode):
-        if train_mode == 'real':
-            return self.balanced_val_size
-        elif train_mode == 'test':
-
+        return test_data

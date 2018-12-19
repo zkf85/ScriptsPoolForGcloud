@@ -8,6 +8,7 @@
 #
 #################################################################
 import os
+import numpy as np
 
 base_dir = os.path.expanduser('/home/kefeng/German_AI_Challenge/dataset')
 train_filename = 'training.h5'
@@ -21,6 +22,15 @@ param_dict['train_filename'] = train_filename
 param_dict['val_filename'] = val_filename
 param_dict['round1_test_filename'] = round1_test_filename
 
+#param_dict['train_mode'] = 'test'
+param_dict['train_mode'] = 'full'
+#param_dict['batch_size'] = 64
+param_dict['batch_size'] = 128
+#param_dict['data_channel'] = 'full'
+param_dict['data_channel'] = 's2_rgb'
+param_dict['data_gen_mode'] = 'original'
+#param_dict['data_gen_mode'] = 'balanced'
+
 #################################################################
 # Test Initialization 
 #################################################################
@@ -28,75 +38,37 @@ from kfdata.KFGermanData import GermanData
 
 german_data = GermanData(param_dict)
 
-#----------------------------------------------------------------
-# Test get data shape:
-#----------------------------------------------------------------
+#################################################################
+# Print Training Parameters
+#################################################################
 print('')
-print("[KF INFO] Test getDataShape with channel 'full':")
-print("  data shape:", german_data.getDataShape(channel='full'))
-
-print('')
-print("[KF INFO] Test getDataShape with channel 's2_rgb':")
-print("  data shape:", german_data.getDataShape(channel='s2_rgb'))
+german_data.print_title("Training Parameters")
+print("Train Mode       :", german_data.train_mode)
+print("Data Channel     :", german_data.data_channel)
+print("Data Gen Mode    :", german_data.data_gen_mode)
+print("Train Size       :", german_data.train_size)
+print("Validation Size  :", german_data.val_size)
+print("Batch Size       :", german_data.batch_size)
+print("Data Dimension   :", german_data.data_dimension)
+print('-'*65)
 
 #################################################################
 # Test Generators:
 #################################################################
-batch_size = 64
 loop = 10
-print('')
-print('[KF INFO] Test trainGenerator:')
-print('-'*65)
-for i in range(loop):
-    data = next(german_data.trainGenerator(batch_size, train_mode='real'))
-    print("batch_X shape:", data[0].shape, "batch_y shape:", data[1].shape)
-
-print('')
-print('[KF INFO] Test valGenerator:')
-print('-'*65)
-for i in range(loop):
-    data = next(german_data.valGenerator(batch_size, train_mode='real'))
-    print("batch_X shape:", data[0].shape, "batch_y shape:", data[1].shape)
-
-print('')
-print('[KF INFO] Test balancedTrainGenerator:')
-print('-'*65)
-for i in range(loop):
-    data = next(german_data.balancedTrainGenerator(batch_size, train_mode='real'))
-    print("batch_X shape:", data[0].shape, "batch_y shape:", data[1].shape)
-
-print('')
-print('[KF INFO] Test balancedValGenerator:')
-print('-'*65)
-for i in range(loop):
-    data = next(german_data.balancedValGenerator(batch_size, train_mode='real'))
-    print("batch_X shape:", data[0].shape, "batch_y shape:", data[1].shape)
-
-print('')
-print('[KF INFO] Test S2 RGB channel for trainGenerator:')
-print('-'*65)
-for i in range(loop):
-    data = next(german_data.trainGenerator(batch_size, channel='s2_rgb', train_mode='test'))
-    print("batch_X shape:", data[0].shape, "batch_y shape:", data[1].shape)
-
-print('')
-print('[KF INFO] Test S2 RGB channel for valGenerator:')
-print('-'*65)
-for i in range(loop):
-    data = next(german_data.valGenerator(batch_size, channel='s2_rgb', train_mode='test'))
-    print("batch_X shape:", data[0].shape, "batch_y shape:", data[1].shape)
-
-print('')
-print('[KF INFO] Test S2 RGB channel for balancedTrainGenerator:')
-print('-'*65)
-for i in range(loop):
-    data = next(german_data.balancedTrainGenerator(batch_size, channel='s2_rgb', train_mode='test'))
-    print("batch_X shape:", data[0].shape, "batch_y shape:", data[1].shape)
-
-print('')
-print('[KF INFO] Test S2 RGB channel for balancedValGenerator:')
-print('-'*65)
-for i in range(loop):
-    data = next(german_data.balancedValGenerator(batch_size, channel='s2_rgb', train_mode='test'))
-    print("batch_X shape:", data[0].shape, "batch_y shape:", data[1].shape)
+#print('')
+#print('[KF INFO] Test german_data.train_gen:')
+#print('-'*65)
+#for i in range(loop):
+#    data = next(german_data.train_gen)
+#    print("batch_X shape:", data[0].shape, "batch_y shape:", data[1].shape)
+#
+#print('')
+#print('[KF INFO] Test german_data.val_gen:')
+#print('-'*65)
+#for i in range(loop):
+#    data = next(german_data.val_gen)
+#    print("batch_X shape:", data[0].shape, "batch_y shape:", data[1].shape)
+test_data = german_data.getTestData()
+print(test_data.min())
 
