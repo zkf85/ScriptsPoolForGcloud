@@ -31,14 +31,15 @@ val_filename = 'validation.h5'
 round1_test_filename = 'round1_test_a_20181109.h5'
 
 # Set Train mode: 'real' or 'test'
-#train_mode = 'real'
-train_mode = 'test'
+train_mode = 'real'
+#train_mode = 'test'
 
 # Set real epoch for the training process
-epochs = 3
+#epochs = 3
+epochs = 50
 
 # Set batch_size 
-batch_size = 64
+batch_size = 128
 
 # Set data channel: 'full' or 's2_rgb'
 #data_channel = 'full'
