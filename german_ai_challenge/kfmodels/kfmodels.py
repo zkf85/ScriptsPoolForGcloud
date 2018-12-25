@@ -35,7 +35,7 @@ class KFSmallerVGGNet:
     @staticmethod
     def build(input_shape, label_dim=17):
 
-        factor = 3
+        factor = 4
         # Build small vgg model from scratch
         model = Sequential()
         chanDim = -1
@@ -70,7 +70,7 @@ class KFSmallerVGGNet:
         # first (and only) set of FC => RELU layers
         model.add(Flatten())
 
-        model.add(Dense(2048))
+        model.add(Dense(4096))
         model.add(Activation("relu"))
         model.add(BatchNormalization())
         model.add(Dropout(0.5))

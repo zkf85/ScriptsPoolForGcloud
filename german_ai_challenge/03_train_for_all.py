@@ -36,7 +36,7 @@ train_mode = 'real'
 
 # Set real epoch for the training process
 #epochs = 3
-epochs = 50
+epochs = 100 
 
 # Set batch_size 
 batch_size = 64 
