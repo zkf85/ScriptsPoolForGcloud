@@ -39,7 +39,7 @@ train_mode = 'real'
 epochs = 50
 
 # Set batch_size 
-batch_size = 128
+batch_size = 64 
 
 # Initial learning rate 
 lr = 0.0001
@@ -51,8 +51,8 @@ lr = 0.0001
 data_channel = 's2'
 
 # Set data generating mode: 'original' or 'balanced'
-data_gen_mode = 'original'
-#data_gen_mode = 'balanced'
+#data_gen_mode = 'original'
+data_gen_mode = 'balanced'
 
 # Set model name
 model_name = 'KFSmallerVGGNet'
@@ -158,7 +158,7 @@ callbacks.append(ckpt)
 # EarlyStopping
 earlyStopping = tf.keras.callbacks.EarlyStopping(
                 monitor='val_loss',
-                patience=10,
+                patience=15,
                 verbose=1,
                 mode='auto')
 callbacks.append(earlyStopping)
@@ -172,6 +172,7 @@ tensorboard = tf.keras.callbacks.TensorBoard(
 callbacks.append(tensorboard)
 #ReduceLROnPlateau
 reduce_lr = tf.keras.callbacks.ReduceLROnPlateau(monitor='val_loss',
+                                verbose=1,
                                 factor=0.5,
                                 patience=5,
                                 min_lr=0.00001)
