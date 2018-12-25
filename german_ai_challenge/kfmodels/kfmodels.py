@@ -44,7 +44,7 @@ class KFSmallerVGGNet:
         model.add(Activation("relu"))
         model.add(BatchNormalization(axis=chanDim))
         model.add(MaxPooling2D(pool_size=(3, 3)))
-        model.add(Dropout(0.25))
+        model.add(Dropout(0.5))
         # (CONV => RELU) * 2 => POOL
         model.add(Conv2D(512, (3, 3), padding="same"))
         model.add(Activation("relu"))
@@ -53,7 +53,7 @@ class KFSmallerVGGNet:
         model.add(Activation("relu"))
         model.add(BatchNormalization(axis=chanDim))
         model.add(MaxPooling2D(pool_size=(2, 2)))
-        model.add(Dropout(0.25))
+        model.add(Dropout(0.5))
         # (CONV => RELU) * 2 => POOL
         model.add(Conv2D(1024, (3, 3), padding="same"))
         model.add(Activation("relu"))
@@ -62,7 +62,7 @@ class KFSmallerVGGNet:
         model.add(Activation("relu"))
         model.add(BatchNormalization(axis=chanDim))
         model.add(MaxPooling2D(pool_size=(2, 2)))
-        model.add(Dropout(0.25))
+        model.add(Dropout(0.5))
 
         # first (and only) set of FC => RELU layers
         model.add(Flatten())

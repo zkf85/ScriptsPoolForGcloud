@@ -42,8 +42,8 @@ epochs = 50
 batch_size = 128
 
 # Set data channel: 'full' or 's2_rgb'
-#data_channel = 'full'
-data_channel = 's2_rgb'
+data_channel = 'full'
+#data_channel = 's2_rgb'
 
 # Set data generating mode: 'original' or 'balanced'
 data_gen_mode = 'original'
@@ -134,7 +134,10 @@ model.summary()
 #################################################################
 print('')
 print_title("Start Training")
+
+#================================================================
 # Callbacks
+#================================================================
 callbacks = []
 # ModelCheckpoint 
 ckpt = tf.keras.callbacks.ModelCheckpoint(
@@ -159,6 +162,12 @@ tensorboard = tf.keras.callbacks.TensorBoard(
                 log_dir=tb_log_dir
                 )
 callbacks.append(tensorboard)
+#ReduceLROnPlateau
+reduce_lr = tf.keras.callbacks.ReduceLROnPlateau(monitor='val_loss',
+                                factor=0.5,
+                                patience=5,
+                                min_lr=0.00001)
+callbacks.append(reduce_lr)
 
 # Training loop with generators
 H = model.fit_generator(
