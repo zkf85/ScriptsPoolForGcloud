@@ -41,9 +41,14 @@ epochs = 50
 # Set batch_size 
 batch_size = 128
 
+# Initial learning rate 
+lr = 0.0001
+
 # Set data channel: 'full' or 's2_rgb'
-data_channel = 'full'
+#data_channel = 'full'
 #data_channel = 's2_rgb'
+#data_channel = 's1'
+data_channel = 's2'
 
 # Set data generating mode: 'original' or 'balanced'
 data_gen_mode = 'original'
@@ -82,7 +87,7 @@ val_gen = german_data.val_gen
 #   requires: model_name, cur_date, epochs, train_size
 cur_date = datetime.now()
 res_root_dir = os.path.expanduser('/home/kefeng/German_AI_Challenge/results')
-res_folder_name = 'model-%s-%d%d%d-epochs-%d-trainsize-%d' % (model_name, cur_date.year, cur_date.month, cur_date.day, epochs, german_data.train_size)
+res_folder_name = 'model-%s-%d%d%d-epochs-%d-trainsize-%d-channels-%s' % (model_name, cur_date.year, cur_date.month, cur_date.day, epochs, german_data.train_size, data_channel)
 if not os.path.exists(os.path.join(res_root_dir, res_folder_name)):
     os.makedirs(os.path.join(res_root_dir, res_folder_name))
 
@@ -99,6 +104,7 @@ print("Validation Size  :", german_data.val_size)
 print("Batch Size       :", german_data.batch_size)
 print("Data Dimension   :", german_data.data_dimension)
 print("Epochs           :", epochs)
+print("Initial LR       :", lr)
 print('-'*65)
 print("Model Name       :", model_name)
 print("Model Saving Directory:")
@@ -110,6 +116,7 @@ print('-'*65)
 # III. Build the Model
 #################################################################
 from kfmodels.kfmodels import KFSmallerVGGNet, KFDummy, KFInceptionResNetV2
+from tensorflow.keras import optimizers
 
 # Select model with model name
 if model_name == 'KFSmallerVGGNet':
@@ -121,7 +128,8 @@ elif model_name == 'KFInceptionResNetV2':
     model = KFInceptionResNetV2.build(german_data.data_dimension)
 
 # Build model
-model.compile(optimizer='adam',
+optimizer = optimizers.Adam(lr=lr)
+model.compile(optimizer=optimizer,
                 loss='categorical_crossentropy',
                 metrics=['accuracy'])
 

@@ -35,30 +35,33 @@ class KFSmallerVGGNet:
     @staticmethod
     def build(input_shape, label_dim=17):
 
+        factor = 3
         # Build small vgg model from scratch
         model = Sequential()
         chanDim = -1
-        # CONV => RELU => POOL
-        model.add(Conv2D(256, (3, 3), padding="same",
-                input_shape=input_shape))
-        model.add(Activation("relu"))
-        model.add(BatchNormalization(axis=chanDim))
-        model.add(MaxPooling2D(pool_size=(3, 3)))
-        model.add(Dropout(0.5))
         # (CONV => RELU) * 2 => POOL
-        model.add(Conv2D(512, (3, 3), padding="same"))
+        model.add(Conv2D(64*factor, (3, 3), padding="same", input_shape=input_shape))
         model.add(Activation("relu"))
         model.add(BatchNormalization(axis=chanDim))
-        model.add(Conv2D(512, (3, 3), padding="same"))
+        model.add(Conv2D(64*factor, (3, 3), padding="same"))
         model.add(Activation("relu"))
         model.add(BatchNormalization(axis=chanDim))
         model.add(MaxPooling2D(pool_size=(2, 2)))
         model.add(Dropout(0.5))
         # (CONV => RELU) * 2 => POOL
-        model.add(Conv2D(1024, (3, 3), padding="same"))
+        model.add(Conv2D(128*factor, (3, 3), padding="same"))
         model.add(Activation("relu"))
         model.add(BatchNormalization(axis=chanDim))
-        model.add(Conv2D(1024, (3, 3), padding="same"))
+        model.add(Conv2D(128*factor, (3, 3), padding="same"))
+        model.add(Activation("relu"))
+        model.add(BatchNormalization(axis=chanDim))
+        model.add(MaxPooling2D(pool_size=(2, 2)))
+        model.add(Dropout(0.5))
+        # (CONV => RELU) * 2 => POOL
+        model.add(Conv2D(256*factor, (3, 3), padding="same"))
+        model.add(Activation("relu"))
+        model.add(BatchNormalization(axis=chanDim))
+        model.add(Conv2D(256*factor, (3, 3), padding="same"))
         model.add(Activation("relu"))
         model.add(BatchNormalization(axis=chanDim))
         model.add(MaxPooling2D(pool_size=(2, 2)))
@@ -66,7 +69,13 @@ class KFSmallerVGGNet:
 
         # first (and only) set of FC => RELU layers
         model.add(Flatten())
+
         model.add(Dense(2048))
+        model.add(Activation("relu"))
+        model.add(BatchNormalization())
+        model.add(Dropout(0.5))
+
+        model.add(Dense(1024))
         model.add(Activation("relu"))
         model.add(BatchNormalization())
         model.add(Dropout(0.5))
@@ -78,8 +87,7 @@ class KFSmallerVGGNet:
         return model
 
  
-#################################################################
-# Model : InceptionResnetV2
+################################################################# # Model : InceptionResnetV2
 # KF 12/19/2018
 #################################################################
 class KFInceptionResNetV2:

@@ -152,7 +152,7 @@ class GermanData:
         label_all = np.concatenate((self.label_training, self.label_validation), axis=0)
         label_qty = np.sum(label_all, axis=0)
         min_size = int(np.min(label_qty))
-        print("Minimal class sample size : ", min_size)
+        print("Minimal sample size per class : ", min_size)
 
         # convert one hot to explicit category
         label_all_cat = np.array(np.argmax(label_all, axis=1))
@@ -227,6 +227,16 @@ class GermanData:
             # channel number should be fixed as 3 (r,g,b)
             dimension = (input_width, input_height, 3)
 
+        if self.data_channel == 's1':
+            # channel number should be 10 + 8 = 18
+            s1_channel = self.s1_training.shape[3]
+            dimension = (input_width, input_height, s1_channel)
+
+        if self.data_channel == 's2':
+            # channel number should be 10 + 8 = 18
+            s2_channel = self.s2_training.shape[3]
+            dimension = (input_width, input_height, s2_channel)
+
         return dimension
 
     #####################################################################
@@ -247,11 +257,12 @@ class GermanData:
             for i in range(0, train_size, batch_size):
                 start_pos = i
                 end_pos = min(i + batch_size, train_size)
+                
+                train_y_batch = np.asarray(self.label_training[start_pos:end_pos])
 
                 if channel == 'full':
                     train_s1_X_batch = np.asarray(self.s1_training[start_pos:end_pos])
                     train_s2_X_batch = np.asarray(self.s2_training[start_pos:end_pos])
-                    train_y_batch = np.asarray(self.label_training[start_pos:end_pos])
                     # concatenate s1 and s2 data along the last axis
                     train_concat_X_batch = np.concatenate([train_s1_X_batch, train_s2_X_batch], axis=-1)
                     # According to "fit_generator" on Keras.io, the output from the generator must
@@ -262,8 +273,15 @@ class GermanData:
                     # sentinel-2 first 3 channels refer to B, G, R of an image
                     # get channel 2, 1, 0 as rgb
                     train_s2_rgb_X_batch = np.asarray(self.s2_training[start_pos:end_pos][...,2::-1])
-                    train_y_batch = np.asarray(self.label_training[start_pos:end_pos])
                     yield (train_s2_rgb_X_batch, train_y_batch)
+                    
+                elif channel == 's1':
+                    train_s1_X_batch = np.asarray(self.s1_training[start_pos:end_pos])
+                    yield (train_s1_X_batch, train_y_batch)
+
+                elif channel == 's2':
+                    train_s2_X_batch = np.asarray(self.s2_training[start_pos:end_pos])
+                    yield (train_s2_X_batch, train_y_batch)
 
 
     #===================================================================
@@ -282,10 +300,11 @@ class GermanData:
                 start_pos = i
                 end_pos = min(i + batch_size, val_size)
 
+                val_y_batch = np.asarray(self.label_validation[start_pos:end_pos])
+
                 if channel == 'full':
                     val_s1_X_batch = np.asarray(self.s1_validation[start_pos:end_pos])
                     val_s2_X_batch = np.asarray(self.s2_validation[start_pos:end_pos])
-                    val_y_batch = np.asarray(self.label_validation[start_pos:end_pos])
                     # concatenate s1 and s2 data along the last axis
                     val_concat_X_batch = np.concatenate([val_s1_X_batch, val_s2_X_batch], axis=-1)
                     # According to "fit_generator" on Keras.io, the output from the generator must
@@ -298,6 +317,14 @@ class GermanData:
                     val_s2_rgb_X_batch = np.asarray(self.s2_validation[start_pos:end_pos][...,2::-1])
                     val_y_batch = np.asarray(self.label_validation[start_pos:end_pos])
                     yield (val_s2_rgb_X_batch, val_y_batch)
+
+                elif channel == 's1':
+                    val_s1_X_batch = np.asarray(self.s1_validation[start_pos:end_pos])
+                    yield (val_s1_X_batch, val_y_batch)
+
+                elif channel == 's2':
+                    val_s2_X_batch = np.asarray(self.s2_validation[start_pos:end_pos])
+                    yield (val_s2_X_batch, val_y_batch)
 
 
     #===================================================================
@@ -356,6 +383,35 @@ class GermanData:
                     # be a tuple (inputs, targets), thus,
                     yield (train_s2_rgb_X_batch, train_y_batch)
 
+                if channel == 's1':
+                    s1_tmp, y_tmp = [], []
+                    for p in range(start_pos, end_pos):
+                        idx = self.balanced_train_idx_list[p]
+                        if idx >= len(self.label_training):
+                            s1_tmp.append(self.s1_validation[idx -len(self.label_training)])
+                            y_tmp.append(self.label_validation[idx - len(self.label_training)])
+                        else:
+                            s1_tmp.append(self.s1_training[idx])
+                            y_tmp.append(self.label_training[idx])
+
+                    train_s1_X_batch = np.asarray(s1_tmp)
+                    train_y_batch = np.asarray(y_tmp)
+                    yield (train_s1_X_batch, train_y_batch)
+
+                if channel == 's2':
+                    s2_tmp, y_tmp = [], []
+                    for p in range(start_pos, end_pos):
+                        idx = self.balanced_train_idx_list[p]
+                        if idx >= len(self.label_training):
+                            s2_tmp.append(self.s2_validation[idx - len(self.label_training)])
+                            y_tmp.append(self.label_validation[idx - len(self.label_training)])
+                        else:
+                            s2_tmp.append(self.s2_training[idx])
+                            y_tmp.append(self.label_training[idx])
+
+                    train_s2_X_batch = np.asarray(s2_tmp)
+                    train_y_batch = np.asarray(y_tmp)
+                    yield (train_s2_X_batch , train_y_batch)
 
     #===================================================================
     # Balanced Validation-data Generator
@@ -413,6 +469,36 @@ class GermanData:
                     # be a tuple (inputs, targets), thus,
                     yield (val_s2_rgb_X_batch, val_y_batch)
 
+                if channel == 's1':
+                    s1_tmp, y_tmp = [], []
+                    for p in range(start_pos, end_pos):
+                        idx = self.balanced_val_idx_list[p]
+                        if idx >= len(self.label_training):
+                            s1_tmp.append(self.s1_validation[idx - len(self.label_training)])
+                            y_tmp.append(self.label_validation[idx - len(self.label_training)])
+                        else:
+                            s1_tmp.append(self.s1_training[idx])
+                            y_tmp.append(self.label_training[idx])
+
+                    val_s1_X_batch = np.asarray(s1_tmp)
+                    val_y_batch = np.asarray(y_tmp)
+                    yield (val_s1_X_batch, val_y_batch)
+
+                if channel == 's2':
+                    s2_tmp, y_tmp = [], []
+                    for p in range(start_pos, end_pos):
+                        idx = self.balanced_val_idx_list[p]
+                        if idx >= len(self.label_training):
+                            s2_tmp.append(self.s2_validation[idx - len(self.label_training)])
+                            y_tmp.append(self.label_validation[idx - len(self.label_training)])
+                        else:
+                            s2_tmp.append(self.s2_training[idx])
+                            y_tmp.append(self.label_training[idx])
+
+                    val_s2_X_batch = np.asarray(s2_tmp)
+                    val_y_batch = np.asarray(y_tmp)
+                    yield (val_s2_X_batch , val_y_batch)
+
     #===================================================================
     # Generate round 1 test data for prediction
     #===================================================================
@@ -428,6 +514,13 @@ class GermanData:
             for p in self.s2_test1:
                 tmp.append(p[...,2::-1])
             test_data = np.asarray(tmp)
+
+        if channel == 's1': 
+            test_data = self.s1_test1
+
+        if channel == 's2': 
+            test_data = self.s2_test1
+
         print("Test data shape :", test_data.shape)
 
         return test_data
