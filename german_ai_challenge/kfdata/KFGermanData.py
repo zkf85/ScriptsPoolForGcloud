@@ -1,5 +1,6 @@
 #KFGermanData.py
 # KF 12/17/2018
+# KF 12/26/2018 Update
 
 import os
 import h5py
@@ -100,10 +101,23 @@ class GermanData:
             # prepare balanced data 
             self.useBalancedData()
 
+        elif self.data_gen_mode == 'val_dataset_only':
+            self.useValidationDataset()
+            
+
         #----------------------------------------------------------------
         # 5. Prepare Round1 Test data for prediction
         #----------------------------------------------------------------
         #self.test_data = self.getTestData()
+
+        #----------------------------------------------------------------
+        # 6. Get data class weight
+        #----------------------------------------------------------------
+        self.label_qty = np.sum(self.label_training, axis=0)
+        self.label_qty += np.sum(self.label_validation, axis=0)
+        self.class_weight = (self.label_training.shape[0] + self.label_validation.shape[0])/self.label_qty
+        #self.class_weight /= min(self.class_weight)
+        self.class_weight /= max(self.class_weight)
         
 
     #===================================================================
@@ -210,6 +224,20 @@ class GermanData:
 
 
     #===================================================================
+    # Use Validation dataset ONLY. (for both training and validation)
+    # KF 12/26/2018
+    #===================================================================
+    def useValidationDataset(self):
+        self.print_title('Use validation dataset ONLY!')
+        # Split for training and validation set
+        self.val_split_idx = int(np.ceil(self.label_validation.shape[0] * 4 / 5))
+        self.train_size = self.val_split_idx
+        self.val_size = self.label_validation.shape[0] - self.train_size
+
+        self.train_gen = self.trainGenerator()
+        self.val_gen = self.valGenerator()
+
+    #===================================================================
     # Get data shape
     #===================================================================
     def getDataDimension(self):
@@ -251,37 +279,70 @@ class GermanData:
         train_size = self.train_size
         batch_size = self.batch_size
         channel = self.data_channel
-        print(train_size, batch_size, channel)
-
+        print("")
+        print("Train size:", train_size, "Batch size:", batch_size, "Channel:", channel)
+        
         while True:
             for i in range(0, train_size, batch_size):
-                start_pos = i
-                end_pos = min(i + batch_size, train_size)
-                
-                train_y_batch = np.asarray(self.label_training[start_pos:end_pos])
 
-                if channel == 'full':
-                    train_s1_X_batch = np.asarray(self.s1_training[start_pos:end_pos])
-                    train_s2_X_batch = np.asarray(self.s2_training[start_pos:end_pos])
-                    # concatenate s1 and s2 data along the last axis
-                    train_concat_X_batch = np.concatenate([train_s1_X_batch, train_s2_X_batch], axis=-1)
-                    # According to "fit_generator" on Keras.io, the output from the generator must
-                    # be a tuple (inputs, targets), thus,
-                    yield (train_concat_X_batch, train_y_batch)
+                if self.data_gen_mode == 'val_dataset_only':
 
-                elif channel == 's2_rgb':
-                    # sentinel-2 first 3 channels refer to B, G, R of an image
-                    # get channel 2, 1, 0 as rgb
-                    train_s2_rgb_X_batch = np.asarray(self.s2_training[start_pos:end_pos][...,2::-1])
-                    yield (train_s2_rgb_X_batch, train_y_batch)
-                    
-                elif channel == 's1':
-                    train_s1_X_batch = np.asarray(self.s1_training[start_pos:end_pos])
-                    yield (train_s1_X_batch, train_y_batch)
+                    start_pos = i
+                    end_pos = min(i + batch_size, train_size)
 
-                elif channel == 's2':
-                    train_s2_X_batch = np.asarray(self.s2_training[start_pos:end_pos])
-                    yield (train_s2_X_batch, train_y_batch)
+                    train_y_batch = np.asarray(self.label_validation[start_pos:end_pos])
+
+                    if channel == 'full':
+                        train_s1_X_batch = np.asarray(self.s1_validation[start_pos:end_pos])
+                        train_s2_X_batch = np.asarray(self.s2_validation[start_pos:end_pos])
+                        # concatenate s1 and s2 data along the last axis
+                        train_concat_X_batch = np.concatenate([train_s1_X_batch, train_s2_X_batch], axis=-1)
+                        # According to "fit_generator" on Keras.io, the output from the generator must
+                        # be a tuple (inputs, targets), thus,
+                        yield (train_concat_X_batch, train_y_batch)
+
+                    elif channel == 's2_rgb':
+                        # sentinel-2 first 3 channels refer to B, G, R of an image
+                        # get channel 2, 1, 0 as rgb
+                        train_s2_rgb_X_batch = np.asarray(self.s2_validation[start_pos:end_pos][...,2::-1])
+                        yield (train_s2_rgb_X_batch, train_y_batch)
+                        
+                    elif channel == 's1':
+                        train_s1_X_batch = np.asarray(self.s1_validation[start_pos:end_pos])
+                        yield (train_s1_X_batch, train_y_batch)
+
+                    elif channel == 's2':
+                        train_s2_X_batch = np.asarray(self.s2_validation[start_pos:end_pos])
+                        yield (train_s2_X_batch, train_y_batch)
+            
+                else:
+                    start_pos = i
+                    end_pos = min(i + batch_size, train_size)
+
+                    train_y_batch = np.asarray(self.label_training[start_pos:end_pos])
+
+                    if channel == 'full':
+                        train_s1_X_batch = np.asarray(self.s1_training[start_pos:end_pos])
+                        train_s2_X_batch = np.asarray(self.s2_training[start_pos:end_pos])
+                        # concatenate s1 and s2 data along the last axis
+                        train_concat_X_batch = np.concatenate([train_s1_X_batch, train_s2_X_batch], axis=-1)
+                        # According to "fit_generator" on Keras.io, the output from the generator must
+                        # be a tuple (inputs, targets), thus,
+                        yield (train_concat_X_batch, train_y_batch)
+
+                    elif channel == 's2_rgb':
+                        # sentinel-2 first 3 channels refer to B, G, R of an image
+                        # get channel 2, 1, 0 as rgb
+                        train_s2_rgb_X_batch = np.asarray(self.s2_training[start_pos:end_pos][...,2::-1])
+                        yield (train_s2_rgb_X_batch, train_y_batch)
+                        
+                    elif channel == 's1':
+                        train_s1_X_batch = np.asarray(self.s1_training[start_pos:end_pos])
+                        yield (train_s1_X_batch, train_y_batch)
+
+                    elif channel == 's2':
+                        train_s2_X_batch = np.asarray(self.s2_training[start_pos:end_pos])
+                        yield (train_s2_X_batch, train_y_batch)
 
 
     #===================================================================
@@ -292,39 +353,73 @@ class GermanData:
         val_size = self.val_size
         batch_size = self.batch_size
         channel = self.data_channel
-        print(val_size, batch_size, channel)
+        print("")
+        print("Validation size:", val_size, "Batch size:", batch_size, "Channel:", channel)
 
         while True:
-            # Generate data with batch_size
             for i in range(0, val_size, batch_size):
-                start_pos = i
-                end_pos = min(i + batch_size, val_size)
 
-                val_y_batch = np.asarray(self.label_validation[start_pos:end_pos])
+                if self.data_gen_mode == 'val_dataset_only':
 
-                if channel == 'full':
-                    val_s1_X_batch = np.asarray(self.s1_validation[start_pos:end_pos])
-                    val_s2_X_batch = np.asarray(self.s2_validation[start_pos:end_pos])
-                    # concatenate s1 and s2 data along the last axis
-                    val_concat_X_batch = np.concatenate([val_s1_X_batch, val_s2_X_batch], axis=-1)
-                    # According to "fit_generator" on Keras.io, the output from the generator must
-                    # be a tuple (inputs, targets), thus,
-                    yield (val_concat_X_batch, val_y_batch)
+                    # Generate data with batch_size
+                    start_pos = i + self.val_split_idx
+                    end_pos = min(i + batch_size, val_size) + self.val_split_idx
 
-                elif channel == 's2_rgb':
-                    # sentinel-2 first 3 channels refer to B, G, R of an image
-                    # get channel 2, 1, 0 as rgb
-                    val_s2_rgb_X_batch = np.asarray(self.s2_validation[start_pos:end_pos][...,2::-1])
                     val_y_batch = np.asarray(self.label_validation[start_pos:end_pos])
-                    yield (val_s2_rgb_X_batch, val_y_batch)
 
-                elif channel == 's1':
-                    val_s1_X_batch = np.asarray(self.s1_validation[start_pos:end_pos])
-                    yield (val_s1_X_batch, val_y_batch)
+                    if channel == 'full':
+                        val_s1_X_batch = np.asarray(self.s1_validation[start_pos:end_pos])
+                        val_s2_X_batch = np.asarray(self.s2_validation[start_pos:end_pos])
+                        # concatenate s1 and s2 data along the last axis
+                        val_concat_X_batch = np.concatenate([val_s1_X_batch, val_s2_X_batch], axis=-1)
+                        # According to "fit_generator" on Keras.io, the output from the generator must
+                        # be a tuple (inputs, targets), thus,
+                        yield (val_concat_X_batch, val_y_batch)
 
-                elif channel == 's2':
-                    val_s2_X_batch = np.asarray(self.s2_validation[start_pos:end_pos])
-                    yield (val_s2_X_batch, val_y_batch)
+                    elif channel == 's2_rgb':
+                        # sentinel-2 first 3 channels refer to B, G, R of an image
+                        # get channel 2, 1, 0 as rgb
+                        val_s2_rgb_X_batch = np.asarray(self.s2_validation[start_pos:end_pos][...,2::-1])
+                        val_y_batch = np.asarray(self.label_validation[start_pos:end_pos])
+                        yield (val_s2_rgb_X_batch, val_y_batch)
+
+                    elif channel == 's1':
+                        val_s1_X_batch = np.asarray(self.s1_validation[start_pos:end_pos])
+                        yield (val_s1_X_batch, val_y_batch)
+
+                    elif channel == 's2':
+                        val_s2_X_batch = np.asarray(self.s2_validation[start_pos:end_pos])
+                        yield (val_s2_X_batch, val_y_batch)
+            
+                else: 
+                    start_pos = i
+                    end_pos = min(i + batch_size, val_size)
+
+                    val_y_batch = np.asarray(self.label_validation[start_pos:end_pos])
+
+                    if channel == 'full':
+                        val_s1_X_batch = np.asarray(self.s1_validation[start_pos:end_pos])
+                        val_s2_X_batch = np.asarray(self.s2_validation[start_pos:end_pos])
+                        # concatenate s1 and s2 data along the last axis
+                        val_concat_X_batch = np.concatenate([val_s1_X_batch, val_s2_X_batch], axis=-1)
+                        # According to "fit_generator" on Keras.io, the output from the generator must
+                        # be a tuple (inputs, targets), thus,
+                        yield (val_concat_X_batch, val_y_batch)
+
+                    elif channel == 's2_rgb':
+                        # sentinel-2 first 3 channels refer to B, G, R of an image
+                        # get channel 2, 1, 0 as rgb
+                        val_s2_rgb_X_batch = np.asarray(self.s2_validation[start_pos:end_pos][...,2::-1])
+                        val_y_batch = np.asarray(self.label_validation[start_pos:end_pos])
+                        yield (val_s2_rgb_X_batch, val_y_batch)
+
+                    elif channel == 's1':
+                        val_s1_X_batch = np.asarray(self.s1_validation[start_pos:end_pos])
+                        yield (val_s1_X_batch, val_y_batch)
+
+                    elif channel == 's2':
+                        val_s2_X_batch = np.asarray(self.s2_validation[start_pos:end_pos])
+                        yield (val_s2_X_batch, val_y_batch)
 
 
     #===================================================================
@@ -335,7 +430,8 @@ class GermanData:
         train_size = self.train_size
         batch_size = self.batch_size
         channel = self.data_channel
-        print(train_size, batch_size, channel)
+        print("")
+        print("Train size:", train_size, "Batch size:", batch_size, "Channel:", channel)
 
         # Generate data with batch_size
         while True:
@@ -421,7 +517,8 @@ class GermanData:
         val_size = self.val_size
         batch_size = self.batch_size
         channel = self.data_channel
-        print(val_size, batch_size, channel)
+        print("")
+        print("Validation size:", val_size, "Batch size:", batch_size, "Channel:", channel)
 
         while True:
             # Generate data with batch_size
@@ -524,3 +621,4 @@ class GermanData:
         print("Test data shape :", test_data.shape)
 
         return test_data
+

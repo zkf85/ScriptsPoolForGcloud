@@ -39,7 +39,8 @@ train_mode = 'real'
 epochs = 100 
 
 # Set batch_size 
-batch_size = 64 
+batch_size = 64
+#batch_size = 8
 
 # Initial learning rate 
 lr = 0.0001
@@ -51,8 +52,11 @@ lr = 0.0001
 data_channel = 's2'
 
 # Set data generating mode: 'original' or 'balanced'
+# if original, class_weight should be set
 #data_gen_mode = 'original'
-data_gen_mode = 'balanced'
+#data_gen_mode = 'balanced'
+data_gen_mode = 'val_dataset_only'
+
 
 # Set model name
 model_name = 'KFSmallerVGGNet'
@@ -158,7 +162,7 @@ callbacks.append(ckpt)
 # EarlyStopping
 earlyStopping = tf.keras.callbacks.EarlyStopping(
                 monitor='val_loss',
-                patience=15,
+                patience=20,
                 verbose=1,
                 mode='auto')
 callbacks.append(earlyStopping)
@@ -174,8 +178,8 @@ callbacks.append(tensorboard)
 reduce_lr = tf.keras.callbacks.ReduceLROnPlateau(monitor='val_loss',
                                 verbose=1,
                                 factor=0.5,
-                                patience=5,
-                                min_lr=0.00001)
+                                patience=10)
+                                
 callbacks.append(reduce_lr)
 
 # Training loop with generators
@@ -185,7 +189,8 @@ H = model.fit_generator(
         epochs=epochs,
         callbacks = callbacks,
         validation_data=val_gen,
-        validation_steps=np.ceil(german_data.val_size/german_data.batch_size)
+        validation_steps=np.ceil(german_data.val_size/german_data.batch_size),
+        #class_weight=german_data.class_weight
         )
 
 print('')
@@ -195,11 +200,16 @@ print('')
 #################################################################
 # V. Predict
 #################################################################
+from tensorflow.keras.models import load_model
+
 print_title("Predicting with round 1 test data")
 
 test_data = german_data.getTestData()
 # predicting process
-res = model.predict(test_data)
+#res = model.predict(test_data)
+# Load best model
+model_best = load_model(os.path.join(res_root_dir, res_folder_name, 'best_model.hdf5'))
+res = model_best.predict(test_data)
 # find the largest confident'test_concats index
 res = np.argmax(res, axis=1)
 
