@@ -162,7 +162,7 @@ callbacks.append(ckpt)
 # EarlyStopping
 earlyStopping = tf.keras.callbacks.EarlyStopping(
                 monitor='val_loss',
-                patience=20,
+                patience=30,
                 verbose=1,
                 mode='auto')
 callbacks.append(earlyStopping)
