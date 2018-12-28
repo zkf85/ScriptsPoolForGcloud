@@ -39,8 +39,8 @@ train_mode = 'real'
 epochs = 100 
 
 # Set batch_size 
-batch_size = 64
-#batch_size = 8
+#batch_size = 64
+batch_size = 16
 
 # Initial learning rate 
 lr = 0.0001

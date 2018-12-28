@@ -202,7 +202,7 @@ class GermanData:
         # Shuffle inplace:
         random.shuffle(sorted_balanced_idx_list)
         # Divide training and validation dataset
-        split = len(sorted_balanced_idx_list) *4 // 5
+        split = len(sorted_balanced_idx_list) * 4 // 5
 
         # Save to variables
         self.balanced_train_idx_list = sorted_balanced_idx_list[:split]
