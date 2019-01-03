@@ -7,7 +7,6 @@ from tensorflow.keras.layers import Activation
 from tensorflow.keras.layers import Flatten
 from tensorflow.keras.layers import Dropout
 from tensorflow.keras.layers import Dense
-from tensorflow.keras.applications import InceptionResNetV2
 
 #################################################################
 # Model : KFDummy
@@ -35,7 +34,8 @@ class KFSmallerVGGNet:
     @staticmethod
     def build(input_shape, label_dim=17):
 
-        factor = 4
+        #factor = 4
+        factor = 2
         # Build small vgg model from scratch
         model = Sequential()
         chanDim = -1
@@ -96,26 +96,31 @@ class KFSmallerVGGNet:
         return model
 
  
-################################################################# # Model : InceptionResnetV2
+#################################################################
+# Model : InceptionResnetV2
 # KF 12/19/2018
 #################################################################
-class KFInceptionResNetV2:
+from .kf_keras_resnet import ResnetBuilder
+
+class KFResNet18:
     @staticmethod
     def build(input_shape, label_dim=17):
-        # Get convolutional layers
-        conv = InceptionResNetV2(
-                        weights='imagenet',
-                        include_top=False,
-                        input_shape=input_shape
-                        )
-        # Initialize model
-        model = Sequential()
-        model.add(conv)
-        # Add new layers
-        model.add(Flatten())
-        model.add(Dense(2048, activation='relu'))
-        model.add(BatchNormalization())
-        model.add(Dropout(0.5))
-        model.add(Dense(cls_number, activation='softmax'))
+        return ResnetBuilder.build_resnet_18(input_shape, label_dim)
+class KFResNet34:
+    @staticmethod
+    def build(input_shape, label_dim=17):
+        return ResnetBuilder.build_resnet_34(input_shape, label_dim)
+class KFResNet50:
+    @staticmethod
+    def build(input_shape, label_dim=17):
+        return ResnetBuilder.build_resnet_50(input_shape, label_dim)
+class KFResNet101:
+    @staticmethod
+    def build(input_shape, label_dim=17):
+        return ResnetBuilder.build_resnet_101(input_shape, label_dim)
+class KFResNet152:
+    @staticmethod
+    def build(input_shape, label_dim=17):
+        return ResnetBuilder.build_resnet_152(input_shape, label_dim)
 
-        return model 
+

@@ -29,7 +29,9 @@ param_dict['round1_test_filename'] = round1_test_filename
 param_dict['train_mode'] = 'real'
 #param_dict['batch_size'] = 64
 param_dict['batch_size'] = 128
-param_dict['data_channel'] = 'full'
+#param_dict['data_channel'] = 'full'
+param_dict['data_channel'] = 's2'
+
 #param_dict['data_channel'] = 's2_rgb'
 #param_dict['data_gen_mode'] = 'original'
 #param_dict['data_gen_mode'] = 'balanced'
@@ -102,17 +104,42 @@ loop = 10
 # Test -> Generators with validation dataset ONLY:
 # KF 12/26/2018
 #================================================================
-loop = 10
-print('')
-print('[KF INFO] Test german_data.train_gen:')
-print('-'*65)
-for i in range(loop):
-    data = next(german_data.train_gen)
-    print("batch_X shape:", data[0].shape, "batch_y shape:", data[1].shape)
+#loop = 10
+#print('')
+#print('[KF INFO] Test german_data.train_gen:')
+#print('-'*65)
+#for i in range(loop):
+#    data = next(german_data.train_gen)
+#    print("batch_X shape:", data[0].shape, "batch_y shape:", data[1].shape)
+#
+#print('')
+#print('[KF INFO] Test german_data.val_gen:')
+#print('-'*65)
+#for i in range(loop):
+#    data = next(german_data.val_gen)
+#    print("batch_X shape:", data[0].shape, "batch_y shape:", data[1].shape)
 
-print('')
-print('[KF INFO] Test german_data.val_gen:')
-print('-'*65)
-for i in range(loop):
-    data = next(german_data.val_gen)
-    print("batch_X shape:", data[0].shape, "batch_y shape:", data[1].shape)
+#================================================================
+# Test -> kf_keras_resnet
+# KF 01/03/2019
+#================================================================
+from kfmodels.kf_keras_resnet import ResnetBuilder
+
+def test_model_compile(model):
+    model.compile(loss="categorical_crossentropy", optimizer="adam")
+    print("[KF TEST INFO] Model Compiling Successful!")
+    model.summary()
+    
+
+    
+input_shape = german_data.data_dimension
+num_output = 17
+
+# Test -> ResNet18
+#model = ResnetBuilder.build_resnet_18(input_shape, num_output)
+#test_model_compile(model)
+
+# Test -> ResNet151
+model = ResnetBuilder.build_resnet_152(input_shape, num_output)
+test_model_compile(model)
+

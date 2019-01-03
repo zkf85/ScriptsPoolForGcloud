@@ -5,6 +5,8 @@
 #    2018/12/07
 #    2018/12/10 - add generators
 #    2018/12/17 - make a balanced generator
+#    2019/01/03 - add channel option "s1_ch56"
+#
 #################################################################
 import os
 import random
@@ -40,7 +42,8 @@ epochs = 100
 
 # Set batch_size 
 #batch_size = 64
-batch_size = 16
+#batch_size = 16
+batch_size = 8
 
 # Initial learning rate 
 lr = 0.0001
@@ -50,6 +53,7 @@ lr = 0.0001
 #data_channel = 's2_rgb'
 #data_channel = 's1'
 data_channel = 's2'
+#data_channel = 's1_ch56'
 
 # Set data generating mode: 'original' or 'balanced'
 # if original, class_weight should be set
@@ -59,9 +63,13 @@ data_gen_mode = 'val_dataset_only'
 
 
 # Set model name
-model_name = 'KFSmallerVGGNet'
+#model_name = 'KFSmallerVGGNet'
 #model_name = 'KFDummy'
-#model_name = 'KFInceptionResNetV2'
+#model_name = 'KFResNet18'
+#model_name = 'KFResNet34'
+model_name = 'KFResNet50'
+#model_name = 'KFResNet101'
+#model_name = 'KFResNet152'
 
 #################################################################
 # II. Load Data and Generator
@@ -91,7 +99,7 @@ val_gen = german_data.val_gen
 #   requires: model_name, cur_date, epochs, train_size
 cur_date = datetime.now()
 res_root_dir = os.path.expanduser('/home/kefeng/German_AI_Challenge/results')
-res_folder_name = 'model-%s-%d%d%d-epochs-%d-trainsize-%d-channels-%s' % (model_name, cur_date.year, cur_date.month, cur_date.day, epochs, german_data.train_size, data_channel)
+res_folder_name = 'model-%s-%d%02d%02d-epochs-%d-trainsize-%d-channels-%s' % (model_name, cur_date.year, cur_date.month, cur_date.day, epochs, german_data.train_size, data_channel)
 if not os.path.exists(os.path.join(res_root_dir, res_folder_name)):
     os.makedirs(os.path.join(res_root_dir, res_folder_name))
 
@@ -119,7 +127,7 @@ print('-'*65)
 #################################################################
 # III. Build the Model
 #################################################################
-from kfmodels.kfmodels import KFSmallerVGGNet, KFDummy, KFInceptionResNetV2
+from kfmodels.kfmodels import KFSmallerVGGNet, KFDummy,KFResNet18, KFResNet34, KFResNet50, KFResNet101, KFResNet152
 from tensorflow.keras import optimizers
 
 # Select model with model name
@@ -127,9 +135,16 @@ if model_name == 'KFSmallerVGGNet':
     model = KFSmallerVGGNet.build(german_data.data_dimension)
 elif model_name == 'KFDummy':
     model = KFDummy.build(german_data.data_dimension)
-elif model_name == 'KFInceptionResNetV2':
-    print("i'm here>>>>>>>>>>")
-    model = KFInceptionResNetV2.build(german_data.data_dimension)
+elif model_name == 'KFResNet18':
+    model = KFResNet18.build(german_data.data_dimension)
+elif model_name == 'KFResNet34':
+    model = KFResNet34.build(german_data.data_dimension)
+elif model_name == 'KFResNet50':
+    model = KFResNet50.build(german_data.data_dimension)
+elif model_name == 'KFResNet101':
+    model = KFResNet101.build(german_data.data_dimension)
+elif model_name == 'KFResNet152':
+    model = KFResNet152.build(german_data.data_dimension)
 
 # Build model
 optimizer = optimizers.Adam(lr=lr)
