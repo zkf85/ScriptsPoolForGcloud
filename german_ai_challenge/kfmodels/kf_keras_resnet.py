@@ -186,6 +186,10 @@ class ResnetBuilder(object):
         #    raise Exception("Input shape should be a tuple (nb_channels, nb_rows, nb_cols)")
         print("Input shape :", input_shape)
 
+        scale = 2
+        #scale = 3
+        #scale = 4
+
         # Permute dimension order if necessary
         #if K.image_dim_ordering() == 'tf':
         #    input_shape = (input_shape[1], input_shape[2], input_shape[0])
@@ -194,11 +198,10 @@ class ResnetBuilder(object):
         block_fn = _get_block(block_fn)
 
         input = Input(shape=input_shape)
-        conv1 = _conv_bn_relu(filters=64, kernel_size=(7, 7), strides=(2, 2))(input)
+        conv1 = _conv_bn_relu(filters=64 * scale, kernel_size=(7, 7), strides=(2, 2))(input)
         pool1 = MaxPooling2D(pool_size=(3, 3), strides=(2, 2), padding="same")(conv1)
 
         block = pool1
-        scale = 2
         filters = 64 * scale
         for i, r in enumerate(repetitions):
             block = _residual_block(block_fn, filters=filters, repetitions=r, is_first_layer=(i == 0))(block)

@@ -6,6 +6,8 @@
 #    2018/12/10 - add generators
 #    2018/12/17 - make a balanced generator
 #    2019/01/03 - add channel option "s1_ch56"
+#    2019/01/04   "s1_ch56" doesn't perform good, change it to "s1_ch78"
+#                 "s1_ch78" not working well, change it to "s1_ch5678"
 #
 #################################################################
 import os
@@ -38,29 +40,45 @@ train_mode = 'real'
 
 # Set real epoch for the training process
 #epochs = 3
-epochs = 100 
+#epochs = 100 
+epochs = 200
 
 # Set batch_size 
+#batch_size = 256
+batch_size = 128
 #batch_size = 64
+#batch_size = 32
 #batch_size = 16
-batch_size = 8
+#batch_size = 8
+#batch_size = 4
 
 # Initial learning rate 
-lr = 0.0001
+#lr = 0.001
+lr = 0.0003
+#lr = 0.0001
+
+# Early Stopping patience:
+#early_stopping_patience = 10
+#early_stopping_patience = 20
+early_stopping_patience = 30
+
+# ReduceLRPlateau patience:
+#reduce_lr_patience = 6
+#reduce_lr_patience = 8
+reduce_lr_patience = 10
 
 # Set data channel: 'full' or 's2_rgb'
 #data_channel = 'full'
 #data_channel = 's2_rgb'
 #data_channel = 's1'
 data_channel = 's2'
-#data_channel = 's1_ch56'
+#data_channel = 's1_ch5678'
 
 # Set data generating mode: 'original' or 'balanced'
 # if original, class_weight should be set
-#data_gen_mode = 'original'
+data_gen_mode = 'original'
 #data_gen_mode = 'balanced'
-data_gen_mode = 'val_dataset_only'
-
+#data_gen_mode = 'val_dataset_only'
 
 # Set model name
 #model_name = 'KFSmallerVGGNet'
@@ -99,7 +117,7 @@ val_gen = german_data.val_gen
 #   requires: model_name, cur_date, epochs, train_size
 cur_date = datetime.now()
 res_root_dir = os.path.expanduser('/home/kefeng/German_AI_Challenge/results')
-res_folder_name = 'model-%s-%d%02d%02d-epochs-%d-trainsize-%d-channels-%s' % (model_name, cur_date.year, cur_date.month, cur_date.day, epochs, german_data.train_size, data_channel)
+res_folder_name = 'model-%d%02d%02d-%s-epochs-%d-trainsize-%d-channels-%s' % (cur_date.year, cur_date.month, cur_date.day, model_name, epochs, german_data.train_size, data_channel)
 if not os.path.exists(os.path.join(res_root_dir, res_folder_name)):
     os.makedirs(os.path.join(res_root_dir, res_folder_name))
 
@@ -177,7 +195,7 @@ callbacks.append(ckpt)
 # EarlyStopping
 earlyStopping = tf.keras.callbacks.EarlyStopping(
                 monitor='val_loss',
-                patience=30,
+                patience= early_stopping_patience,
                 verbose=1,
                 mode='auto')
 callbacks.append(earlyStopping)
@@ -193,7 +211,7 @@ callbacks.append(tensorboard)
 reduce_lr = tf.keras.callbacks.ReduceLROnPlateau(monitor='val_loss',
                                 verbose=1,
                                 factor=0.5,
-                                patience=10)
+                                patience=reduce_lr_patience)
                                 
 callbacks.append(reduce_lr)
 
@@ -236,7 +254,7 @@ print("[KF INFO] Prediction shape:", final_res.shape)
 
 # Save prediction to CSV
 
-csv_name = 'prediction-%s-%d%d%d-epochs-%d-trainsize-%d.csv' % (model_name, cur_date.year, cur_date.month, cur_date.day, epochs, german_data.train_size)
+csv_name = 'prediction-%d%02d%02d-%s-epochs-%d-trainsize-%d.csv' % (cur_date.year, cur_date.month, cur_date.day, model_name, epochs, german_data.train_size)
 pred_dir = 'predictions'
 
 np.savetxt(os.path.join(pred_dir, csv_name), final_res, fmt='%d', delimiter=',')

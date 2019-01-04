@@ -35,7 +35,8 @@ class KFSmallerVGGNet:
     def build(input_shape, label_dim=17):
 
         #factor = 4
-        factor = 2
+        #factor = 2
+        factor = 1
         # Build small vgg model from scratch
         model = Sequential()
         chanDim = -1

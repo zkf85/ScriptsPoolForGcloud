@@ -2,6 +2,8 @@
 # KF 12/17/2018
 # KF 12/26/2018 Update
 # KF 01/03/2019 - add s1_ch56 mode
+# KF 01/04/2018   change s1_ch56 to s1_ch78
+#                 change s1_ch78 to s1_ch5678
 
 import os
 import h5py
@@ -266,8 +268,8 @@ class GermanData:
             s2_channel = self.s2_training.shape[3]
             dimension = (input_width, input_height, s2_channel)
             
-        elif self.data_channel == 's1_ch56':
-            dimension = (input_width, input_height, 2)
+        elif self.data_channel == 's1_ch5678':
+            dimension = (input_width, input_height, 4)
 
         return dimension
 
@@ -319,8 +321,8 @@ class GermanData:
                         train_s2_X_batch = np.asarray(self.s2_validation[start_pos:end_pos])
                         yield (train_s2_X_batch, train_y_batch)
 
-                    elif channel == 's1_ch56':
-                        train_X_batch = np.asarray(self.s1_validation[start_pos:end_pos][...,4:6])
+                    elif channel == 's1_ch5678':
+                        train_X_batch = np.asarray(self.s1_validation[start_pos:end_pos][...,4:])
                         yield (train_X_batch, train_y_batch)
             
                 else:
@@ -352,8 +354,8 @@ class GermanData:
                         train_s2_X_batch = np.asarray(self.s2_training[start_pos:end_pos])
                         yield (train_s2_X_batch, train_y_batch)
 
-                    elif channel == 's1_ch56':
-                        train_X_batch = np.asarray(self.s1_training[start_pos:end_pos][...,4:6])
+                    elif channel == 's1_ch5678':
+                        train_X_batch = np.asarray(self.s1_training[start_pos:end_pos][...,4:])
                         yield (train_X_batch, train_y_batch)
 
     #===================================================================
@@ -402,8 +404,8 @@ class GermanData:
                         val_s2_X_batch = np.asarray(self.s2_validation[start_pos:end_pos])
                         yield (val_s2_X_batch, val_y_batch)
             
-                    elif channel == 's1_ch56':
-                        val_X_batch = np.asarray(self.s1_validation[start_pos:end_pos][...,4:6])
+                    elif channel == 's1_ch5678':
+                        val_X_batch = np.asarray(self.s1_validation[start_pos:end_pos][...,4:])
                         val_y_batch = np.asarray(self.label_validation[start_pos:end_pos])
                         yield (val_X_batch, val_y_batch)
 
@@ -437,8 +439,8 @@ class GermanData:
                         val_s2_X_batch = np.asarray(self.s2_validation[start_pos:end_pos])
                         yield (val_s2_X_batch, val_y_batch)
 
-                    elif channel == 's1_ch56':
-                        val_X_batch = np.asarray(self.s1_validation[start_pos:end_pos][...,4:6])
+                    elif channel == 's1_ch5678':
+                        val_X_batch = np.asarray(self.s1_validation[start_pos:end_pos][...,4:])
                         val_y_batch = np.asarray(self.label_validation[start_pos:end_pos])
                         yield (val_X_batch, val_y_batch)
 
@@ -638,8 +640,8 @@ class GermanData:
         elif channel == 's2': 
             test_data = self.s2_test1
 
-        elif channel == 's1_ch56': 
-            test_data = self.s1_test1[...,4:6]
+        elif channel == 's1_ch5678': 
+            test_data = self.s1_test1[...,4:]
 
         print("Test data shape :", test_data.shape)
 
