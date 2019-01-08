@@ -32,7 +32,8 @@ def print_title(title):
 base_dir = os.path.expanduser('/home/kefeng/German_AI_Challenge/dataset')
 train_filename = 'training.h5'
 val_filename = 'validation.h5'
-round1_test_filename = 'round1_test_a_20181109.h5'
+round1_testA_filename = 'round1_test_a_20181109.h5'
+round1_testB_filename = 'round1_test_b_20190104.h5'
 
 # Set Train mode: 'real' or 'test'
 train_mode = 'real'
@@ -41,7 +42,7 @@ train_mode = 'real'
 # Set real epoch for the training process
 #epochs = 3
 #epochs = 100 
-epochs = 200
+epochs = 100
 
 # Set batch_size 
 #batch_size = 256
@@ -76,16 +77,17 @@ data_channel = 's2'
 
 # Set data generating mode: 'original' or 'balanced'
 # if original, class_weight should be set
-data_gen_mode = 'original'
+#data_gen_mode = 'original'
+data_gen_mode = 'shuffled_original'
 #data_gen_mode = 'balanced'
 #data_gen_mode = 'val_dataset_only'
 
 # Set model name
-#model_name = 'KFSmallerVGGNet'
+model_name = 'KFSmallerVGGNet'
 #model_name = 'KFDummy'
 #model_name = 'KFResNet18'
 #model_name = 'KFResNet34'
-model_name = 'KFResNet50'
+#model_name = 'KFResNet50'
 #model_name = 'KFResNet101'
 #model_name = 'KFResNet152'
 
@@ -100,7 +102,8 @@ param_dict = {}
 param_dict['base_dir'] = base_dir
 param_dict['train_filename'] = train_filename
 param_dict['val_filename'] = val_filename
-param_dict['round1_test_filename'] = round1_test_filename
+param_dict['round1_testA_filename'] = round1_testA_filename
+param_dict['round1_testB_filename'] = round1_testB_filename
 param_dict['train_mode'] = train_mode
 param_dict['batch_size'] = batch_size
 param_dict['data_channel'] = data_channel
@@ -254,7 +257,8 @@ print("[KF INFO] Prediction shape:", final_res.shape)
 
 # Save prediction to CSV
 
-csv_name = 'prediction-%d%02d%02d-%s-epochs-%d-trainsize-%d.csv' % (cur_date.year, cur_date.month, cur_date.day, model_name, epochs, german_data.train_size)
+#csv_name = 'prediction-%d%02d%02d-%s-epochs-%d-trainsize-%d.csv' % (cur_date.year, cur_date.month, cur_date.day, model_name, epochs, german_data.train_size)
+csv_name = 'prediction-testB-%d%02d%02d-%s-epochs-%d-trainsize-%d.csv' % (cur_date.year, cur_date.month, cur_date.day, model_name, epochs, german_data.train_size)
 pred_dir = 'predictions'
 
 np.savetxt(os.path.join(pred_dir, csv_name), final_res, fmt='%d', delimiter=',')

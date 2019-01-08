@@ -34,10 +34,12 @@ class GermanData:
         self.base_dir = params.get('base_dir')
         self.train_filename = params.get('train_filename')
         self.val_filename = params.get('val_filename')
-        self.round1_test_filename = params.get('round1_test_filename')
+        self.round1_testA_filename = params.get('round1_testA_filename')
+        self.round1_testB_filename = params.get('round1_testB_filename')
         self.path_training = os.path.join(self.base_dir, self.train_filename)
         self.path_validation = os.path.join(self.base_dir, self.val_filename) 
-        self.path_round1_test = os.path.join(self.base_dir, self.round1_test_filename)
+        self.path_round1_testA = os.path.join(self.base_dir, self.round1_testA_filename)
+        self.path_round1_testB = os.path.join(self.base_dir, self.round1_testB_filename)
 
         # Initialize other parameters
         self.train_mode = params.get('train_mode')
@@ -50,7 +52,10 @@ class GermanData:
         #----------------------------------------------------------------
         self.print_title('Load Data')
         print("[KF INFO] Validate data file existance: ")
-        for f in [self.train_filename, self.val_filename, self.round1_test_filename]:
+        for f in [self.train_filename, 
+                    self.val_filename, 
+                    self.round1_testA_filename, 
+                    self.round1_testB_filename]:
             if f in os.listdir(self.base_dir):
                 print('|--CHECK!-->', f)
         print('')
@@ -60,7 +65,8 @@ class GermanData:
         #----------------------------------------------------------------
         fid_training = h5py.File(self.path_training, 'r')
         fid_validation = h5py.File(self.path_validation, 'r')
-        fid_test1 = h5py.File(self.path_round1_test, 'r')
+        fid_test1A = h5py.File(self.path_round1_testA, 'r')
+        fid_test1B = h5py.File(self.path_round1_testB, 'r')
 
         self.s1_training = fid_training['sen1']
         self.s2_training = fid_training['sen2']
@@ -68,8 +74,10 @@ class GermanData:
         self.s1_validation = fid_validation['sen1']
         self.s2_validation = fid_validation['sen2']
         self.label_validation = fid_validation['label']
-        self.s1_test1 = fid_test1['sen1']
-        self.s2_test1 = fid_test1['sen2']
+        self.s1_test1A = fid_test1A['sen1']
+        self.s2_test1A = fid_test1A['sen2']
+        self.s1_test1B = fid_test1B['sen1']
+        self.s2_test1B = fid_test1B['sen2']
         print("[KF INFO] Data loaded successfully!")
         # Show data information
         self.showDataInfo()
@@ -106,6 +114,9 @@ class GermanData:
 
         elif self.data_gen_mode == 'val_dataset_only':
             self.useValidationDataset()
+
+        elif self.data_gen_mode == 'shuffled_original':
+            self.useShuffledOriginalData()
             
 
         #----------------------------------------------------------------
@@ -155,9 +166,13 @@ class GermanData:
         print('  Sentinel 2 data shape :', self.s2_validation.shape)
         print('  Label data shape      :', self.label_validation.shape)
         print('-'*65)
-        print("Round1 Test data shapes:")
-        print('  Sentinel 1 data shape :', self.s1_test1.shape)
-        print('  Sentinel 2 data shape :', self.s2_test1.shape)
+        print("Round1 TestA data shapes:")
+        print('  Sentinel 1 data shape :', self.s1_test1A.shape)
+        print('  Sentinel 2 data shape :', self.s2_test1A.shape)
+        print('-'*65)
+        print("Round1 TestB data shapes:")
+        print('  Sentinel 1 data shape :', self.s1_test1B.shape)
+        print('  Sentinel 2 data shape :', self.s2_test1B.shape)
 
 
     #===================================================================
@@ -225,7 +240,39 @@ class GermanData:
         self.train_gen = self.balancedTrainGenerator()
         self.val_gen = self.balancedValGenerator()
 
+    #===================================================================
+    # Use Shuffled Original Dataset 
+    # KF 01/07/2019
+    #===================================================================
+    def useShuffledOriginalData(self):
+        self.print_title('Get Shuffled Original Data')
+        # Set train size and validation size as the same as the original data
+        self.train_size = len(self.label_training)
+        self.val_size = len(self.label_validation)
+        
+        self.index = np.arange(self.train_size + self.val_size)
 
+        # Bookkeeping
+        random.seed(2019)
+
+        # shuffle the index inplace
+        random.shuffle(self.index)
+
+        # Save both index lists for training and validation
+        self.shuffled_train_idx_list = self.index[:self.train_size]
+        self.shuffled_val_idx_list = self.index[self.train_size:]
+        
+        # Reset parameters for 'test' mode
+        if self.train_mode == 'test':
+            self.batch_size = 32
+            self.train_size = 4000
+            self.val_size = 1000
+        
+        # Configure data generator
+        # For External Use
+        self.train_gen = self.shuffledOriginalTrainGenerator()
+        self.val_gen = self.shuffledOriginalValGenerator()
+            
     #===================================================================
     # Use Validation dataset ONLY. (for both training and validation)
     # KF 12/26/2018
@@ -324,7 +371,7 @@ class GermanData:
                     elif channel == 's1_ch5678':
                         train_X_batch = np.asarray(self.s1_validation[start_pos:end_pos][...,4:])
                         yield (train_X_batch, train_y_batch)
-            
+
                 else:
                     start_pos = i
                     end_pos = min(i + batch_size, train_size)
@@ -619,6 +666,71 @@ class GermanData:
                     yield (val_s2_X_batch , val_y_batch)
 
     #===================================================================
+    # Shuffled Original Training-data Generator
+    # KF 01/07/2019
+    #===================================================================
+    def shuffledOriginalTrainGenerator(self):
+        
+        train_size = self.train_size
+        val_size = self.val_size
+        batch_size = self.batch_size
+        channel = self.data_channel
+        print("Train size:", train_size, "Batch size:", batch_size, "Channel:", channel)
+
+        while True:
+            for i in range(0, train_size, batch_size):
+                start_pos = i
+                end_pos = min(i + batch_size, train_size)
+
+                if channel == 's2':
+                    s2_tmp, y_tmp = [], []
+                    for p in range(start_pos, end_pos):
+                        idx = self.shuffled_train_idx_list[p]
+                        if idx >= train_size:
+                            s2_tmp.append(self.s2_validation[idx - train_size])
+                            y_tmp.append(self.label_validation[idx - train_size])
+                        else:
+                            s2_tmp.append(self.s2_training[idx])
+                            y_tmp.append(self.label_training[idx])
+                    
+                    train_X_batch = np.asarray(s2_tmp)
+                    train_y_batch = np.asarray(y_tmp)
+                    yield (train_X_batch, train_y_batch)
+
+    #===================================================================
+    # Shuffled Original Validation -data Generator
+    # KF 01/07/2019
+    #===================================================================
+    def shuffledOriginalValGenerator(self):
+
+        train_size = self.train_size
+        val_size = self.val_size
+        bacth_size = self.batch_size
+        channel = self.data_channel
+        print("Validation size:", val_size, "Batch size:", batch_size, "Channel:", channel)
+
+        while True:
+            for i in range(0, train_size, batch_size):
+                start_pos = i
+                end_pos = min(i + batch_size, train_size)
+
+                if channel == 's2':
+                    s2_tmp, y_tmp = [], []
+                    for p in range(start_pos, end_pos):
+                        idx = self.shuffled_val_idx_list[p]
+                        if idx >= train_size:
+                            s2_tmp.append(self.s2_validation[idx - train_size])
+                            y_tmp.append(self.label_validation[idx - train_size])
+                        else:
+                            s2_tmp.append(self.s2_training[idx])
+                            y_tmp.append(self.label_training[idx])
+                    
+                    val_X_batch = np.asarray(s2_tmp)
+                    val_y_batch = np.asarray(y_tmp)
+                    yield (val_X_batch, val_y_batch)
+
+
+    #===================================================================
     # Generate round 1 test data for prediction
     #===================================================================
     def getTestData(self):
@@ -626,24 +738,35 @@ class GermanData:
         channel = self.data_channel
 
         if channel == 'full': 
-            test_data = np.concatenate([self.s1_test1, self.s2_test1], axis=-1)
+            #testA_data = np.concatenate([self.s1_test1A, self.s2_test1A], axis=-1)
+            testB_data = np.concatenate([self.s1_test1B, self.s2_test1B], axis=-1)
         
         elif channel == 's2_rgb':
+            #tmp = []
+            #for p in self.s2_test1A:
+            #    tmp.append(p[...,2::-1])
+            #testA_data = np.asarray(tmp)
+
             tmp = []
-            for p in self.s2_test1:
+            for p in self.s2_test1B:
                 tmp.append(p[...,2::-1])
-            test_data = np.asarray(tmp)
+            testB_dataB = np.asarray(tmp)
 
         elif channel == 's1': 
-            test_data = self.s1_test1
+            #testA_data = self.s1_test1A
+            testB_data = self.s1_test1B
 
         elif channel == 's2': 
-            test_data = self.s2_test1
+            #testA_data = self.s2_test1A
+            testB_data = self.s2_test1B
 
         elif channel == 's1_ch5678': 
-            test_data = self.s1_test1[...,4:]
+            #testA_data = self.s1_test1A[...,4:]
+            testB_data = self.s1_test1B[...,4:]
 
-        print("Test data shape :", test_data.shape)
+        #print("Test data shape :", testA_data.shape)
+        print("Test data shape :", testB_data.shape)
 
-        return test_data
+        #return testA_data
+        return testB_data
 
