@@ -41,14 +41,14 @@ train_mode = 'real'
 
 # Set real epoch for the training process
 #epochs = 3
-#epochs = 100 
-epochs = 100
+epochs = 100 
+#epochs = 200
 
 # Set batch_size 
 #batch_size = 256
-batch_size = 128
+#batch_size = 128
 #batch_size = 64
-#batch_size = 32
+batch_size = 32
 #batch_size = 16
 #batch_size = 8
 #batch_size = 4
@@ -68,14 +68,14 @@ early_stopping_patience = 30
 #reduce_lr_patience = 8
 reduce_lr_patience = 10
 
-# Set data channel: 'full' or 's2_rgb'
+# Set data channel: 
 #data_channel = 'full'
 #data_channel = 's2_rgb'
 #data_channel = 's1'
 data_channel = 's2'
 #data_channel = 's1_ch5678'
 
-# Set data generating mode: 'original' or 'balanced'
+# Set data generating mode: 
 # if original, class_weight should be set
 #data_gen_mode = 'original'
 data_gen_mode = 'shuffled_original'

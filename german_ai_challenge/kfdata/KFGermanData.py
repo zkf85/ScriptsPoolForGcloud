@@ -705,14 +705,14 @@ class GermanData:
 
         train_size = self.train_size
         val_size = self.val_size
-        bacth_size = self.batch_size
+        batch_size = self.batch_size
         channel = self.data_channel
         print("Validation size:", val_size, "Batch size:", batch_size, "Channel:", channel)
 
         while True:
-            for i in range(0, train_size, batch_size):
+            for i in range(0, val_size, batch_size):
                 start_pos = i
-                end_pos = min(i + batch_size, train_size)
+                end_pos = min(i + batch_size, val_size)
 
                 if channel == 's2':
                     s2_tmp, y_tmp = [], []
