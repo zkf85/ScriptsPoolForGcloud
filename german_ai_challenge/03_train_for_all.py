@@ -8,6 +8,8 @@
 #    2019/01/03 - add channel option "s1_ch56"
 #    2019/01/04   "s1_ch56" doesn't perform good, change it to "s1_ch78"
 #                 "s1_ch78" not working well, change it to "s1_ch5678"
+#    2019/01/14 - upgrade the data generators with data_gen_mode "shuffled_original"
+#               - add channel option "s1_ch5678+s2"                
 #
 #################################################################
 import os
@@ -72,8 +74,9 @@ reduce_lr_patience = 10
 #data_channel = 'full'
 #data_channel = 's2_rgb'
 #data_channel = 's1'
-data_channel = 's2'
+#data_channel = 's2'
 #data_channel = 's1_ch5678'
+data_channel = 's1_ch5678+s2'
 
 # Set data generating mode: 
 # if original, class_weight should be set
@@ -240,7 +243,8 @@ from tensorflow.keras.models import load_model
 
 print_title("Predicting with round 1 test data")
 
-test_data = german_data.getTestData()
+#test_data = german_data.getTestAData()
+test_data = german_data.getTestBData()
 # predicting process
 #res = model.predict(test_data)
 # Load best model

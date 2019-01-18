@@ -243,32 +243,68 @@ class GermanData:
     #===================================================================
     # Use Shuffled Original Dataset 
     # KF 01/07/2019
+    # KF 01/14/2019 - Major update for improving data gen speed
     #===================================================================
     def useShuffledOriginalData(self):
         self.print_title('Get Shuffled Original Data')
         # Set train size and validation size as the same as the original data
         self.train_size = len(self.label_training)
         self.val_size = len(self.label_validation)
-        
-        self.index = np.arange(self.train_size + self.val_size)
 
-        # Bookkeeping
-        random.seed(2019)
-
-        # shuffle the index inplace
-        random.shuffle(self.index)
-
-        # Save both index lists for training and validation
-        self.shuffled_train_idx_list = self.index[:self.train_size]
-        self.shuffled_val_idx_list = self.index[self.train_size:]
-        
+        # --------------------------------------------------------------
+        # KF 01/14/2019
+        # Ignore Test Mode !!!
+        # --------------------------------------------------------------
         # Reset parameters for 'test' mode
-        if self.train_mode == 'test':
-            self.batch_size = 32
-            self.train_size = 4000
-            self.val_size = 1000
+        #if self.train_mode == 'test':
+        #    self.batch_size = 32
+        #    self.train_size = 4000
+        #    self.val_size = 1000
+
+        # --------------------------------------------------------------
+        # KF 01/07/2019
+        # Shuffle all index of both the training and validation dataset
+        # Low efficiency
+        # --------------------------------------------------------------
+        #self.index = np.arange(self.train_size + self.val_size)
+        ## Bookkeeping
+        #random.seed(2019)
+
+        ## shuffle the index inplace
+        #random.shuffle(self.index)
+
+        ## Save both index lists for training and validation
+        #self.shuffled_train_idx_list = self.index[:self.train_size]
+        #self.shuffled_val_idx_list = self.index[self.train_size:]
+
+        # --------------------------------------------------------------
+        # KF 01/07/2019
+        # Update: 
+        #   1. Based on self.batch_size, get all indices of the first item
+        #      in each batch into a list 'self.batch_head_idx'
+        #   2. Shuffle the self.batch_head_idx
+        #   3. split the shuffled index list into 'shuffled_train_batch_head_idx'.
+        #      and 'shuffled_val_batch_head_idx'
+        # --------------------------------------------------------------
+        # Add train_dataset batch index head
+        batch_head_idx = [i for i in range(self.train_size) if i % self.batch_size == 0]
+        # Save train length
+        train_len = len(batch_head_idx)
+        # Append val_dataset batch head index 
+        batch_head_idx += [i + self.train_size for i in range(self.val_size) if i % self.batch_size == 0]
+
+        # Set random seed:
+        random.seed(2019)
+        # shuffle the batch head index list
+        random.shuffle(batch_head_idx)
         
+        # Split train indices and val indices
+        self.shuffled_train_batch_head_idx_list = batch_head_idx[:train_len]
+        self.shuffled_val_batch_head_idx_list = batch_head_idx[train_len:]
+        
+        # --------------------------------------------------------------
         # Configure data generator
+        # --------------------------------------------------------------
         # For External Use
         self.train_gen = self.shuffledOriginalTrainGenerator()
         self.val_gen = self.shuffledOriginalValGenerator()
@@ -317,6 +353,9 @@ class GermanData:
             
         elif self.data_channel == 's1_ch5678':
             dimension = (input_width, input_height, 4)
+
+        elif self.data_channel == 's1_ch5678+s2':
+            dimension = (input_width, input_height, 4 + self.s2_training.shape[3])
 
         return dimension
 
@@ -677,25 +716,62 @@ class GermanData:
         channel = self.data_channel
         print("Train size:", train_size, "Batch size:", batch_size, "Channel:", channel)
 
-        while True:
-            for i in range(0, train_size, batch_size):
-                start_pos = i
-                end_pos = min(i + batch_size, train_size)
+        #while True:
+        #    for i in range(0, train_size, batch_size):
+        #        start_pos = i
+        #        end_pos = min(i + batch_size, train_size)
 
-                if channel == 's2':
-                    s2_tmp, y_tmp = [], []
-                    for p in range(start_pos, end_pos):
-                        idx = self.shuffled_train_idx_list[p]
-                        if idx >= train_size:
-                            s2_tmp.append(self.s2_validation[idx - train_size])
-                            y_tmp.append(self.label_validation[idx - train_size])
-                        else:
-                            s2_tmp.append(self.s2_training[idx])
-                            y_tmp.append(self.label_training[idx])
+        #        if channel == 's2':
+        #            s2_tmp, y_tmp = [], []
+        #            for p in range(start_pos, end_pos):
+        #                idx = self.shuffled_train_idx_list[p]
+        #                if idx >= train_size:
+        #                    s2_tmp.append(self.s2_validation[idx - train_size])
+        #                    y_tmp.append(self.label_validation[idx - train_size])
+        #                else:
+        #                    s2_tmp.append(self.s2_training[idx])
+        #                    y_tmp.append(self.label_training[idx])
+        #            
+        #            train_X_batch = np.asarray(s2_tmp)
+        #            train_y_batch = np.asarray(y_tmp)
+        #            yield (train_X_batch, train_y_batch)
+
+        # KF - 01/14/2019
+        while True:
+            for i in self.shuffled_train_batch_head_idx_list:
+                start_pos = i
+                end_pos = i + batch_size
+                # for the last batch in original train_set:
+                if i < train_size and i + batch_size > train_size:
+                    end_pos = train_size
+                # for the last batch in original validation_set:
+                if i + batch_size > train_size + val_size:
+                    end_pos = train_size + val_size
                     
-                    train_X_batch = np.asarray(s2_tmp)
-                    train_y_batch = np.asarray(y_tmp)
+                if channel == 's2':
+                    if start_pos < train_size:
+                        train_X_batch = self.s2_training[start_pos:end_pos]
+                        train_y_batch = self.label_training[start_pos:end_pos]
+                    else:
+                        start_pos -= train_size
+                        end_pos -= train_size 
+                        train_X_batch = self.s2_validation[start_pos:end_pos]
+                        train_y_batch = self.label_validation[start_pos:end_pos]
+
                     yield (train_X_batch, train_y_batch)
+
+                elif channel == 's1_ch5678+s2':
+                    if start_pos < train_size:
+                        train_X_batch = np.concatenate([self.s1_training[start_pos:end_pos][...,4:], self.s2_training[start_pos:end_pos]], axis=-1)
+                        train_y_batch = self.label_training[start_pos:end_pos]
+                    else:
+                        start_pos -= train_size
+                        end_pos -= train_size 
+                        train_X_batch = np.concatenate([self.s1_validation[start_pos:end_pos][...,4:], self.s2_validation[start_pos:end_pos]], axis=-1)
+                        train_y_batch = self.label_validation[start_pos:end_pos]
+
+                    yield (train_X_batch, train_y_batch)
+                    
 
     #===================================================================
     # Shuffled Original Validation -data Generator
@@ -709,64 +785,121 @@ class GermanData:
         channel = self.data_channel
         print("Validation size:", val_size, "Batch size:", batch_size, "Channel:", channel)
 
-        while True:
-            for i in range(0, val_size, batch_size):
-                start_pos = i
-                end_pos = min(i + batch_size, val_size)
+        #while True:
+        #    for i in range(0, val_size, batch_size):
+        #        start_pos = i
+        #        end_pos = min(i + batch_size, val_size)
 
-                if channel == 's2':
-                    s2_tmp, y_tmp = [], []
-                    for p in range(start_pos, end_pos):
-                        idx = self.shuffled_val_idx_list[p]
-                        if idx >= train_size:
-                            s2_tmp.append(self.s2_validation[idx - train_size])
-                            y_tmp.append(self.label_validation[idx - train_size])
-                        else:
-                            s2_tmp.append(self.s2_training[idx])
-                            y_tmp.append(self.label_training[idx])
+        #        if channel == 's2':
+        #            s2_tmp, y_tmp = [], []
+        #            for p in range(start_pos, end_pos):
+        #                idx = self.shuffled_val_idx_list[p]
+        #                if idx >= train_size:
+        #                    s2_tmp.append(self.s2_validation[idx - train_size])
+        #                    y_tmp.append(self.label_validation[idx - train_size])
+        #                else:
+        #                    s2_tmp.append(self.s2_training[idx])
+        #                    y_tmp.append(self.label_training[idx])
+        #            
+        #            val_X_batch = np.asarray(s2_tmp)
+        #            val_y_batch = np.asarray(y_tmp)
+        #            yield (val_X_batch, val_y_batch)
+
+        # KF - 01/14/2019
+        while True:
+            for i in self.shuffled_val_batch_head_idx_list:
+                start_pos = i
+                end_pos = i + batch_size
+                # for the last batch in original train_set:
+                if i < train_size and i + batch_size > train_size:
+                    end_pos = train_size
+                # for the last batch in original validation_set:
+                if i + batch_size > train_size + val_size:
+                    end_pos = train_size + val_size
                     
-                    val_X_batch = np.asarray(s2_tmp)
-                    val_y_batch = np.asarray(y_tmp)
+                if channel == 's2':
+                    if start_pos < train_size:
+                        val_X_batch = self.s2_training[start_pos:end_pos]
+                        val_y_batch = self.label_training[start_pos:end_pos]
+                    else:
+                        start_pos -= train_size
+                        end_pos -= train_size 
+                        val_X_batch = self.s2_validation[start_pos:end_pos]
+                        val_y_batch = self.label_validation[start_pos:end_pos]
+
                     yield (val_X_batch, val_y_batch)
 
+                elif channel == 's1_ch5678+s2':
+                    if start_pos < train_size:
+                        val_X_batch = np.concatenate([self.s1_training[start_pos:end_pos][...,4:], self.s2_training[start_pos:end_pos]], axis=-1)
+                        val_y_batch = self.label_training[start_pos:end_pos]
+                    else:
+                        start_pos -= train_size
+                        end_pos -= train_size 
+                        val_X_batch = np.concatenate([self.s1_validation[start_pos:end_pos][...,4:], self.s2_validation[start_pos:end_pos]], axis=-1)
+                        val_y_batch = self.label_validation[start_pos:end_pos]
+
+                    yield (val_X_batch, val_y_batch)
 
     #===================================================================
     # Generate round 1 test data for prediction
     #===================================================================
-    def getTestData(self):
+    def getTestAData(self):
         
         channel = self.data_channel
 
         if channel == 'full': 
-            #testA_data = np.concatenate([self.s1_test1A, self.s2_test1A], axis=-1)
+            testA_data = np.concatenate([self.s1_test1A, self.s2_test1A], axis=-1)
+        
+        elif channel == 's2_rgb':
+            tmp = []
+            for p in self.s2_test1A:
+                tmp.append(p[...,2::-1])
+            testA_data = np.asarray(tmp)
+
+        elif channel == 's1': 
+            testA_data = self.s1_test1A
+
+        elif channel == 's2': 
+            testA_data = self.s2_test1A
+
+        elif channel == 's1_ch5678': 
+            testA_data = self.s1_test1A[...,4:]
+
+        elif channel == 's1_ch5678+s2':
+            testA_data = np.concatenate([self.s1_test1A[...,4:], self.s2_test1A], axis=-1)
+            
+        print("Test data shape :", testA_data.shape)
+
+        return testA_data
+
+
+    def getTestBData(self):
+        
+        channel = self.data_channel
+
+        if channel == 'full': 
             testB_data = np.concatenate([self.s1_test1B, self.s2_test1B], axis=-1)
         
         elif channel == 's2_rgb':
-            #tmp = []
-            #for p in self.s2_test1A:
-            #    tmp.append(p[...,2::-1])
-            #testA_data = np.asarray(tmp)
-
             tmp = []
             for p in self.s2_test1B:
                 tmp.append(p[...,2::-1])
             testB_dataB = np.asarray(tmp)
 
         elif channel == 's1': 
-            #testA_data = self.s1_test1A
             testB_data = self.s1_test1B
 
         elif channel == 's2': 
-            #testA_data = self.s2_test1A
             testB_data = self.s2_test1B
 
         elif channel == 's1_ch5678': 
-            #testA_data = self.s1_test1A[...,4:]
             testB_data = self.s1_test1B[...,4:]
 
-        #print("Test data shape :", testA_data.shape)
+        elif channel == 's1_ch5678+s2':
+            testB_data = np.concatenate([self.s1_test1B[...,4:], self.s2_test1B], axis=-1)
+            
         print("Test data shape :", testB_data.shape)
 
-        #return testA_data
         return testB_data
 
