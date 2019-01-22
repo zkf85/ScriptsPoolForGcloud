@@ -36,14 +36,16 @@ train_filename = 'training.h5'
 val_filename = 'validation.h5'
 round1_testA_filename = 'round1_test_a_20181109.h5'
 round1_testB_filename = 'round1_test_b_20190104.h5'
+round2_testA_filename = 'round2_test_a_20190121.h5'
+#round2_testB_filename = 'round2_test_b_20190104.h5'
 
 # Set Train mode: 'real' or 'test'
 train_mode = 'real'
 #train_mode = 'test'
 
 # Set real epoch for the training process
-#epochs = 3
-epochs = 100 
+epochs = 3
+#epochs = 100 
 #epochs = 200
 
 # Set batch_size 
@@ -57,8 +59,10 @@ batch_size = 32
 
 # Initial learning rate 
 #lr = 0.001
-lr = 0.0003
-#lr = 0.0001
+#lr = 0.0003
+lr = 0.0001
+#lr = 3e-5
+#lr = 1e-5
 
 # Early Stopping patience:
 #early_stopping_patience = 10
@@ -86,10 +90,10 @@ data_gen_mode = 'shuffled_original'
 #data_gen_mode = 'val_dataset_only'
 
 # Set model name
-model_name = 'KFSmallerVGGNet'
+#model_name = 'KFSmallerVGGNet'
 #model_name = 'KFDummy'
 #model_name = 'KFResNet18'
-#model_name = 'KFResNet34'
+model_name = 'KFResNet34'
 #model_name = 'KFResNet50'
 #model_name = 'KFResNet101'
 #model_name = 'KFResNet152'
@@ -107,6 +111,8 @@ param_dict['train_filename'] = train_filename
 param_dict['val_filename'] = val_filename
 param_dict['round1_testA_filename'] = round1_testA_filename
 param_dict['round1_testB_filename'] = round1_testB_filename
+param_dict['round2_testA_filename'] = round2_testA_filename
+#param_dict['round2_testB_filename'] = round2_testB_filename
 param_dict['train_mode'] = train_mode
 param_dict['batch_size'] = batch_size
 param_dict['data_channel'] = data_channel
@@ -236,15 +242,29 @@ print('')
 print("[KF INFO] Training Completed!")
 print('')
 
+# KF 01/22/2019
+# Save the History to a file
+print('H.history type:', type(H.history))
+print('H.history keys:', H.history.keys())
+
+import pickle
+hist_file_path = os.path.join(res_root_dir, res_folder_name, 'history.pkl')
+
+with open(hist_file_path, 'wb') as f:
+    pickle.dump(H.history, f)
+
 #################################################################
 # V. Predict
 #################################################################
 from tensorflow.keras.models import load_model
 
-print_title("Predicting with round 1 test data")
+#print_title("Predicting with round 1 test data")
+print_title("Predicting with round 2 test A data")
 
-#test_data = german_data.getTestAData()
-test_data = german_data.getTestBData()
+#test_data = german_data.getTest1AData()
+#test_data = german_data.getTest1BData()
+test_data = german_data.getTest2AData()
+#test_data = german_data.getTest2BData()
 # predicting process
 #res = model.predict(test_data)
 # Load best model
@@ -262,7 +282,8 @@ print("[KF INFO] Prediction shape:", final_res.shape)
 # Save prediction to CSV
 
 #csv_name = 'prediction-%d%02d%02d-%s-epochs-%d-trainsize-%d.csv' % (cur_date.year, cur_date.month, cur_date.day, model_name, epochs, german_data.train_size)
-csv_name = 'prediction-testB-%d%02d%02d-%s-epochs-%d-trainsize-%d.csv' % (cur_date.year, cur_date.month, cur_date.day, model_name, epochs, german_data.train_size)
+#csv_name = 'prediction-testB-%d%02d%02d-%s-epochs-%d-trainsize-%d.csv' % (cur_date.year, cur_date.month, cur_date.day, model_name, epochs, german_data.train_size)
+csv_name = 'prediction-test2A-%d%02d%02d-%s-epochs-%d-trainsize-%d.csv' % (cur_date.year, cur_date.month, cur_date.day, model_name, epochs, german_data.train_size)
 pred_dir = 'predictions'
 
 np.savetxt(os.path.join(pred_dir, csv_name), final_res, fmt='%d', delimiter=',')
@@ -277,18 +298,28 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 print_title("Plot the Loss and Accuracy")
-# plot the loss and accuracy
-plt.style.use("ggplot")
-plt.figure()
-#N = epochs
 N = len(H.history["loss"])
-plt.plot(np.arange(0, N), H.history["loss"], label="train_loss")
-plt.plot(np.arange(0, N), H.history["val_loss"], label="val_loss")
-plt.plot(np.arange(0, N), H.history["acc"], label="train_acc")
-plt.plot(np.arange(0, N), H.history["val_acc"], label="val_acc")
+#plt.style.use("ggplot")
+#plt.figure()
+fig, ax1 = plt.subplots(figsize=(8, 6))
+ax2 = ax1.twinx()
+#N = epochs
+l1 = ax1.plot(np.arange(0, N), H.history["acc"], label="train_acc")
+l2 = ax1.plot(np.arange(0, N), H.history["val_acc"], label="val_acc")
+ax1.set_ylabel('Accuracy')
+ax1.set_xlabel('Epoch #')
+ax1.set_ylim(0, 1)
+ax1.grid()
+
+l3 = ax2.plot(np.arange(0, N), H.history["loss"], linestyle='dashed', label="train_loss")
+l4 = ax2.plot(np.arange(0, N), H.history["val_loss"], linestyle='dashed', label="val_loss")
+ax2.set_ylabel('Loss')
+# Put all label legend together
+l = l1 + l2 + l3 + l4
+labels = [i.get_label() for i in l]
+plt.legend(l, labels, loc='center right')
+
 plt.title("Training Loss and Accuracy")
-plt.xlabel("Epoch #")
-plt.ylabel("Loss/Accuracy")
-plt.legend(loc="upper left")
-plt.savefig(os.path.join(res_root_dir, res_folder_name, 'plot.png'))
+plt_name = 'plt-%d%02d%02d-%s.eps' % (cur_date.year, cur_date.month, cur_date.day, model_name)
+plt.savefig(os.path.join(res_root_dir, res_folder_name, plt_name), format='eps', dpi=1000)
 

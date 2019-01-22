@@ -36,10 +36,14 @@ class GermanData:
         self.val_filename = params.get('val_filename')
         self.round1_testA_filename = params.get('round1_testA_filename')
         self.round1_testB_filename = params.get('round1_testB_filename')
+        self.round2_testA_filename = params.get('round2_testA_filename')
+        #self.round2_testB_filename = params.get('round2`testB_filename')
         self.path_training = os.path.join(self.base_dir, self.train_filename)
         self.path_validation = os.path.join(self.base_dir, self.val_filename) 
         self.path_round1_testA = os.path.join(self.base_dir, self.round1_testA_filename)
         self.path_round1_testB = os.path.join(self.base_dir, self.round1_testB_filename)
+        self.path_round2_testA = os.path.join(self.base_dir, self.round2_testA_filename)
+        #self.path_round2_testB = os.path.join(self.base_dir, self.round2_testB_filename)
 
         # Initialize other parameters
         self.train_mode = params.get('train_mode')
@@ -55,7 +59,8 @@ class GermanData:
         for f in [self.train_filename, 
                     self.val_filename, 
                     self.round1_testA_filename, 
-                    self.round1_testB_filename]:
+                    self.round1_testB_filename,
+                    self.round2_testA_filename]:
             if f in os.listdir(self.base_dir):
                 print('|--CHECK!-->', f)
         print('')
@@ -63,21 +68,30 @@ class GermanData:
         #----------------------------------------------------------------
         # 2. Load Data
         #----------------------------------------------------------------
+        # Train/Val Data
         fid_training = h5py.File(self.path_training, 'r')
         fid_validation = h5py.File(self.path_validation, 'r')
-        fid_test1A = h5py.File(self.path_round1_testA, 'r')
-        fid_test1B = h5py.File(self.path_round1_testB, 'r')
-
         self.s1_training = fid_training['sen1']
         self.s2_training = fid_training['sen2']
         self.label_training = fid_training['label']
         self.s1_validation = fid_validation['sen1']
         self.s2_validation = fid_validation['sen2']
         self.label_validation = fid_validation['label']
+
+        # Test Data
+        fid_test1A = h5py.File(self.path_round1_testA, 'r')
+        fid_test1B = h5py.File(self.path_round1_testB, 'r')
+        fid_test2A = h5py.File(self.path_round2_testA, 'r')
+        #fid_test2B = h5py.File(self.path_round2_testB, 'r')
+
         self.s1_test1A = fid_test1A['sen1']
         self.s2_test1A = fid_test1A['sen2']
         self.s1_test1B = fid_test1B['sen1']
         self.s2_test1B = fid_test1B['sen2']
+        self.s1_test2A = fid_test2A['sen1']
+        self.s2_test2A = fid_test2A['sen2']
+        #self.s1_test2B = fid_test2B['sen1']
+        #self.s2_test2B = fid_test2B['sen2']
         print("[KF INFO] Data loaded successfully!")
         # Show data information
         self.showDataInfo()
@@ -302,6 +316,11 @@ class GermanData:
         self.shuffled_train_batch_head_idx_list = batch_head_idx[:train_len]
         self.shuffled_val_batch_head_idx_list = batch_head_idx[train_len:]
         
+        # Reset parameters for 'test' mode
+        if self.train_mode == 'test':
+            self.batch_size = 32
+            self.train_size = 4000
+            self.val_size = 1000
         # --------------------------------------------------------------
         # Configure data generator
         # --------------------------------------------------------------
@@ -844,62 +863,90 @@ class GermanData:
     #===================================================================
     # Generate round 1 test data for prediction
     #===================================================================
-    def getTestAData(self):
+    def getTest1AData(self):
         
         channel = self.data_channel
 
         if channel == 'full': 
-            testA_data = np.concatenate([self.s1_test1A, self.s2_test1A], axis=-1)
+            test1A_data = np.concatenate([self.s1_test1A, self.s2_test1A], axis=-1)
         
         elif channel == 's2_rgb':
             tmp = []
             for p in self.s2_test1A:
                 tmp.append(p[...,2::-1])
-            testA_data = np.asarray(tmp)
+            test1A_data = np.asarray(tmp)
 
         elif channel == 's1': 
-            testA_data = self.s1_test1A
+            test1A_data = self.s1_test1A
 
         elif channel == 's2': 
-            testA_data = self.s2_test1A
+            test1A_data = self.s2_test1A
 
         elif channel == 's1_ch5678': 
-            testA_data = self.s1_test1A[...,4:]
+            test1A_data = self.s1_test1A[...,4:]
 
         elif channel == 's1_ch5678+s2':
-            testA_data = np.concatenate([self.s1_test1A[...,4:], self.s2_test1A], axis=-1)
+            test1A_data = np.concatenate([self.s1_test1A[...,4:], self.s2_test1A], axis=-1)
             
-        print("Test data shape :", testA_data.shape)
+        print("Test data shape :", test1A_data.shape)
 
         return testA_data
 
 
-    def getTestBData(self):
+    def getTest1BData(self):
         
         channel = self.data_channel
 
         if channel == 'full': 
-            testB_data = np.concatenate([self.s1_test1B, self.s2_test1B], axis=-1)
+            test1B_data = np.concatenate([self.s1_test1B, self.s2_test1B], axis=-1)
         
         elif channel == 's2_rgb':
             tmp = []
             for p in self.s2_test1B:
                 tmp.append(p[...,2::-1])
-            testB_dataB = np.asarray(tmp)
+            test1B_data = np.asarray(tmp)
 
         elif channel == 's1': 
-            testB_data = self.s1_test1B
+            test1B_data = self.s1_test1B
 
         elif channel == 's2': 
-            testB_data = self.s2_test1B
+            test1B_data = self.s2_test1B
 
         elif channel == 's1_ch5678': 
-            testB_data = self.s1_test1B[...,4:]
+            test1B_data = self.s1_test1B[...,4:]
 
         elif channel == 's1_ch5678+s2':
-            testB_data = np.concatenate([self.s1_test1B[...,4:], self.s2_test1B], axis=-1)
+            test1B_data = np.concatenate([self.s1_test1B[...,4:], self.s2_test1B], axis=-1)
             
-        print("Test data shape :", testB_data.shape)
+        print("Test data shape :", test1B_data.shape)
 
-        return testB_data
+        return test1B_data
 
+    def getTest2AData(self):
+        
+        channel = self.data_channel
+
+        if channel == 'full': 
+            test2A_data = np.concatenate([self.s1_test2A, self.s2_test2A], axis=-1)
+        
+        elif channel == 's2_rgb':
+            tmp = []
+            for p in self.s2_test2A:
+                tmp.append(p[...,2::-1])
+            test2A_data = np.asarray(tmp)
+
+        elif channel == 's1': 
+            test2A_data = self.s1_test2A
+
+        elif channel == 's2': 
+            test2A_data = self.s2_test2A
+
+        elif channel == 's1_ch5678': 
+            test2A_data = self.s1_test2A[...,4:]
+
+        elif channel == 's1_ch5678+s2':
+            test2A_data = np.concatenate([self.s1_test2A[...,4:], self.s2_test2A], axis=-1)
+            
+        print("Test data shape :", test2A_data.shape)
+
+        return test2A_data
