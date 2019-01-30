@@ -16,26 +16,32 @@ import numpy as np
 base_dir = os.path.expanduser('/home/kefeng/German_AI_Challenge/dataset')
 train_filename = 'training.h5'
 val_filename = 'validation.h5'
-round1_test_filename = 'round1_test_a_20181109.h5'
+round1_testA_filename = 'round1_test_a_20181109.h5'
+round1_testB_filename = 'round1_test_b_20190104.h5'
+round2_testA_filename = 'round2_test_a_20190121.h5'
 
 # Package parameters into dictionary
 param_dict = {}
 param_dict['base_dir'] = base_dir
 param_dict['train_filename'] = train_filename
 param_dict['val_filename'] = val_filename
-param_dict['round1_test_filename'] = round1_test_filename
+param_dict['round1_testA_filename'] = round1_testA_filename
+param_dict['round1_testB_filename'] = round1_testB_filename
+param_dict['round2_testA_filename'] = round2_testA_filename
 
 #param_dict['train_mode'] = 'test'
 param_dict['train_mode'] = 'real'
 #param_dict['batch_size'] = 64
 param_dict['batch_size'] = 128
 #param_dict['data_channel'] = 'full'
-param_dict['data_channel'] = 's2'
+param_dict['data_channel'] = 's1_ch5678+s2'
 
 #param_dict['data_channel'] = 's2_rgb'
 #param_dict['data_gen_mode'] = 'original'
 #param_dict['data_gen_mode'] = 'balanced'
 param_dict['data_gen_mode'] = 'val_dataset_only'
+
+param_dict['data_normalize'] = 'yes'
 
 #================================================================
 # Test Initialization 
@@ -62,7 +68,7 @@ print('-'*65)
 # Test -> Generators:
 # KF 12/18/2018
 #================================================================
-loop = 10
+#loop = 10
 #print('')
 #print('[KF INFO] Test german_data.train_gen:')
 #print('-'*65)
@@ -123,23 +129,48 @@ loop = 10
 # Test -> kf_keras_resnet
 # KF 01/03/2019
 #================================================================
-from kfmodels.kf_keras_resnet import ResnetBuilder
-
-def test_model_compile(model):
-    model.compile(loss="categorical_crossentropy", optimizer="adam")
-    print("[KF TEST INFO] Model Compiling Successful!")
-    model.summary()
-    
-
-    
-input_shape = german_data.data_dimension
-num_output = 17
+#from kfmodels.kf_keras_resnet import ResnetBuilder
+#
+#def test_model_compile(model):
+#    model.compile(loss="categorical_crossentropy", optimizer="adam")
+#    print("[KF TEST INFO] Model Compiling Successful!")
+#    model.summary()
+#    
+#
+#    
+#input_shape = german_data.data_dimension
+#num_output = 17
 
 # Test -> ResNet18
 #model = ResnetBuilder.build_resnet_18(input_shape, num_output)
 #test_model_compile(model)
 
 # Test -> ResNet151
-model = ResnetBuilder.build_resnet_152(input_shape, num_output)
-test_model_compile(model)
+#model = ResnetBuilder.build_resnet_152(input_shape, num_output)
+#test_model_compile(model)
+
+#================================================================
+# Test -> kfdata - normalization
+# KF 01/29/2019
+#================================================================
+loop = 10
+print('')
+print('[KF INFO] Test german_data.train_gen:')
+print('-'*65)
+for i in range(loop):
+    data = next(german_data.train_gen)
+    print("batch_X shape:", data[0].shape, "batch_y shape:", data[1].shape)
+
+print('')
+print('[KF INFO] Test german_data.val_gen:')
+print('-'*65)
+for i in range(loop):
+    data = next(german_data.val_gen)
+    print("batch_X shape:", data[0].shape, "batch_y shape:", data[1].shape)
+
+
+
+
+
+
 

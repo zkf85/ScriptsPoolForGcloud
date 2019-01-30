@@ -44,8 +44,8 @@ train_mode = 'real'
 #train_mode = 'test'
 
 # Set real epoch for the training process
-epochs = 3
-#epochs = 100 
+#epochs = 3
+epochs = 100 
 #epochs = 200
 
 # Set batch_size 
@@ -85,9 +85,13 @@ data_channel = 's1_ch5678+s2'
 # Set data generating mode: 
 # if original, class_weight should be set
 #data_gen_mode = 'original'
-data_gen_mode = 'shuffled_original'
+#data_gen_mode = 'shuffled_original'
 #data_gen_mode = 'balanced'
-#data_gen_mode = 'val_dataset_only'
+data_gen_mode = 'val_dataset_only'
+
+# Data normalize or not
+data_normalize = 'yes'
+#data_normalize = 'no'
 
 # Set model name
 #model_name = 'KFSmallerVGGNet'
@@ -117,6 +121,7 @@ param_dict['train_mode'] = train_mode
 param_dict['batch_size'] = batch_size
 param_dict['data_channel'] = data_channel
 param_dict['data_gen_mode'] = data_gen_mode
+param_dict['data_normalize'] = data_normalize
 
 # Create GermanData class instance
 german_data = GermanData(param_dict)
@@ -305,21 +310,35 @@ fig, ax1 = plt.subplots(figsize=(8, 6))
 ax2 = ax1.twinx()
 #N = epochs
 l1 = ax1.plot(np.arange(0, N), H.history["acc"], label="train_acc")
-l2 = ax1.plot(np.arange(0, N), H.history["val_acc"], label="val_acc")
+l2 = ax1.plot(np.arange(0, N), H.history["val_acc"], label="val_acc", linewidth=2)
 ax1.set_ylabel('Accuracy')
 ax1.set_xlabel('Epoch #')
-ax1.set_ylim(0, 1)
+ax1.set_ylim(0, 1.05)
 ax1.grid()
 
-l3 = ax2.plot(np.arange(0, N), H.history["loss"], linestyle='dashed', label="train_loss")
-l4 = ax2.plot(np.arange(0, N), H.history["val_loss"], linestyle='dashed', label="val_loss")
+l3 = ax2.plot(np.arange(0, N), H.history["loss"], color='orchid', linestyle='dashed', label="train_loss")
+l4 = ax2.plot(np.arange(0, N), H.history["val_loss"], color='limegreen', linestyle='dashed', label="val_loss", linewidth=2)
 ax2.set_ylabel('Loss')
 # Put all label legend together
 l = l1 + l2 + l3 + l4
 labels = [i.get_label() for i in l]
+#plt.legend(l, labels, loc='center right')
 plt.legend(l, labels, loc='center right')
 
 plt.title("Training Loss and Accuracy")
-plt_name = 'plt-%d%02d%02d-%s.eps' % (cur_date.year, cur_date.month, cur_date.day, model_name)
+plt_name = 'plt-acc-loss-%d%02d%02d-%s.eps' % (cur_date.year, cur_date.month, cur_date.day, model_name)
 plt.savefig(os.path.join(res_root_dir, res_folder_name, plt_name), format='eps', dpi=1000)
 
+#################################################################
+# Plot Learning Rate`
+#################################################################
+print_title("Plot Learning Rate")
+plt.figure(figsize=(8, 6))
+plt.plot(np.arange(0, N), history['lr'], linewidth=4)
+plt.xlabel('Epoch #')
+plt.ylabel('Learning Rate')
+plt.grid()
+
+plt.title("Learning Rate")
+plt_name = 'plt-lr-%d%02d%02d-%s.eps' % (cur_date.year, cur_date.month, cur_date.day, model_name)
+plt.savefig(plt_name, format='eps', dpi=1000)

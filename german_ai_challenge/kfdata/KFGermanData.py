@@ -28,6 +28,7 @@ class GermanData:
         #       batch_size            - batch size
         #       data_channel          - 'full', 's2_rgb'
         #       data_gen_mode         - either 'original' or 'balanced'
+        #       data_normalize        - either 'yes' or 'no'
         #================================================================
 
         # Initialize paths parameters
@@ -37,9 +38,10 @@ class GermanData:
         self.round1_testA_filename = params.get('round1_testA_filename')
         self.round1_testB_filename = params.get('round1_testB_filename')
         self.round2_testA_filename = params.get('round2_testA_filename')
-        #self.round2_testB_filename = params.get('round2`testB_filename')
+        #self.round2_testB_filename = params.get('round2_testB_filename')
         self.path_training = os.path.join(self.base_dir, self.train_filename)
         self.path_validation = os.path.join(self.base_dir, self.val_filename) 
+        print('test name:', self.round1_testA_filename)
         self.path_round1_testA = os.path.join(self.base_dir, self.round1_testA_filename)
         self.path_round1_testB = os.path.join(self.base_dir, self.round1_testB_filename)
         self.path_round2_testA = os.path.join(self.base_dir, self.round2_testA_filename)
@@ -50,6 +52,7 @@ class GermanData:
         self.batch_size = params.get('batch_size')
         self.data_channel = params.get('data_channel')
         self.data_gen_mode = params.get('data_gen_mode')
+        self.data_normalize = params.get('data_normalize')
 
         #----------------------------------------------------------------
         # 1. Paths Validation
@@ -339,6 +342,107 @@ class GermanData:
         self.train_size = self.val_split_idx
         self.val_size = self.label_validation.shape[0] - self.train_size
 
+        # Normalize
+        # KF 01/29/2019
+        if self.data_normalize == 'yes':
+            self.print_title('Replace Outliers & Standardization')
+            # Make sure the data is loaded into memory
+            print(type(self.s1_validation))
+            print(type(self.s2_validation))
+            print(type(self.s1_test2A))
+            print(type(self.s2_test2A))
+            self.s1_validation = self.s1_validation[:]
+            self.s2_validation = self.s2_validation[:]
+            self.s1_test2A = self.s1_test2A[:]
+            self.s2_test2A = self.s2_test2A[:]
+            print(type(self.s1_validation))
+            print(type(self.s2_validation))
+            print(type(self.s1_test2A))
+            print(type(self.s2_test2A))
+            # rejecting threshold for outliers
+            m = 2.0
+            # S1
+            for ch in [4,5,6,7]:
+                data_all = np.concatenate([self.s1_validation[..., ch], self.s1_test2A[..., ch]], axis=0)
+                med = np.median(data_all)
+                std = np.std(data_all)
+                print('-'*65)
+                print('S1 - Ch:', ch)
+                print('-'*65)
+                print('data_all shape:', data_all.shape)
+
+                print('Replace Outliers ...')
+                for (n, w, h), value in np.ndenumerate(self.s1_validation[..., ch]):
+                    if self.s1_validation[n, w, h, ch] - med > m * std:
+                        self.s1_validation[n, w, h, ch] = m * std
+                    elif self.s1_validation[n, w, h, ch] - med < - m * std:
+                        self.s1_validation[n, w, h, ch] = - m * std
+                for (n, w, h), value in np.ndenumerate(self.s1_test2A[..., ch]):
+                    if self.s1_test2A[n, w, h, ch] - med > m * std:
+                        self.s1_test2A[n, w, h, ch] = m * std
+                    elif self.s1_test2A[n, w, h, ch] - med < - m * std:
+                        self.s1_test2A[n, w, h, ch] = - m * std
+                #for i in range(len(self.s1_validation)):
+                #    norm = np.linalg.norm(self.s1_validation[i,:,:,ch])
+                #    self.s1_validation[i,:,:,ch] /= norm
+                # Rescale to maximum 1.0
+                #self.s1_validation[...,ch] /= np.max(self.s1_validation[..., ch])
+                # Standardize
+                # recalculate the std !!!
+                data_all = np.concatenate([self.s1_validation[..., ch], self.s1_test2A[..., ch]], axis=0)
+                std = np.std(data_all)
+                self.s1_validation[...,ch] /= std
+                self.s1_test2A[...,ch] /= std
+
+                print('Global std after outliers replaced:', std)
+                print('[train/val data]')
+                print('Min    :', np.min(self.s1_validation[..., ch]))
+                print('Max    :', np.max(self.s1_validation[..., ch]))
+                print('Mean   :', np.mean(self.s1_validation[..., ch]))
+                print('Median :', np.median(self.s1_validation[..., ch]))
+                print('Std    :', np.std(self.s1_validation[..., ch]))
+                print('[test2A]')
+                print('Min    :', np.min(self.s1_test2A[..., ch]))
+                print('Max    :', np.max(self.s1_test2A[..., ch]))
+                print('Mean   :', np.mean(self.s1_test2A[..., ch]))
+                print('Median :', np.median(self.s1_test2A[..., ch]))
+                print('Std    :', np.std(self.s1_test2A[..., ch]))
+            
+            # S2
+            for ch in range(10):
+                data_all = np.concatenate([self.s2_validation[..., ch], self.s2_test2A[..., ch]], axis=0)
+                std = np.std(data_all)
+                print('-'*65)
+                print('S2 - Ch:', ch)
+                print('-'*65)
+                print('data_all shape:', data_all.shape)
+                #for i in range(len(self.s2_validation)):
+                #    norm = np.linalg.norm(self.s2_validation[i,:,:,ch])
+                #    self.s2_validation[i,:,:,ch] /= norm
+                # Rescale to maximum 1.0
+                #self.s2_validation[...,ch] /= np.max(self.s2_validation[..., ch])
+                # Standardize
+                # recalculate the std !!!
+                data_all = np.concatenate([self.s2_validation[..., ch], self.s2_test2A[..., ch]], axis=0)
+                std = np.std(data_all)
+                self.s2_validation[..., ch] /= std
+                self.s2_test2A[..., ch] /= std
+
+                print('Global std after outliers replaced:', std)
+                print('[train/val data]')
+                print('Min    :', np.min(self.s2_validation[..., ch]))
+                print('Max    :', np.max(self.s2_validation[..., ch]))
+                print('Mean   :', np.mean(self.s2_validation[..., ch]))
+                print('Median :', np.median(self.s2_validation[..., ch]))
+                print('Std    :', np.std(self.s2_validation[..., ch]))
+                print('[test2A]') 
+                print('Min    :', np.min(self.s2_test2A[..., ch]))
+                print('Max    :', np.max(self.s2_test2A[..., ch]))
+                print('Mean   :', np.mean(self.s2_test2A[..., ch]))
+                print('Median :', np.median(self.s2_test2A[..., ch]))
+                print('Std    :', np.std(self.s2_test2A[..., ch]))
+            
+
         self.train_gen = self.trainGenerator()
         self.val_gen = self.valGenerator()
 
@@ -430,6 +534,12 @@ class GermanData:
                         train_X_batch = np.asarray(self.s1_validation[start_pos:end_pos][...,4:])
                         yield (train_X_batch, train_y_batch)
 
+                    elif channel == 's1_ch5678+s2':
+                        train_s1_X_batch = np.asarray(self.s1_validation[start_pos:end_pos][...,4:])
+                        train_s2_X_batch = np.asarray(self.s2_validation[start_pos:end_pos])
+                        train_concat_X_batch = np.concatenate([train_s1_X_batch, train_s2_X_batch], axis=-1)
+                        yield (train_concat_X_batch, train_y_batch)
+
                 else:
                     start_pos = i
                     end_pos = min(i + batch_size, train_size)
@@ -462,6 +572,11 @@ class GermanData:
                     elif channel == 's1_ch5678':
                         train_X_batch = np.asarray(self.s1_training[start_pos:end_pos][...,4:])
                         yield (train_X_batch, train_y_batch)
+                    elif channel == 's1_ch5678+s2':
+                        train_s1_X_batch = np.asarray(self.s1_training[start_pos:end_pos][...,4:])
+                        train_s2_X_batch = np.asarray(self.s2_training[start_pos:end_pos])
+                        train_concat_X_batch = np.concatenate([train_s1_X_batch, train_s2_X_batch], axis=-1)
+                        yield (train_concat_X_batch, train_y_batch)
 
     #===================================================================
     # Validation-data Generator
@@ -514,6 +629,12 @@ class GermanData:
                         val_y_batch = np.asarray(self.label_validation[start_pos:end_pos])
                         yield (val_X_batch, val_y_batch)
 
+                    elif channel == 's1_ch5678+s2':
+                        val_s1_X_batch = np.asarray(self.s1_validation[start_pos:end_pos][...,4:])
+                        val_s2_X_batch = np.asarray(self.s2_validation[start_pos:end_pos])
+                        val_concat_X_batch = np.concatenate([val_s1_X_batch, val_s2_X_batch], axis=-1)
+                        yield (val_concat_X_batch, val_y_batch)
+
                 else: 
                     start_pos = i
                     end_pos = min(i + batch_size, val_size)
@@ -533,7 +654,6 @@ class GermanData:
                         # sentinel-2 first 3 channels refer to B, G, R of an image
                         # get channel 2, 1, 0 as rgb
                         val_s2_rgb_X_batch = np.asarray(self.s2_validation[start_pos:end_pos][...,2::-1])
-                        val_y_batch = np.asarray(self.label_validation[start_pos:end_pos])
                         yield (val_s2_rgb_X_batch, val_y_batch)
 
                     elif channel == 's1':
@@ -548,6 +668,12 @@ class GermanData:
                         val_X_batch = np.asarray(self.s1_validation[start_pos:end_pos][...,4:])
                         val_y_batch = np.asarray(self.label_validation[start_pos:end_pos])
                         yield (val_X_batch, val_y_batch)
+
+                    elif channel == 's1_ch5678+s2':
+                        val_s1_X_batch = np.asarray(self.s1_validation[start_pos:end_pos][...,4:])
+                        val_s2_X_batch = np.asarray(self.s2_validation[start_pos:end_pos])
+                        val_concat_X_batch = np.concatenate([val_s1_X_batch, val_s2_X_batch], axis=-1)
+                        yield (val_concat_X_batch, val_y_batch)
 
     #===================================================================
     # Balanced Training-data Generator
