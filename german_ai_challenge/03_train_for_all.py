@@ -39,6 +39,13 @@ round1_testB_filename = 'round1_test_b_20190104.h5'
 round2_testA_filename = 'round2_test_a_20190121.h5'
 #round2_testB_filename = 'round2_test_b_20190104.h5'
 
+# KF 01/31/2019
+kf_data_filename = 'kf_data_shuffled.h5'
+kf_val_filename = 'kf_val_10k.h5'
+kf_test_filename = 'round2_test_a_20190121.h5'
+
+
+
 # Set Train mode: 'real' or 'test'
 train_mode = 'real'
 #train_mode = 'test'
@@ -51,8 +58,8 @@ epochs = 100
 # Set batch_size 
 #batch_size = 256
 #batch_size = 128
-#batch_size = 64
-batch_size = 32
+batch_size = 64
+#batch_size = 32
 #batch_size = 16
 #batch_size = 8
 #batch_size = 4
@@ -78,26 +85,27 @@ reduce_lr_patience = 10
 #data_channel = 'full'
 #data_channel = 's2_rgb'
 #data_channel = 's1'
-#data_channel = 's2'
+data_channel = 's2'
 #data_channel = 's1_ch5678'
-data_channel = 's1_ch5678+s2'
+#data_channel = 's1_ch5678+s2'
 
 # Set data generating mode: 
 # if original, class_weight should be set
 #data_gen_mode = 'original'
 #data_gen_mode = 'shuffled_original'
 #data_gen_mode = 'balanced'
-data_gen_mode = 'val_dataset_only'
+#data_gen_mode = 'val_dataset_only'
+data_gen_mode = 'kf'
 
 # Data normalize or not
-data_normalize = 'yes'
-#data_normalize = 'no'
+#data_normalize = 'yes'
+data_normalize = 'no'
 
 # Set model name
-#model_name = 'KFSmallerVGGNet'
+model_name = 'KFSmallerVGGNet'
 #model_name = 'KFDummy'
 #model_name = 'KFResNet18'
-model_name = 'KFResNet34'
+#model_name = 'KFResNet34'
 #model_name = 'KFResNet50'
 #model_name = 'KFResNet101'
 #model_name = 'KFResNet152'
@@ -111,12 +119,18 @@ from kfdata.KFGermanData import GermanData
 param_dict = {}
 # Add parameters to param_dict
 param_dict['base_dir'] = base_dir
+
 param_dict['train_filename'] = train_filename
 param_dict['val_filename'] = val_filename
+param_dict['kf_data_filename'] = kf_data_filename
+param_dict['kf_val_filename'] = kf_val_filename
+param_dict['kf_test_filename'] = kf_test_filename
+
 param_dict['round1_testA_filename'] = round1_testA_filename
 param_dict['round1_testB_filename'] = round1_testB_filename
 param_dict['round2_testA_filename'] = round2_testA_filename
 #param_dict['round2_testB_filename'] = round2_testB_filename
+
 param_dict['train_mode'] = train_mode
 param_dict['batch_size'] = batch_size
 param_dict['data_channel'] = data_channel
@@ -285,10 +299,7 @@ print("[KF INFO] Final prediction result:", final_res)
 print("[KF INFO] Prediction shape:", final_res.shape)
 
 # Save prediction to CSV
-
-#csv_name = 'prediction-%d%02d%02d-%s-epochs-%d-trainsize-%d.csv' % (cur_date.year, cur_date.month, cur_date.day, model_name, epochs, german_data.train_size)
-#csv_name = 'prediction-testB-%d%02d%02d-%s-epochs-%d-trainsize-%d.csv' % (cur_date.year, cur_date.month, cur_date.day, model_name, epochs, german_data.train_size)
-csv_name = 'prediction-test2A-%d%02d%02d-%s-epochs-%d-trainsize-%d.csv' % (cur_date.year, cur_date.month, cur_date.day, model_name, epochs, german_data.train_size)
+csv_name = 'prediction-test2A-%d%02d%02d-%s-epochs-%d-trainsize-%d-channels-%s.csv' % (cur_date.year, cur_date.month, cur_date.day, model_name, epochs, german_data.train_size, data_channel)
 pred_dir = 'predictions'
 
 np.savetxt(os.path.join(pred_dir, csv_name), final_res, fmt='%d', delimiter=',')
@@ -334,11 +345,11 @@ plt.savefig(os.path.join(res_root_dir, res_folder_name, plt_name), format='eps',
 #################################################################
 print_title("Plot Learning Rate")
 plt.figure(figsize=(8, 6))
-plt.plot(np.arange(0, N), history['lr'], linewidth=4)
+plt.plot(np.arange(0, N), H.history['lr'], linewidth=4)
 plt.xlabel('Epoch #')
 plt.ylabel('Learning Rate')
 plt.grid()
 
 plt.title("Learning Rate")
 plt_name = 'plt-lr-%d%02d%02d-%s.eps' % (cur_date.year, cur_date.month, cur_date.day, model_name)
-plt.savefig(plt_name, format='eps', dpi=1000)
+plt.savefig(os.path.join(res_root_dir, res_folder_name, plt_name), format='eps', dpi=1000)

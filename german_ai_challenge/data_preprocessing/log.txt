@@ -1,0 +1,187 @@
+
+================================================================================
+                                  0. Load Data
+================================================================================
+Data Info:
+--------------------------------------------------------------------------------
+Training data shapes:
+  Sentinel 1 data shape : (352366, 32, 32, 8)
+  Sentinel 2 data shape : (352366, 32, 32, 10)
+  Label data shape      : (352366, 17)
+--------------------------------------------------------------------------------
+Validation data shapes:
+  Sentinel 1 data shape : (24119, 32, 32, 8)
+  Sentinel 1 data type  : float64
+  Sentinel 2 data shape : (24119, 32, 32, 10)
+  Sentinel 2 data type  : float64
+  Label data shape      : (24119, 17)
+  Label data type       : float64
+--------------------------------------------------------------------------------
+Round1 TestA data shapes:
+  Sentinel 1 data shape : (4838, 32, 32, 8)
+  Sentinel 2 data shape : (4838, 32, 32, 10)
+--------------------------------------------------------------------------------
+Round1 TestB data shapes:
+  Sentinel 1 data shape : (4835, 32, 32, 8)
+  Sentinel 2 data shape : (4835, 32, 32, 10)
+--------------------------------------------------------------------------------
+Round2 TestA data shapes:
+  Sentinel 1 data shape : (4842, 32, 32, 8)
+  Sentinel 2 data shape : (4842, 32, 32, 10)
+--------------------------------------------------------------------------------
+
+[KF INFO] Data loaded successfully!
+
+================================================================================
+                     I. Original Data Distribution Analysis
+================================================================================
+01_original_val_data_distribution.eps saved!
+02_original_train_vs_val_data_distribution.eps saved!
+--------------------------------------------------------------------------------
+Class  0 has 5324 sample in total (train + val).
+Class  6 has 3743 sample in total (train + val).
+Class 11 has 9896 sample in total (train + val).
+Class 14 has 2594 sample in total (train + val).
+
+================================================================================
+                               II. Data Balancing
+================================================================================
+Maximum sample amount in validation dataset: 3395
+--------------------------------------------------------------------------------
+Amount to be added in each class to validation dataset:
+[2744 1746  647 2151 2243 1094 2526    0 1086 2140  713 2618 1798  253
+ 2392 2328  391]
+--------------------------------------------------------------------------------
+[KF INFO] append_indices loaded!
+
+[KF INFO] 26870 data indices are collected in total
+
+--------------------------------------------------------------------------------
+[KF INFO] Loading kf_add.h5 ...
+--------------------------------------------------------------------------------
+[KF INFO] kf_add.h5 loaded!
+s1_add data shape: (26870, 32, 32, 8)
+s1_add data type float64
+s2_add data shape: (26870, 32, 32, 10)
+s2_add data type float64
+label_add data shape: (26870, 17)
+label_add data type float64
+
+--------------------------------------------------------------------------------
+[KF INFO] Loading kf_data.h5 ...
+--------------------------------------------------------------------------------
+[KF INFO] kf_data.h5 loaded!
+s1_data shape: (50989, 32, 32, 8)
+s1_data type float64
+s2_data shape: (50989, 32, 32, 10)
+s2_data type float64
+label_data shape: (50989, 17)
+label_data type float64
+
+--------------------------------------------------------------------------------
+Shuffle the kf_data.h5 to kf_data_shuffled.h5
+--------------------------------------------------------------------------------
+shuffle index shape: (50989,)
+Creating kf_data_shuffled.h5
+Loop adding samples ...
+ 1000 samples processed!
+- time per 1000 loops: 53.839360
+ 2000 samples processed!
+- time per 1000 loops: 41.127866
+ 3000 samples processed!
+- time per 1000 loops: 40.069303
+ 4000 samples processed!
+- time per 1000 loops: 43.125873
+ 5000 samples processed!
+- time per 1000 loops: 41.391513
+ 6000 samples processed!
+- time per 1000 loops: 40.570838
+ 7000 samples processed!
+- time per 1000 loops: 40.470198
+ 8000 samples processed!
+- time per 1000 loops: 40.074161
+ 9000 samples processed!
+- time per 1000 loops: 40.079295
+10000 samples processed!
+- time per 1000 loops: 40.264517
+11000 samples processed!
+- time per 1000 loops: 40.940256
+12000 samples processed!
+- time per 1000 loops: 39.892180
+13000 samples processed!
+- time per 1000 loops: 39.956013
+14000 samples processed!
+- time per 1000 loops: 40.043876
+15000 samples processed!
+- time per 1000 loops: 40.343845
+16000 samples processed!
+- time per 1000 loops: 40.140962
+17000 samples processed!
+- time per 1000 loops: 40.182857
+18000 samples processed!
+- time per 1000 loops: 40.104031
+19000 samples processed!
+- time per 1000 loops: 40.260720
+20000 samples processed!
+- time per 1000 loops: 39.978028
+21000 samples processed!
+- time per 1000 loops: 39.984909
+22000 samples processed!
+- time per 1000 loops: 40.142359
+23000 samples processed!
+- time per 1000 loops: 40.333926
+24000 samples processed!
+- time per 1000 loops: 40.162791
+25000 samples processed!
+- time per 1000 loops: 39.918867
+26000 samples processed!
+- time per 1000 loops: 40.010402
+27000 samples processed!
+- time per 1000 loops: 40.133404
+28000 samples processed!
+- time per 1000 loops: 40.110031
+29000 samples processed!
+- time per 1000 loops: 40.076069
+30000 samples processed!
+- time per 1000 loops: 40.328332
+31000 samples processed!
+- time per 1000 loops: 40.111021
+32000 samples processed!
+- time per 1000 loops: 40.122662
+33000 samples processed!
+- time per 1000 loops: 40.082886
+34000 samples processed!
+- time per 1000 loops: 40.113464
+35000 samples processed!
+- time per 1000 loops: 40.334823
+36000 samples processed!
+- time per 1000 loops: 40.320690
+37000 samples processed!
+- time per 1000 loops: 40.086282
+38000 samples processed!
+- time per 1000 loops: 40.086926
+39000 samples processed!
+- time per 1000 loops: 40.119039
+40000 samples processed!
+- time per 1000 loops: 39.968111
+41000 samples processed!
+- time per 1000 loops: 40.327168
+42000 samples processed!
+- time per 1000 loops: 40.100724
+43000 samples processed!
+- time per 1000 loops: 40.154382
+44000 samples processed!
+- time per 1000 loops: 40.312341
+45000 samples processed!
+- time per 1000 loops: 40.208071
+46000 samples processed!
+- time per 1000 loops: 40.091125
+47000 samples processed!
+- time per 1000 loops: 40.123098
+48000 samples processed!
+- time per 1000 loops: 40.326213
+49000 samples processed!
+- time per 1000 loops: 40.520157
+50000 samples processed!
+- time per 1000 loops: 39.919576
+Shuffle Complete!

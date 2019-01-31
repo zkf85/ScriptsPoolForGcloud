@@ -35,24 +35,33 @@ class GermanData:
         self.base_dir = params.get('base_dir')
         self.train_filename = params.get('train_filename')
         self.val_filename = params.get('val_filename')
+        self.kf_data_filename = params.get('kf_data_filename')
+        self.kf_val_filename = params.get('kf_val_filename')
+        self.kf_test_filename = params.get('kf_test_filename')
+
         self.round1_testA_filename = params.get('round1_testA_filename')
         self.round1_testB_filename = params.get('round1_testB_filename')
         self.round2_testA_filename = params.get('round2_testA_filename')
         #self.round2_testB_filename = params.get('round2_testB_filename')
-        self.path_training = os.path.join(self.base_dir, self.train_filename)
-        self.path_validation = os.path.join(self.base_dir, self.val_filename) 
-        print('test name:', self.round1_testA_filename)
-        self.path_round1_testA = os.path.join(self.base_dir, self.round1_testA_filename)
-        self.path_round1_testB = os.path.join(self.base_dir, self.round1_testB_filename)
-        self.path_round2_testA = os.path.join(self.base_dir, self.round2_testA_filename)
-        #self.path_round2_testB = os.path.join(self.base_dir, self.round2_testB_filename)
-
         # Initialize other parameters
         self.train_mode = params.get('train_mode')
         self.batch_size = params.get('batch_size')
         self.data_channel = params.get('data_channel')
         self.data_gen_mode = params.get('data_gen_mode')
         self.data_normalize = params.get('data_normalize')
+
+        if self.data_gen_mode == 'kf':
+            self.path_training = os.path.join(self.base_dir, self.kf_data_filename)
+            self.path_validation = os.path.join(self.base_dir, self.kf_val_filename) 
+            self.path_round2_testA = os.path.join(self.base_dir, self.kf_test_filename) 
+        else:
+            self.path_training = os.path.join(self.base_dir, self.train_filename)
+            self.path_validation = os.path.join(self.base_dir, self.val_filename) 
+
+            self.path_round1_testA = os.path.join(self.base_dir, self.round1_testA_filename)
+            self.path_round1_testB = os.path.join(self.base_dir, self.round1_testB_filename)
+            self.path_round2_testA = os.path.join(self.base_dir, self.round2_testA_filename)
+            #self.path_round2_testB = os.path.join(self.base_dir, self.round2_testB_filename)
 
         #----------------------------------------------------------------
         # 1. Paths Validation
@@ -61,6 +70,8 @@ class GermanData:
         print("[KF INFO] Validate data file existance: ")
         for f in [self.train_filename, 
                     self.val_filename, 
+                    self.kf_data_filename,
+                    self.kf_val_filename,
                     self.round1_testA_filename, 
                     self.round1_testB_filename,
                     self.round2_testA_filename]:
@@ -118,7 +129,6 @@ class GermanData:
                 self.batch_size = 32
                 self.train_size = 4000
                 self.val_size = 1000
-
             
             # Configure data generator
             # For External Use:
@@ -135,6 +145,13 @@ class GermanData:
         elif self.data_gen_mode == 'shuffled_original':
             self.useShuffledOriginalData()
             
+        # KF 01/31/2019
+        elif self.data_gen_mode == 'kf':
+            self.train_size = len(self.label_training)
+            self.val_size = len(self.label_validation)
+
+            self.train_gen = self.trainGenerator()
+            self.val_gen = self.valGenerator()
 
         #----------------------------------------------------------------
         # 5. Prepare Round1 Test data for prediction
