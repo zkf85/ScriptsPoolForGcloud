@@ -40,11 +40,14 @@ round2_testA_filename = 'round2_test_a_20190121.h5'
 #round2_testB_filename = 'round2_test_b_20190104.h5'
 
 # KF 01/31/2019
-kf_data_filename = 'kf_data_shuffled.h5'
-kf_val_filename = 'kf_val_10k.h5'
-kf_test_filename = 'round2_test_a_20190121.h5'
+#kf_data_filename = 'kf_data_shuffled.h5'
+#kf_val_filename = 'kf_val_10k.h5'
+#kf_test2A_filename = 'round2_test_a_20190121.h5'
 
-
+# KF 02/02/2019
+kf_data_filename = 'kf_data_shuffled_3sigma_standardized.h5'
+kf_val_filename = 'kf_val_10k_3sigma_standardized.h5'
+kf_test2A_filename = 'kf_test2A_3sigma_standardized.h5'
 
 # Set Train mode: 'real' or 'test'
 train_mode = 'real'
@@ -96,6 +99,7 @@ data_channel = 's2'
 #data_gen_mode = 'balanced'
 #data_gen_mode = 'val_dataset_only'
 data_gen_mode = 'kf'
+#data_gen_mode = 'kf_data_only'
 
 # Data normalize or not
 #data_normalize = 'yes'
@@ -124,7 +128,8 @@ param_dict['train_filename'] = train_filename
 param_dict['val_filename'] = val_filename
 param_dict['kf_data_filename'] = kf_data_filename
 param_dict['kf_val_filename'] = kf_val_filename
-param_dict['kf_test_filename'] = kf_test_filename
+param_dict['kf_test2A_filename'] = kf_test2A_filename
+#param_dict['kf_test2B_filename'] = kf_test2B_filename
 
 param_dict['round1_testA_filename'] = round1_testA_filename
 param_dict['round1_testB_filename'] = round1_testB_filename
@@ -279,6 +284,7 @@ from tensorflow.keras.models import load_model
 
 #print_title("Predicting with round 1 test data")
 print_title("Predicting with round 2 test A data")
+#print_title("Predicting with round 2 test B data")
 
 #test_data = german_data.getTest1AData()
 #test_data = german_data.getTest1BData()
@@ -300,6 +306,7 @@ print("[KF INFO] Prediction shape:", final_res.shape)
 
 # Save prediction to CSV
 csv_name = 'prediction-test2A-%d%02d%02d-%s-epochs-%d-trainsize-%d-channels-%s.csv' % (cur_date.year, cur_date.month, cur_date.day, model_name, epochs, german_data.train_size, data_channel)
+#csv_name = 'prediction-test2B-%d%02d%02d-%s-epochs-%d-trainsize-%d-channels-%s.csv' % (cur_date.year, cur_date.month, cur_date.day, model_name, epochs, german_data.train_size, data_channel)
 pred_dir = 'predictions'
 
 np.savetxt(os.path.join(pred_dir, csv_name), final_res, fmt='%d', delimiter=',')

@@ -37,7 +37,8 @@ class GermanData:
         self.val_filename = params.get('val_filename')
         self.kf_data_filename = params.get('kf_data_filename')
         self.kf_val_filename = params.get('kf_val_filename')
-        self.kf_test_filename = params.get('kf_test_filename')
+        self.kf_test2A_filename = params.get('kf_test2A_filename')
+        self.kf_test2B_filename = params.get('kf_test2B_filename')
 
         self.round1_testA_filename = params.get('round1_testA_filename')
         self.round1_testB_filename = params.get('round1_testB_filename')
@@ -50,34 +51,44 @@ class GermanData:
         self.data_gen_mode = params.get('data_gen_mode')
         self.data_normalize = params.get('data_normalize')
 
-        if self.data_gen_mode == 'kf':
+        self.path_round1_testA = os.path.join(self.base_dir, self.round1_testA_filename)
+        self.path_round1_testB = os.path.join(self.base_dir, self.round1_testB_filename)
+
+        # KF 01/31/2019
+        # Change train/val/test dataset to kf - preprocessed source
+        if self.data_gen_mode in ['kf', 'kf_data_only']:
             self.path_training = os.path.join(self.base_dir, self.kf_data_filename)
             self.path_validation = os.path.join(self.base_dir, self.kf_val_filename) 
-            self.path_round2_testA = os.path.join(self.base_dir, self.kf_test_filename) 
+            self.path_round2_testA = os.path.join(self.base_dir, self.kf_test2A_filename) 
+            #self.path_round2_testB = os.path.join(self.base_dir, self.kf_test2B_filename) 
+            print('='*80)
+            print('Processed Datasets are Used!!')
+            print('='*80)
+            print('Training Data   :', self.kf_data_filename)
+            print('Validation Data :', self.kf_val_filename)
+            print('Test 2A Data    :', self.kf_test2A_filename)
+            print('Test 2B Data    :', self.kf_test2B_filename)
         else:
             self.path_training = os.path.join(self.base_dir, self.train_filename)
             self.path_validation = os.path.join(self.base_dir, self.val_filename) 
-
-            self.path_round1_testA = os.path.join(self.base_dir, self.round1_testA_filename)
-            self.path_round1_testB = os.path.join(self.base_dir, self.round1_testB_filename)
             self.path_round2_testA = os.path.join(self.base_dir, self.round2_testA_filename)
             #self.path_round2_testB = os.path.join(self.base_dir, self.round2_testB_filename)
 
         #----------------------------------------------------------------
         # 1. Paths Validation
         #----------------------------------------------------------------
-        self.print_title('Load Data')
-        print("[KF INFO] Validate data file existance: ")
-        for f in [self.train_filename, 
-                    self.val_filename, 
-                    self.kf_data_filename,
-                    self.kf_val_filename,
-                    self.round1_testA_filename, 
-                    self.round1_testB_filename,
-                    self.round2_testA_filename]:
-            if f in os.listdir(self.base_dir):
-                print('|--CHECK!-->', f)
-        print('')
+        #self.print_title('Load Data')
+        #print("[KF INFO] Validate data file existance: ")
+        #for f in [self.train_filename, 
+        #            self.val_filename, 
+        #            self.kf_data_filename,
+        #            self.kf_val_filename,
+        #            self.round1_testA_filename, 
+        #            self.round1_testB_filename,
+        #            self.round2_testA_filename]:
+        #    if f in os.listdir(self.base_dir):
+        #        print('|--CHECK!-->', f)
+        #print('')
 
         #----------------------------------------------------------------
         # 2. Load Data
@@ -135,6 +146,23 @@ class GermanData:
             self.train_gen = self.trainGenerator()
             self.val_gen = self.valGenerator()
 
+        # KF 01/31/2019
+        elif self.data_gen_mode == 'kf':
+            self.train_size = len(self.label_training)
+            self.val_size = len(self.label_validation)
+            self.train_gen = self.trainGenerator()
+            self.val_gen = self.valGenerator()
+
+        # KF 02/01/2019
+        elif self.data_gen_mode == 'kf_data_only':
+            self.print_title('Use kf_data ONLY!')
+            # Split for training and validation set
+            self.val_split_idx = int(np.ceil(self.label_training.shape[0] * 4 / 5))
+            self.train_size = self.val_split_idx
+            self.val_size = self.label_training.shape[0] - self.train_size
+            self.train_gen = self.trainGenerator()
+            self.val_gen = self.valGenerator()
+
         elif self.data_gen_mode == 'balanced':
             # prepare balanced data 
             self.useBalancedData()
@@ -145,13 +173,6 @@ class GermanData:
         elif self.data_gen_mode == 'shuffled_original':
             self.useShuffledOriginalData()
             
-        # KF 01/31/2019
-        elif self.data_gen_mode == 'kf':
-            self.train_size = len(self.label_training)
-            self.val_size = len(self.label_validation)
-
-            self.train_gen = self.trainGenerator()
-            self.val_gen = self.valGenerator()
 
         #----------------------------------------------------------------
         # 5. Prepare Round1 Test data for prediction
@@ -200,13 +221,20 @@ class GermanData:
         print('  Sentinel 2 data shape :', self.s2_validation.shape)
         print('  Label data shape      :', self.label_validation.shape)
         print('-'*65)
-        print("Round1 TestA data shapes:")
-        print('  Sentinel 1 data shape :', self.s1_test1A.shape)
-        print('  Sentinel 2 data shape :', self.s2_test1A.shape)
-        print('-'*65)
-        print("Round1 TestB data shapes:")
-        print('  Sentinel 1 data shape :', self.s1_test1B.shape)
-        print('  Sentinel 2 data shape :', self.s2_test1B.shape)
+        #print("Round1 TestA data shapes:")
+        #print('  Sentinel 1 data shape :', self.s1_test1A.shape)
+        #print('  Sentinel 2 data shape :', self.s2_test1A.shape)
+        #print('-'*65)
+        #print("Round1 TestB data shapes:")
+        #print('  Sentinel 1 data shape :', self.s1_test1B.shape)
+        #print('  Sentinel 2 data shape :', self.s2_test1B.shape)
+        print("Round2 TestA data shapes:")
+        print('  Sentinel 1 data shape :', self.s1_test2A.shape)
+        print('  Sentinel 2 data shape :', self.s2_test2A.shape)
+        #print('-'*65)
+        #print("Round1 TestB data shapes:")
+        #print('  Sentinel 1 data shape :', self.s1_test1B.shape)
+        #print('  Sentinel 2 data shape :', self.s2_test1B.shape)
 
 
     #===================================================================
@@ -557,6 +585,47 @@ class GermanData:
                         train_concat_X_batch = np.concatenate([train_s1_X_batch, train_s2_X_batch], axis=-1)
                         yield (train_concat_X_batch, train_y_batch)
 
+                # KF 02/01/2019
+                elif self.data_gen_mode == 'kf_data_only':
+                    #print('[KF INFO] Train Data Gen - kf_data ONLY!!!')
+                    start_pos = i
+                    end_pos = min(i + batch_size, train_size)
+
+                    train_y_batch = np.asarray(self.label_training[start_pos:end_pos])
+
+                    if channel == 'full':
+                        train_s1_X_batch = np.asarray(self.s1_training[start_pos:end_pos])
+                        train_s2_X_batch = np.asarray(self.s2_training[start_pos:end_pos])
+                        # concatenate s1 and s2 data along the last axis
+                        train_concat_X_batch = np.concatenate([train_s1_X_batch, train_s2_X_batch], axis=-1)
+                        # According to "fit_generator" on Keras.io, the output from the generator must
+                        # be a tuple (inputs, targets), thus,
+                        yield (train_concat_X_batch, train_y_batch)
+
+                    elif channel == 's2_rgb':
+                        # sentinel-2 first 3 channels refer to B, G, R of an image
+                        # get channel 2, 1, 0 as rgb
+                        train_s2_rgb_X_batch = np.asarray(self.s2_training[start_pos:end_pos][...,2::-1])
+                        yield (train_s2_rgb_X_batch, train_y_batch)
+                        
+                    elif channel == 's1':
+                        train_s1_X_batch = np.asarray(self.s1_training[start_pos:end_pos])
+                        yield (train_s1_X_batch, train_y_batch)
+
+                    elif channel == 's2':
+                        train_s2_X_batch = np.asarray(self.s2_training[start_pos:end_pos])
+                        yield (train_s2_X_batch, train_y_batch)
+
+                    elif channel == 's1_ch5678':
+                        train_X_batch = np.asarray(self.s1_training[start_pos:end_pos][...,4:])
+                        yield (train_X_batch, train_y_batch)
+
+                    elif channel == 's1_ch5678+s2':
+                        train_s1_X_batch = np.asarray(self.s1_training[start_pos:end_pos][...,4:])
+                        train_s2_X_batch = np.asarray(self.s2_training[start_pos:end_pos])
+                        train_concat_X_batch = np.concatenate([train_s1_X_batch, train_s2_X_batch], axis=-1)
+                        yield (train_concat_X_batch, train_y_batch)
+
                 else:
                     start_pos = i
                     end_pos = min(i + batch_size, train_size)
@@ -649,6 +718,50 @@ class GermanData:
                     elif channel == 's1_ch5678+s2':
                         val_s1_X_batch = np.asarray(self.s1_validation[start_pos:end_pos][...,4:])
                         val_s2_X_batch = np.asarray(self.s2_validation[start_pos:end_pos])
+                        val_concat_X_batch = np.concatenate([val_s1_X_batch, val_s2_X_batch], axis=-1)
+                        yield (val_concat_X_batch, val_y_batch)
+
+                # KF 02/01/2019
+                elif self.data_gen_mode == 'kf_data_only':
+                    #print('[KF INFO] Val Data Gen - kf_data ONLY!!!')
+                    # Generate data with batch_size
+                    start_pos = i + self.val_split_idx
+                    end_pos = min(i + batch_size, val_size) + self.val_split_idx
+
+                    val_y_batch = np.asarray(self.label_training[start_pos:end_pos])
+
+                    if channel == 'full':
+                        val_s1_X_batch = np.asarray(self.s1_training[start_pos:end_pos])
+                        val_s2_X_batch = np.asarray(self.s2_training[start_pos:end_pos])
+                        # concatenate s1 and s2 data along the last axis
+                        val_concat_X_batch = np.concatenate([val_s1_X_batch, val_s2_X_batch], axis=-1)
+                        # According to "fit_generator" on Keras.io, the output from the generator must
+                        # be a tuple (inputs, targets), thus,
+                        yield (val_concat_X_batch, val_y_batch)
+
+                    elif channel == 's2_rgb':
+                        # sentinel-2 first 3 channels refer to B, G, R of an image
+                        # get channel 2, 1, 0 as rgb
+                        val_s2_rgb_X_batch = np.asarray(self.s2_training[start_pos:end_pos][...,2::-1])
+                        val_y_batch = np.asarray(self.label_training[start_pos:end_pos])
+                        yield (val_s2_rgb_X_batch, val_y_batch)
+
+                    elif channel == 's1':
+                        val_s1_X_batch = np.asarray(self.s1_training[start_pos:end_pos])
+                        yield (val_s1_X_batch, val_y_batch)
+
+                    elif channel == 's2':
+                        val_s2_X_batch = np.asarray(self.s2_training[start_pos:end_pos])
+                        yield (val_s2_X_batch, val_y_batch)
+            
+                    elif channel == 's1_ch5678':
+                        val_X_batch = np.asarray(self.s1_training[start_pos:end_pos][...,4:])
+                        val_y_batch = np.asarray(self.label_training[start_pos:end_pos])
+                        yield (val_X_batch, val_y_batch)
+
+                    elif channel == 's1_ch5678+s2':
+                        val_s1_X_batch = np.asarray(self.s1_training[start_pos:end_pos][...,4:])
+                        val_s2_X_batch = np.asarray(self.s2_training[start_pos:end_pos])
                         val_concat_X_batch = np.concatenate([val_s1_X_batch, val_s2_X_batch], axis=-1)
                         yield (val_concat_X_batch, val_y_batch)
 

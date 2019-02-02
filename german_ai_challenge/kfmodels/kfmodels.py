@@ -81,12 +81,12 @@ class KFSmallerVGGNet:
         # first (and only) set of FC => RELU layers
         model.add(Flatten())
 
-        model.add(Dense(4096))
+        model.add(Dense(2048))
         model.add(Activation("relu"))
         model.add(BatchNormalization())
         model.add(Dropout(0.5))
 
-        model.add(Dense(1024))
+        model.add(Dense(2048))
         model.add(Activation("relu"))
         model.add(BatchNormalization())
         model.add(Dropout(0.5))

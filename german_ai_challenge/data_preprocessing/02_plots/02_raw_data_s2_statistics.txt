@@ -1,0 +1,408 @@
+
+================================================================================
+                                  0. Load Data
+================================================================================
+[KF INFO] Loading kf_data_shuffled.h5 ...
+[KF INFO] Loading kf_val_10k.h5 ...
+[KF INFO] Loading round2_test_a_20190121.h5 ...
+[KF INFO] Data loaded successfully!
+
+================================================================================
+                            I. Bounding the Outliers
+================================================================================
+--------------------------------------------------------------------------------
+[KF INFO] Generating histograms: dataset data - s2 ...
+--------------------------------------------------------------------------------
+Dataset : data
+Channel : 0
+Shape   : (50989, 32, 32)
+Min     :  0.0001
+Max     :  2.8
+Mean    :  0.13131232911257487
+Median  :  0.1243
+Std     :  0.040125156175942714
+[KF INFO] Start plotting ...
+[KF INFO] 02-raw-histogram-data-s2-ch-0.eps saved!
+
+[KF INFO] time spent: 41.3863730430603
+--------------------------------------------------------------------------------
+Dataset : data
+Channel : 1
+Shape   : (50989, 32, 32)
+Min     :  0.0001
+Max     :  2.8
+Mean    :  0.11961918251133143
+Median  :  0.1099
+Std     :  0.04937126247089667
+[KF INFO] Start plotting ...
+[KF INFO] 02-raw-histogram-data-s2-ch-1.eps saved!
+
+[KF INFO] time spent: 11.465037107467651
+--------------------------------------------------------------------------------
+Dataset : data
+Channel : 2
+Shape   : (50989, 32, 32)
+Min     :  0.0001
+Max     :  2.8
+Mean    :  0.1174752836932356
+Median  :  0.103
+Std     :  0.06918808020564346
+[KF INFO] Start plotting ...
+[KF INFO] 02-raw-histogram-data-s2-ch-2.eps saved!
+
+[KF INFO] time spent: 10.208649396896362
+--------------------------------------------------------------------------------
+Dataset : data
+Channel : 3
+Shape   : (50989, 32, 32)
+Min     :  0.0001
+Max     :  2.8
+Mean    :  0.1297187635943841
+Median  :  0.1187
+Std     :  0.06518709405963423
+[KF INFO] Start plotting ...
+[KF INFO] 02-raw-histogram-data-s2-ch-3.eps saved!
+
+[KF INFO] time spent: 21.495566606521606
+--------------------------------------------------------------------------------
+Dataset : data
+Channel : 4
+Shape   : (50989, 32, 32)
+Min     :  0.0001
+Max     :  2.8
+Mean    :  0.17037388841105747
+Median  :  0.167
+Std     :  0.07008315715283105
+[KF INFO] Start plotting ...
+[KF INFO] 02-raw-histogram-data-s2-ch-4.eps saved!
+
+[KF INFO] time spent: 6.540786504745483
+--------------------------------------------------------------------------------
+Dataset : data
+Channel : 5
+Shape   : (50989, 32, 32)
+Min     :  0.0001
+Max     :  2.8002
+Mean    :  0.19187149122964955
+Median  :  0.1884
+Std     :  0.07995741605148272
+[KF INFO] Start plotting ...
+[KF INFO] 02-raw-histogram-data-s2-ch-5.eps saved!
+
+[KF INFO] time spent: 21.822587490081787
+--------------------------------------------------------------------------------
+Dataset : data
+Channel : 6
+Shape   : (50989, 32, 32)
+Min     :  0.0001
+Max     :  2.8001
+Mean    :  0.18433278360858157
+Median  :  0.1815
+Std     :  0.08144888201023087
+[KF INFO] Start plotting ...
+[KF INFO] 02-raw-histogram-data-s2-ch-6.eps saved!
+
+[KF INFO] time spent: 13.81889009475708
+--------------------------------------------------------------------------------
+Dataset : data
+Channel : 7
+Shape   : (50989, 32, 32)
+Min     :  0.0001
+Max     :  2.8005
+Mean    :  0.20603939032423021
+Median  :  0.2036
+Std     :  0.08817329672310627
+[KF INFO] Start plotting ...
+[KF INFO] 02-raw-histogram-data-s2-ch-7.eps saved!
+
+[KF INFO] time spent: 9.116921186447144
+--------------------------------------------------------------------------------
+Dataset : data
+Channel : 8
+Shape   : (50989, 32, 32)
+Min     :  0.0001
+Max     :  2.8
+Mean    :  0.18145084531865918
+Median  :  0.171
+Std     :  0.09984252757567681
+[KF INFO] Start plotting ...
+[KF INFO] 02-raw-histogram-data-s2-ch-8.eps saved!
+
+[KF INFO] time spent: 28.528406143188477
+--------------------------------------------------------------------------------
+Dataset : data
+Channel : 9
+Shape   : (50989, 32, 32)
+Min     :  0.0001
+Max     :  2.8
+Mean    :  0.13388424678224117
+Median  :  0.1179
+Std     :  0.08999816408332904
+[KF INFO] Start plotting ...
+[KF INFO] 02-raw-histogram-data-s2-ch-9.eps saved!
+
+[KF INFO] time spent: 13.656275510787964
+--------------------------------------------------------------------------------
+[KF INFO] Generating histograms: dataset val - s2 ...
+--------------------------------------------------------------------------------
+Dataset : val
+Channel : 0
+Shape   : (10000, 32, 32)
+Min     :  0.0001
+Max     :  2.8
+Mean    :  0.12373434181640623
+Median  :  0.1179
+Std     :  0.03966253325529698
+[KF INFO] Start plotting ...
+[KF INFO] 02-raw-histogram-val-s2-ch-0.eps saved!
+
+[KF INFO] time spent: 7.348388910293579
+--------------------------------------------------------------------------------
+Dataset : val
+Channel : 1
+Shape   : (10000, 32, 32)
+Min     :  0.0001
+Max     :  2.8
+Mean    :  0.109296479970703
+Median  :  0.1
+Std     :  0.0480355510506466
+[KF INFO] Start plotting ...
+[KF INFO] 02-raw-histogram-val-s2-ch-1.eps saved!
+
+[KF INFO] time spent: 0.9026226997375488
+--------------------------------------------------------------------------------
+Dataset : val
+Channel : 2
+Shape   : (10000, 32, 32)
+Min     :  0.0001
+Max     :  2.8
+Mean    :  0.10121906339843738
+Median  :  0.0846
+Std     :  0.06702951681894607
+[KF INFO] Start plotting ...
+[KF INFO] 02-raw-histogram-val-s2-ch-2.eps saved!
+
+[KF INFO] time spent: 0.9772927761077881
+--------------------------------------------------------------------------------
+Dataset : val
+Channel : 3
+Shape   : (10000, 32, 32)
+Min     :  0.0001
+Max     :  2.8
+Mean    :  0.11437139410156244
+Median  :  0.103
+Std     :  0.06422589989675719
+[KF INFO] Start plotting ...
+[KF INFO] 02-raw-histogram-val-s2-ch-3.eps saved!
+
+[KF INFO] time spent: 0.9043312072753906
+--------------------------------------------------------------------------------
+Dataset : val
+Channel : 4
+Shape   : (10000, 32, 32)
+Min     :  0.0001
+Max     :  2.8
+Mean    :  0.15958081082031247
+Median  :  0.1594
+Std     :  0.0775755399548789
+[KF INFO] Start plotting ...
+[KF INFO] 02-raw-histogram-val-s2-ch-4.eps saved!
+
+[KF INFO] time spent: 0.857682466506958
+--------------------------------------------------------------------------------
+Dataset : val
+Channel : 5
+Shape   : (10000, 32, 32)
+Min     :  0.0001
+Max     :  2.8001
+Mean    :  0.18187603284179674
+Median  :  0.1822
+Std     :  0.09106113250595838
+[KF INFO] Start plotting ...
+[KF INFO] 02-raw-histogram-val-s2-ch-5.eps saved!
+
+[KF INFO] time spent: 0.9390285015106201
+--------------------------------------------------------------------------------
+Dataset : val
+Channel : 6
+Shape   : (10000, 32, 32)
+Min     :  0.0001
+Max     :  2.8001
+Mean    :  0.17494516472656232
+Median  :  0.1753
+Std     :  0.09238252449180791
+[KF INFO] Start plotting ...
+[KF INFO] 02-raw-histogram-val-s2-ch-6.eps saved!
+
+[KF INFO] time spent: 0.8782575130462646
+--------------------------------------------------------------------------------
+Dataset : val
+Channel : 7
+Shape   : (10000, 32, 32)
+Min     :  0.0001
+Max     :  2.8002
+Mean    :  0.19543021785156256
+Median  :  0.1973
+Std     :  0.10170888618679298
+[KF INFO] Start plotting ...
+[KF INFO] 02-raw-histogram-val-s2-ch-7.eps saved!
+
+[KF INFO] time spent: 0.9349288940429688
+--------------------------------------------------------------------------------
+Dataset : val
+Channel : 8
+Shape   : (10000, 32, 32)
+Min     :  0.0003
+Max     :  2.8
+Mean    :  0.15404957448242207
+Median  :  0.1438
+Std     :  0.10035932149479239
+[KF INFO] Start plotting ...
+[KF INFO] 02-raw-histogram-val-s2-ch-8.eps saved!
+
+[KF INFO] time spent: 1.0414209365844727
+--------------------------------------------------------------------------------
+Dataset : val
+Channel : 9
+Shape   : (10000, 32, 32)
+Min     :  0.0001
+Max     :  2.6896
+Mean    :  0.10877466833984395
+Median  :  0.0902
+Std     :  0.08791193639351468
+[KF INFO] Start plotting ...
+[KF INFO] 02-raw-histogram-val-s2-ch-9.eps saved!
+
+[KF INFO] time spent: 0.8876726627349854
+--------------------------------------------------------------------------------
+[KF INFO] Generating histograms: dataset test - s2 ...
+--------------------------------------------------------------------------------
+Dataset : test
+Channel : 0
+Shape   : (4842, 32, 32)
+Min     :  0.0001
+Max     :  2.8
+Mean    :  0.12766706751713539
+Median  :  0.1252
+Std     :  0.03510164308308276
+[KF INFO] Start plotting ...
+[KF INFO] 02-raw-histogram-test-s2-ch-0.eps saved!
+
+[KF INFO] time spent: 4.988812685012817
+--------------------------------------------------------------------------------
+Dataset : test
+Channel : 1
+Shape   : (4842, 32, 32)
+Min     :  0.0001
+Max     :  2.8
+Mean    :  0.11465366967259132
+Median  :  0.1121
+Std     :  0.039990977251313925
+[KF INFO] Start plotting ...
+[KF INFO] 02-raw-histogram-test-s2-ch-1.eps saved!
+
+[KF INFO] time spent: 0.6429433822631836
+--------------------------------------------------------------------------------
+Dataset : test
+Channel : 2
+Shape   : (4842, 32, 32)
+Min     :  0.0001
+Max     :  2.8
+Mean    :  0.110674392986337
+Median  :  0.1061
+Std     :  0.05495521384372867
+[KF INFO] Start plotting ...
+[KF INFO] 02-raw-histogram-test-s2-ch-2.eps saved!
+
+[KF INFO] time spent: 0.7148916721343994
+--------------------------------------------------------------------------------
+Dataset : test
+Channel : 3
+Shape   : (4842, 32, 32)
+Min     :  0.0001
+Max     :  2.6915
+Mean    :  0.12264576939894413
+Median  :  0.1213
+Std     :  0.05076951464052582
+[KF INFO] Start plotting ...
+[KF INFO] 02-raw-histogram-test-s2-ch-3.eps saved!
+
+[KF INFO] time spent: 0.6141054630279541
+--------------------------------------------------------------------------------
+Dataset : test
+Channel : 4
+Shape   : (4842, 32, 32)
+Min     :  0.0001
+Max     :  2.8
+Mean    :  0.16363999372353885
+Median  :  0.1677
+Std     :  0.06146587158878123
+[KF INFO] Start plotting ...
+[KF INFO] 02-raw-histogram-test-s2-ch-4.eps saved!
+
+[KF INFO] time spent: 0.5954799652099609
+--------------------------------------------------------------------------------
+Dataset : test
+Channel : 5
+Shape   : (4842, 32, 32)
+Min     :  0.0001
+Max     :  2.8
+Mean    :  0.1851712971097621
+Median  :  0.1885
+Std     :  0.07282567945039466
+[KF INFO] Start plotting ...
+[KF INFO] 02-raw-histogram-test-s2-ch-5.eps saved!
+
+[KF INFO] time spent: 0.6139678955078125
+--------------------------------------------------------------------------------
+Dataset : test
+Channel : 6
+Shape   : (4842, 32, 32)
+Min     :  0.0001
+Max     :  2.8002
+Mean    :  0.17837465360468938
+Median  :  0.1813
+Std     :  0.07588082123009074
+[KF INFO] Start plotting ...
+[KF INFO] 02-raw-histogram-test-s2-ch-6.eps saved!
+
+[KF INFO] time spent: 0.6504108905792236
+--------------------------------------------------------------------------------
+Dataset : test
+Channel : 7
+Shape   : (4842, 32, 32)
+Min     :  0.0001
+Max     :  2.8001
+Mean    :  0.19916700116251665
+Median  :  0.2033
+Std     :  0.08237282021077823
+[KF INFO] Start plotting ...
+[KF INFO] 02-raw-histogram-test-s2-ch-7.eps saved!
+
+[KF INFO] time spent: 0.8003435134887695
+--------------------------------------------------------------------------------
+Dataset : test
+Channel : 8
+Shape   : (4842, 32, 32)
+Min     :  0.0009
+Max     :  2.3048
+Mean    :  0.17174854267912912
+Median  :  0.1714
+Std     :  0.08795672330124302
+[KF INFO] Start plotting ...
+[KF INFO] 02-raw-histogram-test-s2-ch-8.eps saved!
+
+[KF INFO] time spent: 0.6561160087585449
+--------------------------------------------------------------------------------
+Dataset : test
+Channel : 9
+Shape   : (4842, 32, 32)
+Min     :  0.0001
+Max     :  2.3095
+Mean    :  0.12726058805923432
+Median  :  0.1207
+Std     :  0.08087177299442913
+[KF INFO] Start plotting ...
+[KF INFO] 02-raw-histogram-test-s2-ch-9.eps saved!
+
+[KF INFO] time spent: 0.5784533023834229
