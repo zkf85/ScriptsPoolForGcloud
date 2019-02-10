@@ -157,7 +157,8 @@ class GermanData:
         elif self.data_gen_mode == 'kf_data_only':
             self.print_title('Use kf_data ONLY!')
             # Split for training and validation set
-            self.val_split_idx = int(np.ceil(self.label_training.shape[0] * 4 / 5))
+            #self.val_split_idx = int(np.ceil(self.label_training.shape[0] * 4 / 5))
+            self.val_split_idx = int(np.ceil(self.label_training.shape[0] * 9 / 10))
             self.train_size = self.val_split_idx
             self.val_size = self.label_training.shape[0] - self.train_size
             self.train_gen = self.trainGenerator()

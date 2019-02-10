@@ -48,6 +48,10 @@ round2_testA_filename = 'round2_test_a_20190121.h5'
 kf_data_filename = 'kf_data_shuffled_3sigma_standardized.h5'
 kf_val_filename = 'kf_val_10k_3sigma_standardized.h5'
 kf_test2A_filename = 'kf_test2A_3sigma_standardized.h5'
+# KF 02/05/2019
+#kf_data_filename = 'kf_data_shuffled_3sigma_max-min-rescaled.h5'
+#kf_val_filename = 'kf_val_10k_3sigma_max-min-rescaled.h5'
+#kf_test2A_filename = 'kf_test2A_3sigma_max-min-rescaled.h5'
 
 # Set Train mode: 'real' or 'test'
 train_mode = 'real'
@@ -55,14 +59,15 @@ train_mode = 'real'
 
 # Set real epoch for the training process
 #epochs = 3
+#epochs = 50
 epochs = 100 
 #epochs = 200
 
 # Set batch_size 
 #batch_size = 256
 #batch_size = 128
-batch_size = 64
-#batch_size = 32
+#batch_size = 64
+batch_size = 32
 #batch_size = 16
 #batch_size = 8
 #batch_size = 4
@@ -77,12 +82,15 @@ lr = 0.0001
 # Early Stopping patience:
 #early_stopping_patience = 10
 #early_stopping_patience = 20
-early_stopping_patience = 30
+#early_stopping_patience = 30
+early_stopping_patience = 100
+
 
 # ReduceLRPlateau patience:
 #reduce_lr_patience = 6
 #reduce_lr_patience = 8
-reduce_lr_patience = 10
+#reduce_lr_patience = 10
+reduce_lr_patience = 12
 
 # Set data channel: 
 #data_channel = 'full'
@@ -98,15 +106,16 @@ data_channel = 's2'
 #data_gen_mode = 'shuffled_original'
 #data_gen_mode = 'balanced'
 #data_gen_mode = 'val_dataset_only'
-data_gen_mode = 'kf'
-#data_gen_mode = 'kf_data_only'
+#data_gen_mode = 'kf'
+data_gen_mode = 'kf_data_only'
 
 # Data normalize or not
 #data_normalize = 'yes'
 data_normalize = 'no'
 
 # Set model name
-model_name = 'KFSmallerVGGNet'
+model_name = 'KFSmallerVGGNet_0205'
+#model_name = 'KFSmallerVGGNet'
 #model_name = 'KFDummy'
 #model_name = 'KFResNet18'
 #model_name = 'KFResNet34'
@@ -181,12 +190,14 @@ print('-'*65)
 #################################################################
 # III. Build the Model
 #################################################################
-from kfmodels.kfmodels import KFSmallerVGGNet, KFDummy,KFResNet18, KFResNet34, KFResNet50, KFResNet101, KFResNet152
+from kfmodels.kfmodels import KFSmallerVGGNet, KFDummy,KFResNet18, KFResNet34, KFResNet50, KFResNet101, KFResNet152, KFSmallerVGGNet_0205
 from tensorflow.keras import optimizers
 
 # Select model with model name
 if model_name == 'KFSmallerVGGNet':
     model = KFSmallerVGGNet.build(german_data.data_dimension)
+elif model_name == 'KFSmallerVGGNet_0205':
+    model = KFSmallerVGGNet_0205.build(german_data.data_dimension)
 elif model_name == 'KFDummy':
     model = KFDummy.build(german_data.data_dimension)
 elif model_name == 'KFResNet18':

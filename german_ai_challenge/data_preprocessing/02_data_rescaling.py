@@ -164,7 +164,8 @@ def save_statistics(train_filename, test_filename):
     print('')
     print('-'*80)
     print('[KF INFO] - s1:')
-    for ch in [4,5,6,7]:
+    #for ch in [4,5,6,7]:
+    for ch in range(8):
         print('[KF INFO] -- channel: %d ...' % ch)
         tmp_data = np.vstack((s1_data[..., ch], s1_test[..., ch]))
         tmp_min = np.min(tmp_data)
@@ -191,14 +192,17 @@ def save_statistics(train_filename, test_filename):
 
     print('')
     print('[KF INFO] Calculation Complete!')
-    stats_filename = 'statistics_%s+%s.json' % (train_filename.split('.')[0], test_filename.split('.')[0])
+    stats_filename = 'statistics_full_%s+%s.json' % (train_filename.split('.')[0], test_filename.split('.')[0])
     with open(stats_filename, 'w') as f:
         json.dump(stats, f, indent=4)
     print('[KF INFO] Statistics has been saved to %s!' % stats_filename)
         
+tmp_train_filename = 'kf_data_shuffled.h5'
+tmp_test2A_filename = 'round2_test_a_20190121.h5'
 #tmp_train_filename = 'kf_data_shuffled_3sigma.h5'
 #tmp_test2A_filename = 'kf_test2A_3sigma.h5'
-#save_statistics(tmp_train_filename, tmp_test2A_filename)
+
+save_statistics(tmp_train_filename, tmp_test2A_filename)
 
 #-------------------------------------------------------------------------------
 # 1.3. Bounding outliers, save to new h5 file
@@ -229,9 +233,9 @@ def bounding(train_filename, val_filename, test_filename, stats_filename, test_o
 
     for factor in [1,2,3]:
         # Set bounding factor (+- factor*std is the boundary)
-        new_data_filename = '%s_%dsigma.h5' % (data_filename.split('.')[0], factor)
-        new_val_filename = '%s_%dsigma.h5' % (val_filename.split('.')[0], factor)
-        new_test_filename = 'kf_test%s_%dsigma.h5' % (test_option, factor)
+        new_data_filename = '%s_full_%dsigma.h5' % (data_filename.split('.')[0], factor)
+        new_val_filename = '%s_full_%dsigma.h5' % (val_filename.split('.')[0], factor)
+        new_test_filename = 'kf_test%s_full_%dsigma.h5' % (test_option, factor)
         
         # 1. new kf_data
         with h5py.File(os.path.join(base_dir, new_data_filename), 'w') as f:
@@ -245,7 +249,8 @@ def bounding(train_filename, val_filename, test_filename, stats_filename, test_o
             print('label shape:', label.shape)
             # s1
             print('[KF INFO] - s1 ...')
-            for ch in [4,5,6,7]:
+            #for ch in [4,5,6,7]:
+            for ch in range(8):
                 print('[KF INFO] -- channel %d' % ch)
                 tmp_data = s1_data_original[..., ch]
                 tmp_med = original_stats['s1_%d' % ch]['median']
@@ -334,7 +339,7 @@ def bounding(train_filename, val_filename, test_filename, stats_filename, test_o
         print('')
 
         # 4. Plot histograms for new data with (factor * sigma)
-        plot_histograms(new_data_filename, new_val_filename, new_test_filename, option='%dsigma' % factor)
+        plot_histograms(new_data_filename, new_val_filename, new_test_filename, option='full_%dsigma' % factor)
 
 #raw_stats = 'statistics_original_kf_data+test_2A.json'
 #raw_data = 'kf_data_shuffled.h5'
@@ -554,12 +559,12 @@ def rescale(train_filename, val_filename, test_filename, stats_filename, method=
     # 5. Save statistics:
     save_statistics(new_data_filename, new_test_filename)
 
-tmp_train = 'kf_data_shuffled_3sigma.h5'
-tmp_val = 'kf_val_10k_3sigma.h5'
-tmp_test = 'kf_test2A_3sigma.h5'
-tmp_stats = 'statistics_kf_data_shuffled_3sigma+kf_test2A_3sigma.json'
+#tmp_train = 'kf_data_shuffled_3sigma.h5'
+#tmp_val = 'kf_val_10k_3sigma.h5'
+#tmp_test = 'kf_test2A_3sigma.h5'
+#tmp_stats = 'statistics_kf_data_shuffled_3sigma+kf_test2A_3sigma.json'
 #rescale(tmp_train, tmp_val, tmp_test, tmp_stats, method='standardize')
-rescale(tmp_train, tmp_val, tmp_test, tmp_stats, method='max-min')
+#rescale(tmp_train, tmp_val, tmp_test, tmp_stats, method='max-min')
 
 
 

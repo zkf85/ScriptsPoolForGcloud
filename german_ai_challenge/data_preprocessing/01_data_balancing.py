@@ -111,8 +111,8 @@ print_title('I. Original Data Distribution Analysis')
 #-------------------------------------------------------------------------------
 # 1. Plot - Show Validation Data Distribution
 #-------------------------------------------------------------------------------
-#do_plot = True
-do_plot = False
+do_plot = True
+#do_plot = False
 if do_plot:
     print('[KF INFO] Plotting original validation data distribution ...')
     # sample number sum:
@@ -146,8 +146,8 @@ if do_plot:
 #-------------------------------------------------------------------------------
 # 2. Compare Training and Validation Data Distribution
 #-------------------------------------------------------------------------------
-#do_plot = True
-do_plot = False
+do_plot = True
+#do_plot = False
 if do_plot:
     print('[KF INFO] Plotting original train vs val data distribution ...')
     # sample number sum:
@@ -267,8 +267,8 @@ if do_plot:
 #-------------------------------------------------------------------------------
 # Load previous obtained indices in .npy file. 
 # (if not load, the process cost about 120 seconds)
-do_load_data = True
-#load_data = False
+#do_load_data = True
+load_data = False
 if do_load_data:
     append_indices = np.load('append_indices.npy')
     print('[KF INFO] append_indices loaded!')
@@ -297,7 +297,7 @@ print('[KF INFO] %d data indices are collected in total' % len(append_indices))
 # Get (and Save) 'add' Data to h5 file:
 #-------------------------------------------------------------------------------
 #save_add = True
-do_save_add = False
+#do_save_add = False
 if do_save_add:
     np_s1_add, np_s2_add, np_label_add = [], [], []
 
@@ -718,8 +718,5 @@ if active:
     plt.savefig(os.path.join(plot_folder, plt_name), format='eps', dpi=1000)
     print('[KF INFO] %s saved!' % plt_name)
     print('-'*80)
-
-
-
 
 

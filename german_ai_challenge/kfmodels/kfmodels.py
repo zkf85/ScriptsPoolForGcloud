@@ -27,6 +27,68 @@ class KFDummy:
 
 
 #################################################################
+# Model : KFSmallerVGGNet_0205
+# KF 02/05/2019
+#################################################################
+class KFSmallerVGGNet_0205:
+    @staticmethod
+    def build(input_shape, label_dim=17):
+
+        factor = 4
+        #factor = 3
+        #factor = 2
+        #factor = 1
+        # Build small vgg model from scratch
+        model = Sequential()
+        chanDim = -1
+        # (CONV => RELU) * 2 => POOL
+        model.add(Conv2D(64*factor, (3, 3), padding="same", input_shape=input_shape))
+        model.add(Activation("relu"))
+        model.add(BatchNormalization(axis=chanDim))
+        model.add(Conv2D(64*factor, (3, 3), padding="same"))
+        model.add(Activation("relu"))
+        model.add(BatchNormalization(axis=chanDim))
+        model.add(MaxPooling2D(pool_size=(2, 2)))
+        model.add(Dropout(0.5))
+        # (CONV => RELU) * 2 => POOL
+        model.add(Conv2D(128*factor, (3, 3), padding="same"))
+        model.add(Activation("relu"))
+        model.add(BatchNormalization(axis=chanDim))
+        model.add(Conv2D(128*factor, (3, 3), padding="same"))
+        model.add(Activation("relu"))
+        model.add(BatchNormalization(axis=chanDim))
+        model.add(MaxPooling2D(pool_size=(2, 2)))
+        model.add(Dropout(0.5))
+        # (CONV => RELU) * 2 => POOL
+        model.add(Conv2D(256*factor, (3, 3), padding="same"))
+        model.add(Activation("relu"))
+        model.add(BatchNormalization(axis=chanDim))
+        model.add(Conv2D(256*factor, (3, 3), padding="same"))
+        model.add(Activation("relu"))
+        model.add(BatchNormalization(axis=chanDim))
+        model.add(MaxPooling2D(pool_size=(2, 2)))
+        model.add(Dropout(0.5))
+
+        # first (and only) set of FC => RELU layers
+        model.add(Flatten())
+
+        model.add(Dense(1024 * factor))
+        model.add(Activation("relu"))
+        model.add(BatchNormalization())
+        model.add(Dropout(0.5))
+
+        model.add(Dense(1024 * factor))
+        model.add(Activation("relu"))
+        model.add(BatchNormalization())
+        model.add(Dropout(0.5))
+
+        # softmax classifier
+        model.add(Dense(label_dim))
+        model.add(Activation("softmax"))
+
+        return model
+
+#################################################################
 # Model : KFSmallerVGGNet
 # KF 12/10/2018
 #################################################################
