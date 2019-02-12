@@ -78,8 +78,8 @@ batch_size = 64
 #lr = 0.001
 #lr = 0.0003
 #lr = 0.0001
-#lr = 3e-5
-lr = 1e-5
+lr = 3e-5
+#lr = 1e-5
 
 # Early Stopping patience:
 #early_stopping_patience = 10

@@ -158,10 +158,10 @@ class GermanData:
             self.print_title('Use kf_data ONLY!')
             # Split for training and validation set
             #self.val_split_idx = int(np.ceil(self.label_training.shape[0] * 4 / 5))
-            self.val_split_idx = int(np.ceil(self.label_training.shape[0] * 9 / 10))
-            #self.val_split_idx = 48989
-            #self.train_size = self.val_split_idx
-            self.train_size = len(self.label_training)
+            #self.val_split_idx = int(np.ceil(self.label_training.shape[0] * 9 / 10))
+            self.val_split_idx = 48989
+            self.train_size = self.val_split_idx
+            #self.train_size = len(self.label_training)
             self.val_size = self.label_training.shape[0] - self.val_split_idx
             self.train_gen = self.trainGenerator()
             self.val_gen = self.valGenerator()
