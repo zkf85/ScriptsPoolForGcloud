@@ -43,7 +43,7 @@ class GermanData:
         self.round1_testA_filename = params.get('round1_testA_filename')
         self.round1_testB_filename = params.get('round1_testB_filename')
         self.round2_testA_filename = params.get('round2_testA_filename')
-        #self.round2_testB_filename = params.get('round2_testB_filename')
+        self.round2_testB_filename = params.get('round2_testB_filename')
         # Initialize other parameters
         self.train_mode = params.get('train_mode')
         self.batch_size = params.get('batch_size')
@@ -60,7 +60,7 @@ class GermanData:
             self.path_training = os.path.join(self.base_dir, self.kf_data_filename)
             self.path_validation = os.path.join(self.base_dir, self.kf_val_filename) 
             self.path_round2_testA = os.path.join(self.base_dir, self.kf_test2A_filename) 
-            #self.path_round2_testB = os.path.join(self.base_dir, self.kf_test2B_filename) 
+            self.path_round2_testB = os.path.join(self.base_dir, self.kf_test2B_filename) 
             print('='*80)
             print('Processed Datasets are Used!!')
             print('='*80)
@@ -72,7 +72,7 @@ class GermanData:
             self.path_training = os.path.join(self.base_dir, self.train_filename)
             self.path_validation = os.path.join(self.base_dir, self.val_filename) 
             self.path_round2_testA = os.path.join(self.base_dir, self.round2_testA_filename)
-            #self.path_round2_testB = os.path.join(self.base_dir, self.round2_testB_filename)
+            self.path_round2_testB = os.path.join(self.base_dir, self.round2_testB_filename)
 
         #----------------------------------------------------------------
         # 1. Paths Validation
@@ -107,7 +107,7 @@ class GermanData:
         fid_test1A = h5py.File(self.path_round1_testA, 'r')
         fid_test1B = h5py.File(self.path_round1_testB, 'r')
         fid_test2A = h5py.File(self.path_round2_testA, 'r')
-        #fid_test2B = h5py.File(self.path_round2_testB, 'r')
+        fid_test2B = h5py.File(self.path_round2_testB, 'r')
 
         self.s1_test1A = fid_test1A['sen1']
         self.s2_test1A = fid_test1A['sen2']
@@ -115,8 +115,8 @@ class GermanData:
         self.s2_test1B = fid_test1B['sen2']
         self.s1_test2A = fid_test2A['sen1']
         self.s2_test2A = fid_test2A['sen2']
-        #self.s1_test2B = fid_test2B['sen1']
-        #self.s2_test2B = fid_test2B['sen2']
+        self.s1_test2B = fid_test2B['sen1']
+        self.s2_test2B = fid_test2B['sen2']
         print("[KF INFO] Data loaded successfully!")
         # Show data information
         self.showDataInfo()
@@ -159,8 +159,10 @@ class GermanData:
             # Split for training and validation set
             #self.val_split_idx = int(np.ceil(self.label_training.shape[0] * 4 / 5))
             self.val_split_idx = int(np.ceil(self.label_training.shape[0] * 9 / 10))
-            self.train_size = self.val_split_idx
-            self.val_size = self.label_training.shape[0] - self.train_size
+            #self.val_split_idx = 48989
+            #self.train_size = self.val_split_idx
+            self.train_size = len(self.label_training)
+            self.val_size = self.label_training.shape[0] - self.val_split_idx
             self.train_gen = self.trainGenerator()
             self.val_gen = self.valGenerator()
 
@@ -1207,3 +1209,32 @@ class GermanData:
         print("Test data shape :", test2A_data.shape)
 
         return test2A_data
+
+    def getTest2BData(self):
+        
+        channel = self.data_channel
+
+        if channel == 'full': 
+            test2B_data = np.concatenate([self.s1_test2B, self.s2_test2B], axis=-1)
+        
+        elif channel == 's2_rgb':
+            tmp = []
+            for p in self.s2_test2B:
+                tmp.append(p[...,2::-1])
+            test2B_data = np.asarray(tmp)
+
+        elif channel == 's1': 
+            test2B_data = self.s1_test2B
+
+        elif channel == 's2': 
+            test2B_data = self.s2_test2B
+
+        elif channel == 's1_ch5678': 
+            test2B_data = self.s1_test2B[...,4:]
+
+        elif channel == 's1_ch5678+s2':
+            test2B_data = np.concatenate([self.s1_test2B[...,4:], self.s2_test2B], axis=-1)
+            
+        print("Test data shape :", test2B_data.shape)
+
+        return test2B_data

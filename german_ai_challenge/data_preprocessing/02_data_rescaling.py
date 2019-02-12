@@ -35,7 +35,8 @@ base_dir = os.path.expanduser('/home/kefeng/German_AI_Challenge/dataset')
 
 data_filename = 'kf_data_shuffled.h5'
 val_filename = 'kf_val_10k.h5'
-test2A_filename = 'round2_test_a_20190121.h5'
+#test2A_filename = 'round2_test_a_20190121.h5'
+test2B_filename = 'round2_test_b_20190211.h5'
 
 print('[KF INFO] Loading %s ...' % data_filename)
 f_data = h5py.File(os.path.join(base_dir, data_filename), 'r')
@@ -47,11 +48,15 @@ f_val = h5py.File(os.path.join(base_dir, val_filename), 'r')
 s1_val_original = f_val['sen1']
 s2_val_original = f_val['sen2']
 label_val_original = f_val['label']
-print('[KF INFO] Loading %s ...' % test2A_filename)
-f_test2A = h5py.File(os.path.join(base_dir, test2A_filename), 'r')
-s1_test2A_original = f_test2A['sen1']
-s2_test2A_original = f_test2A['sen2']
+#print('[KF INFO] Loading %s ...' % test2A_filename)
+#f_test2A = h5py.File(os.path.join(base_dir, test2A_filename), 'r')
+#s1_test2A_original = f_test2A['sen1']
+#s2_test2A_original = f_test2A['sen2']
 
+print('[KF INFO] Loading %s ...' % test2B_filename)
+f_test2B = h5py.File(os.path.join(base_dir, test2B_filename), 'r')
+s1_test2B_original = f_test2B['sen1']
+s2_test2B_original = f_test2B['sen2']
 print('[KF INFO] Data loaded successfully!')
 
 #===============================================================================
@@ -197,17 +202,17 @@ def save_statistics(train_filename, test_filename):
         json.dump(stats, f, indent=4)
     print('[KF INFO] Statistics has been saved to %s!' % stats_filename)
         
-tmp_train_filename = 'kf_data_shuffled.h5'
-tmp_test2A_filename = 'round2_test_a_20190121.h5'
+#tmp_train_filename = 'kf_data_shuffled.h5'
+#tmp_test2A_filename = 'round2_test_a_20190121.h5'
 #tmp_train_filename = 'kf_data_shuffled_3sigma.h5'
 #tmp_test2A_filename = 'kf_test2A_3sigma.h5'
 
-save_statistics(tmp_train_filename, tmp_test2A_filename)
+#save_statistics(tmp_train_filename, tmp_test2A_filename)
 
 #-------------------------------------------------------------------------------
 # 1.3. Bounding outliers, save to new h5 file
 #-------------------------------------------------------------------------------
-def bounding(train_filename, val_filename, test_filename, stats_filename, test_option='2A'):
+def bounding(train_filename, val_filename, test_filename, stats_filename, test_option='2B'):
     """
     Input:
       train_filename : (str) original train dataset file name (e.g. 'kf_data.h5') 
@@ -231,80 +236,80 @@ def bounding(train_filename, val_filename, test_filename, stats_filename, test_o
     print('[KF INFO] Data loaded successfully!')
     print('-'*80)
 
-    for factor in [1,2,3]:
+    for factor in [3]:
         # Set bounding factor (+- factor*std is the boundary)
-        new_data_filename = '%s_full_%dsigma.h5' % (data_filename.split('.')[0], factor)
-        new_val_filename = '%s_full_%dsigma.h5' % (val_filename.split('.')[0], factor)
-        new_test_filename = 'kf_test%s_full_%dsigma.h5' % (test_option, factor)
+        new_data_filename = '%s_%dsigma.h5' % (data_filename.split('.')[0], factor)
+        new_val_filename = '%s_%dsigma.h5' % (val_filename.split('.')[0], factor)
+        new_test_filename = 'kf_test%s_%dsigma.h5' % (test_option, factor)
         
         # 1. new kf_data
-        with h5py.File(os.path.join(base_dir, new_data_filename), 'w') as f:
-            print('-'*80)
-            print('[KF INFO] Creating %s ...' % new_data_filename)
-            s1 = f.create_dataset('sen1', shape=s1_data_original.shape, dtype='float64')
-            s2 = f.create_dataset('sen2', shape=s2_data_original.shape, dtype='float64')
-            label = f.create_dataset('label', shape=label_data_original.shape, dtype='float64')
-            print('s1 shape   :', s1.shape)
-            print('s2 shape   :', s2.shape)
-            print('label shape:', label.shape)
-            # s1
-            print('[KF INFO] - s1 ...')
-            #for ch in [4,5,6,7]:
-            for ch in range(8):
-                print('[KF INFO] -- channel %d' % ch)
-                tmp_data = s1_data_original[..., ch]
-                tmp_med = original_stats['s1_%d' % ch]['median']
-                tmp_std = original_stats['s1_%d' % ch]['std']
-                print('[KF INFO] --- Start Bounding ...')
-                start = time.time()
-                np.clip(tmp_data, tmp_med - factor * tmp_std, tmp_med + factor * tmp_std, out=tmp_data)
-                s1[..., ch] = tmp_data
-                print('[KF INFO] --- done in %s seconds!' % (time.time() - start))
-                start = time.time()
-            # Save s2 and labels without any change
-            print('-'*80)
-            print('[KF INFO] - s2 and label ...')
-            for i in range(label_data_original.shape[0]):
-                s2[i] = s2_data_original[i]
-                label[i] = label_data_original[i]
-                if i > 0 and i % 1000 == 0:
-                    print('[KF INFO] -- %5d rows are processed!' % i)
-        print('[KF INFO] %s is saved!' % new_data_filename)
-        print('')
+        #with h5py.File(os.path.join(base_dir, new_data_filename), 'w') as f:
+        #    print('-'*80)
+        #    print('[KF INFO] Creating %s ...' % new_data_filename)
+        #    s1 = f.create_dataset('sen1', shape=s1_data_original.shape, dtype='float64')
+        #    s2 = f.create_dataset('sen2', shape=s2_data_original.shape, dtype='float64')
+        #    label = f.create_dataset('label', shape=label_data_original.shape, dtype='float64')
+        #    print('s1 shape   :', s1.shape)
+        #    print('s2 shape   :', s2.shape)
+        #    print('label shape:', label.shape)
+        #    # s1
+        #    print('[KF INFO] - s1 ...')
+        #    #for ch in [4,5,6,7]:
+        #    for ch in range(8):
+        #        print('[KF INFO] -- channel %d' % ch)
+        #        tmp_data = s1_data_original[..., ch]
+        #        tmp_med = original_stats['s1_%d' % ch]['median']
+        #        tmp_std = original_stats['s1_%d' % ch]['std']
+        #        print('[KF INFO] --- Start Bounding ...')
+        #        start = time.time()
+        #        np.clip(tmp_data, tmp_med - factor * tmp_std, tmp_med + factor * tmp_std, out=tmp_data)
+        #        s1[..., ch] = tmp_data
+        #        print('[KF INFO] --- done in %s seconds!' % (time.time() - start))
+        #        start = time.time()
+        #    # Save s2 and labels without any change
+        #    print('-'*80)
+        #    print('[KF INFO] - s2 and label ...')
+        #    for i in range(label_data_original.shape[0]):
+        #        s2[i] = s2_data_original[i]
+        #        label[i] = label_data_original[i]
+        #        if i > 0 and i % 1000 == 0:
+        #            print('[KF INFO] -- %5d rows are processed!' % i)
+        #print('[KF INFO] %s is saved!' % new_data_filename)
+        #print('')
 
-        # 2. new kf_val
-        with h5py.File(os.path.join(base_dir, new_val_filename), 'w') as f:
-            print('-'*80)
-            print('[KF INFO] Creating %s ...' % new_val_filename)
-            s1 = f.create_dataset('sen1', shape=s1_val_original.shape, dtype='float64')
-            s2 = f.create_dataset('sen2', shape=s2_val_original.shape, dtype='float64')
-            label = f.create_dataset('label', shape=label_val_original.shape, dtype='float64')
-            print('s1 shape   :', s1.shape)
-            print('s2 shape   :', s2.shape)
-            print('label shape:', label.shape)
-            # s1
-            print('[KF INFO] - s1 ...')
-            for ch in [4,5,6,7]:
-                print('[KF INFO] -- channel %d' % ch)
-                tmp_data = s1_val_original[..., ch]
-                tmp_med = original_stats['s1_%d' % ch]['median']
-                tmp_std = original_stats['s1_%d' % ch]['std']
-                print('[KF INFO] --- Start Bounding ...')
-                start = time.time()
-                np.clip(tmp_data, tmp_med - factor * tmp_std, tmp_med + factor * tmp_std, out=tmp_data)
-                s1[..., ch] = tmp_data
-                print('[KF INFO] --- done in %s seconds!' % (time.time() - start))
-                start = time.time()
-            # Save s2 and labels without any change
-            print('-'*80)
-            print('[KF INFO] - s2 and label ...')
-            for i in range(label_val_original.shape[0]):
-                s2[i] = s2_val_original[i]
-                label[i] = label_val_original[i]
-                if i > 0 and i % 1000 == 0:
-                    print('[KF INFO] -- %5d rows are processed!' % i)
-        print('[KF INFO] %s is saved!' % new_data_filename)
-        print('')
+        ## 2. new kf_val
+        #with h5py.File(os.path.join(base_dir, new_val_filename), 'w') as f:
+        #    print('-'*80)
+        #    print('[KF INFO] Creating %s ...' % new_val_filename)
+        #    s1 = f.create_dataset('sen1', shape=s1_val_original.shape, dtype='float64')
+        #    s2 = f.create_dataset('sen2', shape=s2_val_original.shape, dtype='float64')
+        #    label = f.create_dataset('label', shape=label_val_original.shape, dtype='float64')
+        #    print('s1 shape   :', s1.shape)
+        #    print('s2 shape   :', s2.shape)
+        #    print('label shape:', label.shape)
+        #    # s1
+        #    print('[KF INFO] - s1 ...')
+        #    for ch in [4,5,6,7]:
+        #        print('[KF INFO] -- channel %d' % ch)
+        #        tmp_data = s1_val_original[..., ch]
+        #        tmp_med = original_stats['s1_%d' % ch]['median']
+        #        tmp_std = original_stats['s1_%d' % ch]['std']
+        #        print('[KF INFO] --- Start Bounding ...')
+        #        start = time.time()
+        #        np.clip(tmp_data, tmp_med - factor * tmp_std, tmp_med + factor * tmp_std, out=tmp_data)
+        #        s1[..., ch] = tmp_data
+        #        print('[KF INFO] --- done in %s seconds!' % (time.time() - start))
+        #        start = time.time()
+        #    # Save s2 and labels without any change
+        #    print('-'*80)
+        #    print('[KF INFO] - s2 and label ...')
+        #    for i in range(label_val_original.shape[0]):
+        #        s2[i] = s2_val_original[i]
+        #        label[i] = label_val_original[i]
+        #        if i > 0 and i % 1000 == 0:
+        #            print('[KF INFO] -- %5d rows are processed!' % i)
+        #print('[KF INFO] %s is saved!' % new_data_filename)
+        #print('')
 
         # 3. new kf_test
         with h5py.File(os.path.join(base_dir, new_test_filename), 'w') as f:
@@ -339,13 +344,14 @@ def bounding(train_filename, val_filename, test_filename, stats_filename, test_o
         print('')
 
         # 4. Plot histograms for new data with (factor * sigma)
-        plot_histograms(new_data_filename, new_val_filename, new_test_filename, option='full_%dsigma' % factor)
+        #plot_histograms(new_data_filename, new_val_filename, new_test_filename, option='%dsigma' % factor)
 
-#raw_stats = 'statistics_original_kf_data+test_2A.json'
-#raw_data = 'kf_data_shuffled.h5'
-#raw_val = 'kf_val_10k.h5'
+raw_stats = 'statistics_original_kf_data+test_2A.json'
+raw_data = 'kf_data_shuffled.h5'
+raw_val = 'kf_val_10k.h5'
 #raw_test = 'round2_test_a_20190121.h5'
-#bounding(raw_data, raw_val, raw_test, raw_stats)
+raw_test = 'round2_test_b_20190211.h5'
+bounding(raw_data, raw_val, raw_test, raw_stats)
 
 #===============================================================================
 # 2. Rescaling (standardize / max-min rescale)
@@ -390,119 +396,119 @@ def rescale(train_filename, val_filename, test_filename, stats_filename, method=
     # Get the bounding facter string (e.g. '1', '2', '3')
     factor_str = train_filename.split('sigma')[0][-1]
 
-    # 1. new train(data) file
-    with h5py.File(os.path.join(base_dir, new_data_filename), 'w') as f:
-        print('-'*80)
-        print('[KF INFO] Creating %s ...' % new_data_filename)
-        s1 = f.create_dataset('sen1', shape=s1_data.shape, dtype='float64')
-        s2 = f.create_dataset('sen2', shape=s2_data.shape, dtype='float64')
-        label = f.create_dataset('label', shape=label_data.shape, dtype='float64')
-        # s1
-        print('[KF INFO] - s1 ...')
-        for ch in [4,5,6,7]:
-            print('[KF INFO] -- channel %d' % ch)
-            tmp_data = s1_data[..., ch]
-            tmp_mean = stats['s1_%d' % ch]['mean']
-            tmp_std = stats['s1_%d' % ch]['std']
-            tmp_min = stats['s1_%d' % ch]['min']
-            tmp_max = stats['s1_%d' % ch]['max']
-            start = time.time()
-            if method == 'standardize':
-                print('[KF INFO] --- Start standardize ...')
-                s1[..., ch] = (tmp_data - tmp_mean) / tmp_std
-            elif method == 'max-min':
-                print('[KF INFO] --- Start Max-Min rescaling ...')
-                s1[..., ch] = (tmp_data - tmp_min) / (tmp_max - tmp_min)
-            else:
-                raise Exception('[KF ERROR] No method selected!')
-            print('[KF INFO] --- done in %s seconds!' % (time.time() - start))
-            start = time.time()
-        # s2
-        print('[KF INFO] - s2 ...')
-        for ch in range(10):
-            print('[KF INFO] -- channel %d' % ch)
-            tmp_data = s2_data[..., ch]
-            tmp_mean = stats['s2_%d' % ch]['mean']
-            tmp_std = stats['s2_%d' % ch]['std']
-            tmp_min = stats['s2_%d' % ch]['min']
-            tmp_max = stats['s2_%d' % ch]['max']
-            start = time.time()
-            if method == 'standardize':
-                print('[KF INFO] --- Start standardize ...')
-                s2[..., ch] = (tmp_data - tmp_mean) / tmp_std
-            elif method == 'max-min':
-                print('[KF INFO] --- Start Max-Min rescaling ...')
-                s2[..., ch] = (tmp_data - tmp_min) / (tmp_max - tmp_min)
-            else:
-                raise Exception('[KF ERROR] No method selected!')
-            print('[KF INFO] --- done in %s seconds!' % (time.time() - start))
-            start = time.time()
-        # Save labels without any change
-        print('-'*80)
-        print('[KF INFO] - label ...')
-        for i in range(label_data.shape[0]):
-            label[i] = label_data[i]
-            if i > 0 and i % 1000 == 0:
-                print('[KF INFO] -- %5d rows are processed!' % i)
-    print('[KF INFO] %s is saved!' % new_data_filename)
-    print('')
+    ## 1. new train(data) file
+    #with h5py.File(os.path.join(base_dir, new_data_filename), 'w') as f:
+    #    print('-'*80)
+    #    print('[KF INFO] Creating %s ...' % new_data_filename)
+    #    s1 = f.create_dataset('sen1', shape=s1_data.shape, dtype='float64')
+    #    s2 = f.create_dataset('sen2', shape=s2_data.shape, dtype='float64')
+    #    label = f.create_dataset('label', shape=label_data.shape, dtype='float64')
+    #    # s1
+    #    print('[KF INFO] - s1 ...')
+    #    for ch in [4,5,6,7]:
+    #        print('[KF INFO] -- channel %d' % ch)
+    #        tmp_data = s1_data[..., ch]
+    #        tmp_mean = stats['s1_%d' % ch]['mean']
+    #        tmp_std = stats['s1_%d' % ch]['std']
+    #        tmp_min = stats['s1_%d' % ch]['min']
+    #        tmp_max = stats['s1_%d' % ch]['max']
+    #        start = time.time()
+    #        if method == 'standardize':
+    #            print('[KF INFO] --- Start standardize ...')
+    #            s1[..., ch] = (tmp_data - tmp_mean) / tmp_std
+    #        elif method == 'max-min':
+    #            print('[KF INFO] --- Start Max-Min rescaling ...')
+    #            s1[..., ch] = (tmp_data - tmp_min) / (tmp_max - tmp_min)
+    #        else:
+    #            raise Exception('[KF ERROR] No method selected!')
+    #        print('[KF INFO] --- done in %s seconds!' % (time.time() - start))
+    #        start = time.time()
+    #    # s2
+    #    print('[KF INFO] - s2 ...')
+    #    for ch in range(10):
+    #        print('[KF INFO] -- channel %d' % ch)
+    #        tmp_data = s2_data[..., ch]
+    #        tmp_mean = stats['s2_%d' % ch]['mean']
+    #        tmp_std = stats['s2_%d' % ch]['std']
+    #        tmp_min = stats['s2_%d' % ch]['min']
+    #        tmp_max = stats['s2_%d' % ch]['max']
+    #        start = time.time()
+    #        if method == 'standardize':
+    #            print('[KF INFO] --- Start standardize ...')
+    #            s2[..., ch] = (tmp_data - tmp_mean) / tmp_std
+    #        elif method == 'max-min':
+    #            print('[KF INFO] --- Start Max-Min rescaling ...')
+    #            s2[..., ch] = (tmp_data - tmp_min) / (tmp_max - tmp_min)
+    #        else:
+    #            raise Exception('[KF ERROR] No method selected!')
+    #        print('[KF INFO] --- done in %s seconds!' % (time.time() - start))
+    #        start = time.time()
+    #    # Save labels without any change
+    #    print('-'*80)
+    #    print('[KF INFO] - label ...')
+    #    for i in range(label_data.shape[0]):
+    #        label[i] = label_data[i]
+    #        if i > 0 and i % 1000 == 0:
+    #            print('[KF INFO] -- %5d rows are processed!' % i)
+    #print('[KF INFO] %s is saved!' % new_data_filename)
+    #print('')
 
-    # 2. new val file
-    with h5py.File(os.path.join(base_dir, new_val_filename), 'w') as f:
-        print('-'*80)
-        print('[KF INFO] Creating %s ...' % new_val_filename)
-        s1 = f.create_dataset('sen1', shape=s1_val.shape, dtype='float64')
-        s2 = f.create_dataset('sen2', shape=s2_val.shape, dtype='float64')
-        label = f.create_dataset('label', shape=label_val.shape, dtype='float64')
-        # s1
-        print('[KF INFO] - s1 ...')
-        for ch in [4,5,6,7]:
-            print('[KF INFO] -- channel %d' % ch)
-            tmp_data = s1_val[..., ch]
-            tmp_mean = stats['s1_%d' % ch]['mean']
-            tmp_std = stats['s1_%d' % ch]['std']
-            tmp_min = stats['s1_%d' % ch]['min']
-            tmp_max = stats['s1_%d' % ch]['max']
-            start = time.time()
-            if method == 'standardize':
-                print('[KF INFO] --- Start standardize ...')
-                s1[..., ch] = (tmp_data - tmp_mean) / tmp_std
-            elif method == 'max-min':
-                print('[KF INFO] --- Start Max-Min rescaling ...')
-                s1[..., ch] = (tmp_data - tmp_min) / (tmp_max - tmp_min)
-            else:
-                raise Exception('[KF ERROR] No method selected!')
-            print('[KF INFO] --- done in %s seconds!' % (time.time() - start))
-            start = time.time()
-        # s2
-        print('[KF INFO] - s2 ...')
-        for ch in range(10):
-            print('[KF INFO] -- channel %d' % ch)
-            tmp_data = s2_val[..., ch]
-            tmp_mean = stats['s2_%d' % ch]['mean']
-            tmp_std = stats['s2_%d' % ch]['std']
-            tmp_min = stats['s2_%d' % ch]['min']
-            tmp_max = stats['s2_%d' % ch]['max']
-            start = time.time()
-            if method == 'standardize':
-                print('[KF INFO] --- Start standardize ...')
-                s2[..., ch] = (tmp_data - tmp_mean) / tmp_std
-            elif method == 'max-min':
-                print('[KF INFO] --- Start Max-Min rescaling ...')
-                s2[..., ch] = (tmp_data - tmp_min) / (tmp_max - tmp_min)
-            else:
-                raise Exception('[KF ERROR] No method selected!')
-            print('[KF INFO] --- done in %s seconds!' % (time.time() - start))
-            start = time.time()
-        # Save labels without any change
-        print('-'*80)
-        print('[KF INFO] - label ...')
-        for i in range(label_val.shape[0]):
-            label[i] = label_val[i]
-            if i > 0 and i % 1000 == 0:
-                print('[KF INFO] -- %5d rows are processed!' % i)
-    print('[KF INFO] %s is saved!' % new_val_filename)
-    print('')
+    ## 2. new val file
+    #with h5py.File(os.path.join(base_dir, new_val_filename), 'w') as f:
+    #    print('-'*80)
+    #    print('[KF INFO] Creating %s ...' % new_val_filename)
+    #    s1 = f.create_dataset('sen1', shape=s1_val.shape, dtype='float64')
+    #    s2 = f.create_dataset('sen2', shape=s2_val.shape, dtype='float64')
+    #    label = f.create_dataset('label', shape=label_val.shape, dtype='float64')
+    #    # s1
+    #    print('[KF INFO] - s1 ...')
+    #    for ch in [4,5,6,7]:
+    #        print('[KF INFO] -- channel %d' % ch)
+    #        tmp_data = s1_val[..., ch]
+    #        tmp_mean = stats['s1_%d' % ch]['mean']
+    #        tmp_std = stats['s1_%d' % ch]['std']
+    #        tmp_min = stats['s1_%d' % ch]['min']
+    #        tmp_max = stats['s1_%d' % ch]['max']
+    #        start = time.time()
+    #        if method == 'standardize':
+    #            print('[KF INFO] --- Start standardize ...')
+    #            s1[..., ch] = (tmp_data - tmp_mean) / tmp_std
+    #        elif method == 'max-min':
+    #            print('[KF INFO] --- Start Max-Min rescaling ...')
+    #            s1[..., ch] = (tmp_data - tmp_min) / (tmp_max - tmp_min)
+    #        else:
+    #            raise Exception('[KF ERROR] No method selected!')
+    #        print('[KF INFO] --- done in %s seconds!' % (time.time() - start))
+    #        start = time.time()
+    #    # s2
+    #    print('[KF INFO] - s2 ...')
+    #    for ch in range(10):
+    #        print('[KF INFO] -- channel %d' % ch)
+    #        tmp_data = s2_val[..., ch]
+    #        tmp_mean = stats['s2_%d' % ch]['mean']
+    #        tmp_std = stats['s2_%d' % ch]['std']
+    #        tmp_min = stats['s2_%d' % ch]['min']
+    #        tmp_max = stats['s2_%d' % ch]['max']
+    #        start = time.time()
+    #        if method == 'standardize':
+    #            print('[KF INFO] --- Start standardize ...')
+    #            s2[..., ch] = (tmp_data - tmp_mean) / tmp_std
+    #        elif method == 'max-min':
+    #            print('[KF INFO] --- Start Max-Min rescaling ...')
+    #            s2[..., ch] = (tmp_data - tmp_min) / (tmp_max - tmp_min)
+    #        else:
+    #            raise Exception('[KF ERROR] No method selected!')
+    #        print('[KF INFO] --- done in %s seconds!' % (time.time() - start))
+    #        start = time.time()
+    #    # Save labels without any change
+    #    print('-'*80)
+    #    print('[KF INFO] - label ...')
+    #    for i in range(label_val.shape[0]):
+    #        label[i] = label_val[i]
+    #        if i > 0 and i % 1000 == 0:
+    #            print('[KF INFO] -- %5d rows are processed!' % i)
+    #print('[KF INFO] %s is saved!' % new_val_filename)
+    #print('')
 
     # 3. new test file
     with h5py.File(os.path.join(base_dir, new_test_filename), 'w') as f:
@@ -554,16 +560,17 @@ def rescale(train_filename, val_filename, test_filename, stats_filename, method=
     print('')
 
     # 4. Plot histograms for new data with (factor * sigma)
-    plot_histograms(new_data_filename, new_val_filename, new_test_filename, option='%ssigma_%s' % (factor_str, name_suffix))
+    #plot_histograms(new_data_filename, new_val_filename, new_test_filename, option='%ssigma_%s' % (factor_str, name_suffix))
 
     # 5. Save statistics:
     save_statistics(new_data_filename, new_test_filename)
 
-#tmp_train = 'kf_data_shuffled_3sigma.h5'
-#tmp_val = 'kf_val_10k_3sigma.h5'
+tmp_train = 'kf_data_shuffled_3sigma.h5'
+tmp_val = 'kf_val_10k_3sigma.h5'
 #tmp_test = 'kf_test2A_3sigma.h5'
-#tmp_stats = 'statistics_kf_data_shuffled_3sigma+kf_test2A_3sigma.json'
-#rescale(tmp_train, tmp_val, tmp_test, tmp_stats, method='standardize')
+tmp_test = 'kf_test2B_3sigma.h5'
+tmp_stats = 'statistics_kf_data_shuffled_3sigma+kf_test2A_3sigma.json'
+rescale(tmp_train, tmp_val, tmp_test, tmp_stats, method='standardize')
 #rescale(tmp_train, tmp_val, tmp_test, tmp_stats, method='max-min')
 
 

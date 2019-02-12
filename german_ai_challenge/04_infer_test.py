@@ -103,9 +103,11 @@ round2_testA_filename = 'round2_test_a_20190121.h5'
 # Parameters
 train_mode = 'real'
 batch_size = 32
-data_channel = 's1_ch5678+s2'
-data_gen_mode = 'val_dataset_only'
-data_normalize = 'yes'
+#data_channel = 's1_ch5678+s2'
+data_channel = 's2'
+#data_gen_mode = 'val_dataset_only'
+data_gen_mode = 'kf_data_only'
+data_normalize = 'no'
 
 from kfdata.KFGermanData import GermanData
 # Parameter dictionary for initializing GermanData instance
@@ -116,7 +118,10 @@ param_dict['val_filename'] = val_filename
 param_dict['round1_testA_filename'] = round1_testA_filename
 param_dict['round1_testB_filename'] = round1_testB_filename
 param_dict['round2_testA_filename'] = round2_testA_filename
-#param_dict['round2_testB_filename'] = round2_testB_filename
+
+kf_test2B_filename = 'kf_test2B_3sigma_standardized.h5'
+param_dict['kf_test2B_filename'] = kf_test2B_filename
+
 param_dict['train_mode'] = train_mode
 param_dict['batch_size'] = batch_size
 param_dict['data_channel'] = data_channel
@@ -129,12 +134,13 @@ german_data = GermanData(param_dict)
 from tensorflow.keras.models import load_model
 
 #print_title("Predicting with round 1 test data")
-print("Predicting with round 2 test A data")
+#print("Predicting with round 2 test A data")
+print("Predicting with round 2 test B data")
 
 #test_data = german_data.getTest1AData()
 #test_data = german_data.getTest1BData()
-test_data = german_data.getTest2AData()
-#test_data = german_data.getTest2BData()
+#test_data = german_data.getTest2AData()
+test_data = german_data.getTest2BData()
 
 #===============================================================================
 # Load Model and Predict
@@ -153,7 +159,8 @@ print("[KF INFO] Prediction shape:", final_res.shape)
 
 # Save prediction to CSV
 
-csv_name = 'prediction-test2A-' + result_sub_dir + '.csv'
+#csv_name = 'prediction-test2A-' + result_sub_dir + '.csv'
+csv_name = 'prediction-test2B-' + result_sub_dir + '.csv'
 pred_dir = 'predictions'
 
 np.savetxt(os.path.join(pred_dir, csv_name), final_res, fmt='%d', delimiter=',')
